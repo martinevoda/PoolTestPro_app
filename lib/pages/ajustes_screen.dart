@@ -228,6 +228,28 @@ class _AjustesScreenState extends State<AjustesScreen> {
             },
           ),
           const Divider(),
+          ListTile(
+            title: Text(localizations.unitSystem),
+            trailing: DropdownButton<String>(
+              value: settingsController.unidadSistema,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  settingsController.updateUnidadSistema(newValue);
+                }
+              },
+              items: [
+                DropdownMenuItem(
+                  value: 'imperial',
+                  child: Text(localizations.imperialLabel),
+                ),
+                DropdownMenuItem(
+                  value: 'metrico',
+                  child: Text(localizations.metricLabel),
+                ),
+              ],
+            ),
+          ),
+          const Divider(),
           SwitchListTile(
             title: Text(localizations.darkMode),
             value: settingsController.themeMode == ThemeMode.dark,
@@ -254,7 +276,48 @@ class _AjustesScreenState extends State<AjustesScreen> {
           ListTile(
             title: Text(localizations.resetAll),
             trailing: const Icon(Icons.delete_forever),
-            onTap: () => settingsController.resetAllData(context),
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (_) =>
+                    AlertDialog(
+                      title: Text(localizations.confirmResetTitle),
+                      content: Text(localizations.confirmResetContent),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(localizations.cancel),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(localizations.confirm),
+                        ),
+                      ],
+                    ),
+              );
+
+              if (confirm == true) {
+                final prefs = await SharedPreferences.getInstance();
+                // Borrar registros anteriores
+                await prefs.remove('test_completo');
+                await prefs.remove('test_individual');
+
+                // Borrar registros de gráficos
+                await prefs.remove('test_registros');
+
+                // Borrar historial de mantenimiento
+                await prefs.remove('limpieza_filtro');
+                await prefs.remove('limpieza_celda');
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(localizations.borradoExitoso),
+                    ),
+                  );
+                }
+              }
+            },
           ),
           ListTile(
             title: Text(localizations.resetGraphs),
@@ -286,3 +349,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
     );
   }
 }
+
+
+
+

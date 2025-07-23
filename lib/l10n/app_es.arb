@@ -37,40 +37,8 @@
   "fecha": "Fecha",
   "valorIdeal": "✅ Valor ideal: {min} – {max}",
   "noDataToPlot": "No hay datos para graficar.",
-  "alcalinidad": "Alcalinidad",
-  "cya": "CYA",
-  "dureza": "Dureza",
-  "salinidad": "Salinidad",
-  "cloroLibreTitulo": "🧪 Cloro libre: {ppm} ppm\n🔹 Valor ideal: 3.0 – 5.0 ppm",
-  "cloroLibreBajo": "⚠️ Bajo. Aumentar producción del generador Jandy TruClear en +10 %.",
-  "cloroLibreAgregar": "🧴 Agregar {gal} galones de Champion Pool Shock – Liquid Chlorinator.",
-  "cloroLibreTip": "💡 Tip: Ajustar con las flechas del generador; +10 % suele equilibrar.",
-  "cloroLibreAlto": "⚠️ Alto. Reducir generador –10 % y esperar.\n💡 Tip: Revisá si supera las 8 h.",
-  "cloroCombinadoTitulo": "🧪 Cloro combinado: {ppm} ppm\n🔹 Valor ideal: 0.0 – 0.2 ppm",
-  "cloroCombinadoAlto": "⚠️ Alto. Posible presencia de cloraminas.\n💥 Realizar supercloración.",
-  "cloroCombinadoAgregar": "🧴 Agregar {gal} galones de Champion Pool Shock – Liquid Chlorinator.",
-  "cloroCombinadoTip": "💡 Tip: Revisá también el ciclo y estado del filtro.",
-  "phTitulo": "🧪 pH: {value}\n🔹 Valor ideal: 7.4 – 7.6",
-  "phAlto": "⚠️ Alto. Agregar {ml} mL de Klean Strip Muriatic Acid.",
-  "phBajo": "⚠️ Bajo. Agregar {lb} lb de In The Swim pH Increaser.",
-  "alcalinidadTitulo": "🧪 Alcalinidad total: {ppm} ppm\n🔹 Valor ideal: 80 – 120 ppm",
-  "alcalinidadBaja": "⚠️ Baja. Agregar {lb} lb de In The Swim Alkalinity Increaser.",
-  "alcalinidadAlta": "⚠️ Alta. Agregar aprox. {ml} mL de ácido muriático.\n💡 Tip: Bajá también el pH.",
-  "cyaTitulo": "🧪 CYA (ácido cianúrico): {ppm} ppm\n🔹 Valor ideal: 30 – 50 ppm (hasta 70 para salinas)",
-  "cyaBajo": "⚠️ Bajo. Agregar {lb} lb de Pool Mate Stabilizer.",
-  "cyaAlto": "⚠️ Alto. Diluir parcialmente con agua fresca.",
-  "durezaTitulo": "🧪 Dureza cálcica: {ppm} ppm\n🔹 Valor ideal: 200 – 400 ppm",
-  "durezaBaja": "⚠️ Baja. Agregar {lb} lb de In The Swim Calcium Hardness Increaser.",
-  "durezaAlta": "⚠️ Alta. Considerar diluir o mantener pH bajo.",
-  "salinidadTitulo": "🧪 Salinidad: {ppm} ppm\n🔹 Valor ideal: 3000 – 3500 ppm",
-  "salinidadBaja": "⚠️ Baja. Agregar {lb} lb de Morton Pool Salt.",
-  "salinidadAlta": "⚠️ Alta. Diluir con agua fresca.",
-  "estaEnRango": "✅ Está en el rango ideal. No se requiere ajuste.",
-  "ph": "pH",
   "calcular": "Calcular",
   "calcularTooltip": "Presiona para calcular ajustes",
-  "cloroLibreLabel": "Cloro libre",
-  "cloroCombinadoLabel": "Cloro combinado",
   "registerFilterCleaning": "Registrar limpieza del filtro",
   "filterCleaningSaved": "✅ Limpieza del filtro registrada",
   "registerCellCleaning": "Registrar limpieza de la celda del generador",
@@ -122,11 +90,34 @@
   "monthlyReminderActivated": "🔔 Recordatorio mensual activado.",
   "reminderDeactivated": "🔕 Recordatorio semanal desactivado.",
   "reminderActivated": "🔔 Recordatorio semanal activado.",
-  "day": "día"
+  "day": "día",
+  "unitSystem": "Sistema de unidades",
+  "imperialLabel": "Imperial (gal, lb)",
+  "metricLabel": "Métrico (L, kg)",
+  "appTitle": "Piscina",
+  "unidadLb": "lb",
+  "unidadKg": "kg",
+  "unidadGalon": "gal",
+  "unidadLitro": "L",
+  "unidadMililitro": "mL",
+  "estaEnRango": "✅ Está dentro del rango ideal.",
 
+  "alcalinidadAlta": "⚠️ Alta. Agrega {vol} de Ácido Muriático.\n💡 Consejo: También baja el pH para ayudar.",
+  "@alcalinidadAlta": {
+    "description": "Mensaje cuando la alcalinidad está alta. Incluye sugerencia de ácido y bajar pH.",
+    "placeholders": {
+      "vol": {}
+    }
+  },
+  "estaEnRange": "✅ En rango normal.",
 
+  "borrarTodoTitulo": "¿Resetear todos los datos?",
+  "borrarTodoDescripcion": "Esta acción borrará todos los registros, gráficos y el historial de mantenimiento.",
+  "borradoExitoso": "✅ Todos los datos fueron eliminados correctamente.",
+  "resetearTodoLabel": "Resetear todos los datos",
+
+  "confirmResetTitle": "Confirmar Reinicio",
+  "confirmResetContent": "¿Estás seguro de que deseas borrar todos los registros y el historial de mantenimiento?",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar"
 }
-
-
-
-

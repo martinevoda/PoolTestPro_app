@@ -4,9 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsController extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.light;
   String _idioma = 'es'; // Español por defecto
+  String _unidadSistema = 'imperial'; // 'imperial' o 'metrico'
 
   ThemeMode get themeMode => _themeMode;
   String get idioma => _idioma;
+  String get unidadSistema => _unidadSistema;
   Locale get locale => Locale(_idioma);
 
   /// ✅ Carga las preferencias guardadas al iniciar la app
@@ -15,6 +17,7 @@ class SettingsController extends ChangeNotifier {
 
     final savedTheme = prefs.getString('themeMode');
     final savedIdioma = prefs.getString('idioma');
+    final savedUnidad = prefs.getString('unidad_sistema');
 
     if (savedTheme == 'dark') {
       _themeMode = ThemeMode.dark;
@@ -24,6 +27,10 @@ class SettingsController extends ChangeNotifier {
 
     if (savedIdioma != null && (savedIdioma == 'es' || savedIdioma == 'en')) {
       _idioma = savedIdioma;
+    }
+
+    if (savedUnidad != null && (savedUnidad == 'imperial' || savedUnidad == 'metrico')) {
+      _unidadSistema = savedUnidad;
     }
 
     notifyListeners();
@@ -45,6 +52,14 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Cambia el sistema de unidades (imperial o métrico)
+  void updateUnidadSistema(String nuevaUnidad) async {
+    _unidadSistema = nuevaUnidad;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('unidad_sistema', nuevaUnidad);
+    notifyListeners();
+  }
+
   /// Versión anterior de modo oscuro (opcional)
   void toggleModoOscuro(bool isDark) {
     _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
@@ -57,23 +72,25 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Borrar todos los datos
+  /// ✅ Borra todos los registros guardados
   Future<void> resetAllData(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
+    await prefs.remove('registros');
+    await prefs.remove('test_individual');
+    await prefs.remove('test_registros');
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ Todos los datos han sido borrados.')),
+      SnackBar(content: Text('✅ Datos reiniciados correctamente.')),
     );
+    notifyListeners();
   }
 
-  /// Borrar solo los registros de los gráficos
+  /// ✅ Borra solo los registros de gráficos
   Future<void> resetCharts(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('test_registros');
-
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('📊 Gráficos reiniciados.')),
+      SnackBar(content: Text('📊 Gráficos reiniciados correctamente.')),
     );
+    notifyListeners();
   }
 }

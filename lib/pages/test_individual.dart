@@ -4,6 +4,8 @@ import 'dart:convert';
 import '../utils/pool_calculator.dart';
 import '../models/test_registro.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../controllers/settings_controller.dart';
 
 class TestIndividualScreen extends StatefulWidget {
   const TestIndividualScreen({super.key});
@@ -84,8 +86,10 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     _saveComoTestRegistro(_parametroSeleccionado, valorFinal);
 
     final local = AppLocalizations.of(context)!;
+    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
+
     setState(() {
-      _recomendaciones = calcularAjustes(registro, local);
+      _recomendaciones = calcularAjustes(registro, local, unidadSistema);
     });
   }
 

@@ -5,6 +5,8 @@ import '../utils/pool_calculator.dart';
 import '../models/test_registro.dart';
 import 'dart:convert';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../controllers/settings_controller.dart';
 
 class TestCompletoPage extends StatefulWidget {
   const TestCompletoPage({super.key});
@@ -67,8 +69,10 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     _saveRegistrosComoTestRegistro(registro);
 
     final local = AppLocalizations.of(context)!;
+    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
+
     setState(() {
-      _recomendaciones = calcularAjustes(registro, local);
+      _recomendaciones = calcularAjustes(registro, local, unidadSistema);
     });
   }
 
@@ -97,13 +101,16 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final now = DateTime.now();
     for (var entry in registro.entries) {
       if (entry.key != 'fecha' && entry.key != 'tipo') {
-        final test = TestRegistro(
-          tipo: registro['tipo'] ?? 'completo',
-          parametro: entry.key,
-          valor: double.tryParse(entry.value) ?? 0,
-          fecha: now,
-        );
-        lista.add(test.toJson());
+        final valor = double.tryParse(entry.value);
+        if (valor != null) {
+          final test = TestRegistro(
+            tipo: registro['tipo'] ?? 'completo',
+            parametro: entry.key,
+            valor: valor,
+            fecha: now,
+          );
+          lista.add(test.toJson());
+        }
       }
     }
 
