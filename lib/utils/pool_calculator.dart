@@ -1,20 +1,26 @@
+import 'package:flutter/material.dart';
+import 'package:piscina_app/utils/stock_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-Map<String, String> calcularAjustes(
+Future<Map<String, String>> calcularAjustes(
     Map<String, String> parametros,
-    AppLocalizations local,
+    BuildContext context,
     String unidadSistema,
-    ) {
+    ) async {
   final recomendaciones = <String, String>{};
-  double? toDouble(String? valor) => double.tryParse(valor ?? '');
-  double volumenLitros = 49210; // 13,000 galones
 
+  await StockService.getAllStock();
+
+  double? toDouble(String? valor) => double.tryParse(valor ?? '');
+  double volumenLitros = 49210;
+
+  final localizations = AppLocalizations.of(context)!;
   bool esMetrico = unidadSistema == 'metrico';
   double factorPeso = 0.4536;
   double factorVolumen = 3.785;
 
-  final unidadPeso = esMetrico ? local.unidadKg : local.unidadLb;
-  final unidadVol = esMetrico ? local.unidadLitro : local.unidadGalon;
+  final unidadPeso = esMetrico ? localizations.unidadKg : localizations.unidadLb;
+  final unidadVol = esMetrico ? localizations.unidadLitro : localizations.unidadGalon;
 
   double? cloroLibre = toDouble(parametros['Cloro libre']);
   double? cloroCombinado = toDouble(parametros['Cloro combinado']);
@@ -24,145 +30,244 @@ Map<String, String> calcularAjustes(
   double? dureza = toDouble(parametros['Dureza']);
   double? salinidad = toDouble(parametros['Salinidad']);
 
-  // Cloro libre
-  if (cloroLibre != null) {
-    String mensaje = local.cloroLibreTitulo(cloroLibre.toStringAsFixed(1)) + '\n';
-
-    if (cloroLibre < 3.0) {
-      mensaje += local.cloroLibreBajo;
-      if (cloroLibre < 1.5) {
-        double galones = (((3 - cloroLibre) * volumenLitros * 0.00013).clamp(0.5, 2.5));
-        double cantidad = esMetrico ? galones * factorVolumen : galones;
-        mensaje += '\n' +
-            local.cloroLibreAgregar(
-                '${cantidad.toStringAsFixed(1)} $unidadVol');
-      }
-      mensaje += '\n' + local.cloroLibreTip;
-    } else if (cloroLibre > 6.0) {
-      mensaje += local.cloroLibreAlto;
-    } else {
-      mensaje += local.estaEnRango;
+  Future<void> procesarUso({
+    required String key,
+    required double cantidad,
+    required String nombreProducto,
+    required String nombreComercial,
+    required String mensajeBase,
+    required String valorNormal,
+    required String valorActualFormateado,
+  }) async {
+    String tituloTraducido = '';
+    switch (key) {
+      case 'cloro_liquido':
+        tituloTraducido = localizations.cloroLibreLabel;
+        break;
+      case 'ph_increaser':
+      case 'acido_muriatico':
+        tituloTraducido = localizations.phLabel;
+        break;
+      case 'alcalinidad':
+        tituloTraducido = localizations.alcalinidadLabel;
+        break;
+      case 'estabilizador':
+        tituloTraducido = localizations.cyaLabel;
+        break;
+      case 'dureza':
+        tituloTraducido = localizations.durezaLabel;
+        break;
+      case 'sal':
+        tituloTraducido = localizations.salinidadLabel;
+        break;
+      default:
+        tituloTraducido = key;
     }
 
-    recomendaciones['Cloro libre'] = mensaje;
+    final esLiquido = (key == 'cloro_liquido' || key == 'acido_muriatico');
+    final unidadVisual = esLiquido ? unidadVol : unidadPeso;
+
+    final stockActual = StockService.obtenerStockSeguro(key);
+    final necesitaReabastecer = await StockService.necesitaReabastecer(key, cantidad);
+
+    final mensajeBaseFinal = mensajeBase
+        .replaceAll('\$unidadVol', unidadVisual)
+        .replaceAll('\$unidadPeso', unidadVisual);
+
+    String texto = '**$tituloTraducido**\n📏 $valorNormal\n$valorActualFormateado\n$mensajeBaseFinal';
+
+    if (necesitaReabastecer) {
+      texto +=
+      '\n⚠️ Stock insuficiente de $nombreProducto ($nombreComercial).\n'
+          'Se necesita: ${cantidad.toStringAsFixed(1)} $unidadVisual\n'
+          'Stock actual: ${stockActual.toStringAsFixed(1)} $unidadVisual';
+    } else {
+      texto +=
+      '\n✅ Stock disponible: suficiente. ${stockActual.toStringAsFixed(1)} $unidadVisual';
+    }
+
+    recomendaciones[key] = texto;
+  }
+
+
+
+  // Cloro libre
+  if (cloroLibre != null) {
+    String valor = '${localizations.cloroLibreLabel}: ${cloroLibre.toStringAsFixed(1)}';
+    if (cloroLibre < 3.0) {
+      double incremento = 3.0 - cloroLibre;
+      double galones = (incremento * volumenLitros * 0.0002).clamp(0.5, 2.5);
+      double cantidad = esMetrico ? galones * factorVolumen : galones;
+      await procesarUso(
+        key: 'cloro_liquido',
+        cantidad: cantidad,
+        nombreProducto: 'cloro líquido',
+        nombreComercial: 'HTH Pool Care Liquid Chlorine',
+        mensajeBase: '⚠️ ${localizations.cloroLibreBajo}\n${localizations.agregar} ${cantidad.toStringAsFixed(1)} $unidadVol de cloro líquido (HTH Pool Care Liquid Chlorine).',
+        valorNormal: 'Valor normal: 3.0–6.0 ppm',
+        valorActualFormateado: valor,
+      );
+    } else if (cloroLibre > 6.0) {
+      recomendaciones['Cloro libre'] = '**${localizations.cloroLibreLabel}**\n📏 Valor normal: 3.0–6.0 ppm\n$valor\n⚠️ ${localizations.cloroLibreAlto}';
+    } else {
+      recomendaciones['Cloro libre'] = '**${localizations.cloroLibreLabel}**\n📏 Valor normal: 3.0–6.0 ppm\n$valor\n✅ ${localizations.valorNormal} (3.0–6.0 ppm)';
+    }
   }
 
   // Cloro combinado
   if (cloroCombinado != null) {
-    String mensaje =
-        local.cloroCombinadoTitulo(cloroCombinado.toStringAsFixed(1)) + '\n';
-
+    String valor = '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}';
     if (cloroCombinado > 0.5) {
       double diferencia = cloroCombinado - 0.2;
       double galones = (diferencia * volumenLitros * 0.00013).clamp(0.5, 2.5);
       double cantidad = esMetrico ? galones * factorVolumen : galones;
-      mensaje += local.cloroCombinadoAlto +
-          '\n' +
-          local.cloroCombinadoAgregar(
-              '${cantidad.toStringAsFixed(1)} $unidadVol') +
-          '\n' +
-          local.cloroCombinadoTip;
+      await procesarUso(
+        key: 'cloro_liquido',
+        cantidad: cantidad,
+        nombreProducto: 'cloro líquido',
+        nombreComercial: 'HTH Pool Care Liquid Chlorine',
+        mensajeBase: '⚠️ ${localizations.cloroCombinadoAlto}\n${localizations.requiereTratamientoChoque}\n${localizations.agregar} ${cantidad.toStringAsFixed(1)} $unidadVol de cloro líquido (HTH Pool Care Liquid Chlorine).\n${localizations.cloroCombinadoTip}',
+        valorNormal: 'Valor normal: 0–0.5 ppm',
+        valorActualFormateado: valor,
+      );
+    } else if (cloroCombinado < 0.1) {
+      recomendaciones['Cloro combinado'] = '**${localizations.cloroCombinadoLabel}**\n📏 Valor normal: 0–0.5 ppm\n$valor\n⚠️ ${localizations.cloroCombinadoBajo}';
     } else {
-      mensaje += local.estaEnRango;
+      recomendaciones['Cloro combinado'] = '**${localizations.cloroCombinadoLabel}**\n📏 Valor normal: 0–0.5 ppm\n$valor\n✅ ${localizations.valorNormal} (0–0.5 ppm)';
     }
-
-    recomendaciones['Cloro combinado'] = mensaje;
   }
 
   // pH
   if (ph != null) {
-    String mensaje = local.phTitulo(ph.toStringAsFixed(2)) + '\n';
-
+    String valor = '${localizations.phLabel}: ${ph.toStringAsFixed(2)}';
     if (ph > 7.8) {
       double ml = (ph >= 8.0) ? 500 : 300;
-      mensaje += local.phAlto('${ml.toStringAsFixed(0)} mL');
+      double volumen = esMetrico ? ml : (ml / 29.5735);
+      String unidad = esMetrico ? 'mL' : 'fl oz';
+      await procesarUso(
+        key: 'acido_muriatico',
+        cantidad: volumen,
+        nombreProducto: 'ácido muriático',
+        nombreComercial: 'Klean Strip Green Muriatic Acid',
+        mensajeBase: '⚠️ ${localizations.phAlto}\n${localizations.agregar} ${volumen.toStringAsFixed(1)} $unidadVol de ácido muriático (Klean Strip Green Muriatic Acid).',
+        valorNormal: 'Valor normal: 7.2–7.8',
+        valorActualFormateado: valor,
+      );
     } else if (ph < 7.2) {
-      double libras = 1.0 + ((7.2 - ph) * 3.5);
+      double libras = ((7.2 - ph) * 0.16 * (volumenLitros / 1000));
       double cantidad = esMetrico ? libras * factorPeso : libras;
-      mensaje += local.phBajo('${cantidad.toStringAsFixed(1)} $unidadPeso');
+      await procesarUso(
+        key: 'ph_increaser',
+        cantidad: cantidad,
+        nombreProducto: 'incrementador de pH',
+        nombreComercial: 'In The Swim pH Increaser',
+        mensajeBase: '⚠️ ${localizations.phBajo}\n${localizations.agregar} ${cantidad.toStringAsFixed(1)} $unidadPeso de incrementador de pH (In The Swim pH Increaser).',
+        valorNormal: 'Valor normal: 7.2–7.8',
+        valorActualFormateado: valor,
+      );
     } else {
-      mensaje += local.estaEnRango;
+      recomendaciones['pH'] = '**${localizations.phLabel}**\n📏 Valor normal: 7.2–7.8\n$valor\n✅ ${localizations.valorNormal} (7.2–7.8)';
     }
-
-    recomendaciones['pH'] = mensaje;
   }
 
   // Alcalinidad
   if (alcalinidad != null) {
-    String mensaje = local.alcalinidadTitulo(alcalinidad.toStringAsFixed(0)) + '\n';
-
-    double? cantidad;
-
+    String valor = '${localizations.alcalinidadLabel}: ${alcalinidad.toStringAsFixed(0)}';
     if (alcalinidad < 80) {
       double incremento = 80 - alcalinidad;
       double libras = incremento / 10;
-      cantidad = esMetrico ? libras * factorPeso : libras;
-      mensaje += local.alcalinidadBaja('${cantidad.toStringAsFixed(1)} $unidadPeso');
-    } else if (alcalinidad > 120) {
-      double decremento = alcalinidad - 120;
-      double libras = decremento / 10;
-      cantidad = esMetrico ? libras * factorPeso : libras;
-      mensaje += local.alcalinidadAlta('${cantidad.toStringAsFixed(1)} $unidadPeso');
+      double cantidad = esMetrico ? libras * factorPeso : libras;
+      await procesarUso(
+        key: 'alcalinidad',
+        cantidad: cantidad,
+        nombreProducto: 'incrementador de alcalinidad',
+        nombreComercial: 'In The Swim Alkalinity Increaser',
+        mensajeBase: localizations.alcalinidadBaja('${cantidad.toStringAsFixed(1)} $unidadPeso'),
+        valorNormal: 'Valor normal: 80–120 ppm',
+        valorActualFormateado: valor,
+      );
+  } else if (alcalinidad > 120) {
+      await procesarUso(
+        key: 'acido_muriatico',
+        cantidad: 300,
+        nombreProducto: 'ácido muriático',
+        nombreComercial: 'Klean Strip Green Muriatic Acid',
+        mensajeBase: '⚠️ ${localizations.alcalinidadAlta}\n${localizations.agregar} 300 mL de ácido muriático (Klean Strip Green Muriatic Acid).\n💡 ${localizations.alcalinidadAltaConsejo}',
+        valorNormal: 'Valor normal: 80–120 ppm',
+        valorActualFormateado: valor,
+      );
     } else {
-      mensaje += local.estaEnRange;
+      recomendaciones['Alcalinidad'] = '**${localizations.alcalinidadLabel}**\n📏 Valor normal: 80–120 ppm\n$valor\n✅ ${localizations.valorNormal} (80–120 ppm)';
     }
-
-    recomendaciones['Alcalinidad'] = mensaje;
   }
-
 
   // CYA
   if (cya != null) {
-    String mensaje = local.cyaTitulo(cya.toStringAsFixed(0)) + '\n';
-
+    String valor = '${localizations.cyaLabel}: ${cya.toStringAsFixed(0)}';
     if (cya < 30) {
       double incremento = 30 - cya;
       double libras = incremento / 10;
       double cantidad = esMetrico ? libras * factorPeso : libras;
-      mensaje += local.cyaBajo('${cantidad.toStringAsFixed(1)} $unidadPeso');
+      await procesarUso(
+        key: 'estabilizador',
+        cantidad: cantidad,
+        nombreProducto: 'estabilizador',
+        nombreComercial: 'Pool Mate Stabilizer',
+        mensajeBase: '⚠️ ${localizations.cyaBajo}\n${localizations.agregar} ${cantidad.toStringAsFixed(1)} $unidadPeso de estabilizador (Pool Mate Stabilizer).',
+        valorNormal: 'Valor normal: 30–70 ppm',
+        valorActualFormateado: valor,
+      );
     } else if (cya > 70) {
-      mensaje += local.cyaAlto;
+      recomendaciones['CYA'] = '**${localizations.cyaLabel}**\n📏 Valor normal: 30–70 ppm\n$valor\n⚠️ ${localizations.cyaAlto}\n💡 ${localizations.cyaAltoConsejo}';
     } else {
-      mensaje += local.estaEnRango;
+      recomendaciones['CYA'] = '**${localizations.cyaLabel}**\n📏 Valor normal: 30–70 ppm\n$valor\n✅ ${localizations.valorNormal} (30–70 ppm)';
     }
-
-    recomendaciones['CYA'] = mensaje;
   }
 
   // Dureza
   if (dureza != null) {
-    String mensaje = local.durezaTitulo(dureza.toStringAsFixed(0)) + '\n';
-
+    String valor = '${localizations.durezaLabel}: ${dureza.toStringAsFixed(0)}';
     if (dureza < 200) {
       double incremento = 200 - dureza;
       double libras = incremento / 20;
       double cantidad = esMetrico ? libras * factorPeso : libras;
-      mensaje += local.durezaBaja('${cantidad.toStringAsFixed(1)} $unidadPeso');
+      await procesarUso(
+        key: 'dureza',
+        cantidad: cantidad,
+        nombreProducto: 'incrementador de dureza',
+        nombreComercial: 'In The Swim Calcium Hardness Increaser',
+        mensajeBase: '⚠️ ${localizations.durezaBaja}\n${localizations.agregar} ${cantidad.toStringAsFixed(1)} $unidadPeso de incrementador de dureza (In The Swim Calcium Hardness Increaser).',
+        valorNormal: 'Valor normal: 200–400 ppm',
+        valorActualFormateado: valor,
+      );
     } else if (dureza > 400) {
-      mensaje += local.durezaAlto;
+      recomendaciones['Dureza'] = '**${localizations.durezaLabel}**\n📏 Valor normal: 200–400 ppm\n$valor\n⚠️ ${localizations.durezaAlta}\n💡 ${localizations.durezaAltaConsejo}';
     } else {
-      mensaje += local.estaEnRango;
+      recomendaciones['Dureza'] = '**${localizations.durezaLabel}**\n📏 Valor normal: 200–400 ppm\n$valor\n✅ ${localizations.valorNormal} (200–400 ppm)';
     }
-
-    recomendaciones['Dureza'] = mensaje;
   }
 
   // Salinidad
   if (salinidad != null) {
-    String mensaje = local.salinidadTitulo(salinidad.toStringAsFixed(0)) + '\n';
-
+    String valor = '${localizations.salinidadLabel}: ${salinidad.toStringAsFixed(0)}';
     if (salinidad < 3000) {
       double incremento = 3000 - salinidad;
       double libras = incremento * 10.8 / 100;
       double cantidad = esMetrico ? libras * factorPeso : libras;
-      mensaje += local.salinidadBaja('${cantidad.toStringAsFixed(1)} $unidadPeso');
-    } else if (salinidad > 3700) {
-      mensaje += local.salinidadAlta;
+      await procesarUso(
+        key: 'sal',
+        cantidad: cantidad,
+        nombreProducto: 'sal',
+        nombreComercial: 'Morton Professional’s Choice Pool Salt',
+        mensajeBase: '⚠️ ${localizations.salinidadBaja}\n${localizations.agregar} ${cantidad.toStringAsFixed(1)} $unidadPeso de sal (Morton Professional’s Choice Pool Salt).',
+        valorNormal: 'Valor normal: 3000–3500 ppm',
+        valorActualFormateado: valor,
+      );
+    } else if (salinidad > 3500) {
+      recomendaciones['Salinidad'] = '**${localizations.salinidadLabel}**\n📏 Valor normal: 3000–3500 ppm\n$valor\n⚠️ ${localizations.salinidadAlta}\n💡 ${localizations.salinidadAltaConsejo}';
     } else {
-      mensaje += local.estaEnRango;
+      recomendaciones['Salinidad'] = '**${localizations.salinidadLabel}**\n📏 Valor normal: 3000–3500 ppm\n$valor\n✅ ${localizations.valorNormal} (3000–3500 ppm)';
     }
-
-    recomendaciones['Salinidad'] = mensaje;
   }
 
   return recomendaciones;

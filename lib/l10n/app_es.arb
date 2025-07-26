@@ -20,7 +20,6 @@
   "cloroCombinado": "Cloro combinado",
   "gotas": "Gotas",
   "calcularAjustes": "Calcular ajustes",
-  "recomendacionesTitulo": "✅ Recomendaciones:",
   "usarGotasCheckbox": "Ingresar gotas y volumen",
   "cantidadGotas": "Cantidad de gotas",
   "valorEnPPM": "Valor en ppm",
@@ -30,7 +29,7 @@
   "sinRegistros": "No hay registros guardados.",
   "confirmarBorradoTitulo": "¿Borrar registro?",
   "confirmarBorradoMensaje": "¿Estás seguro de que querés eliminar este registro?",
-  "cancelar": "Cancelar",
+  "cancel": "Cancelar",
   "borrar": "Borrar",
   "graficoParametro": "📈 Gráfico de parámetro",
   "valor": "Valor",
@@ -44,7 +43,7 @@
   "registerCellCleaning": "Registrar limpieza de la celda del generador",
   "cellCleaningSaved": "✅ Limpieza de celda registrada",
   "activateWeeklyReminder": "Activar recordatorio semanal",
-  "reminderDescription": "",
+  "reminderDescription": "Recordatorio semanal para parámetros frecuentes.",
   "testReminderTitle": "Recordatorio de test",
   "testReminderBody": "Haz el test de cloro, pH y alcalinidad. (CYA y dureza solo mensual)",
   "legalInfoContent": "Esta aplicación no reemplaza pruebas profesionales de calidad del agua. Usar solo como apoyo doméstico. Los datos se almacenan localmente en tu dispositivo.",
@@ -66,7 +65,7 @@
   "monthlyReminderTitle": "Activar recordatorio mensual",
   "monthlyReminderSubtitle": "CYA y dureza cálcica",
   "activateMonthlyReminder": "Activar recordatorio mensual",
-  "monthlyReminderDescription": "",
+  "monthlyReminderDescription": "Recordatorio mensual para parámetros específicos.",
   "monthlyReminderBody": "¡Recordatorio mensual! No olvides revisar CYA y dureza cálcica.",
   "weekdayLabel": "{day, select, 1{Lunes} 2{Martes} 3{Miércoles} 4{Jueves} 5{Viernes} 6{Sábado} 7{Domingo} other{}}",
   "weekdayLabelHint": "Etiqueta de días de la semana (1 a 7)",
@@ -101,23 +100,267 @@
   "unidadLitro": "L",
   "unidadMililitro": "mL",
   "estaEnRango": "✅ Está dentro del rango ideal.",
-
-  "alcalinidadAlta": "⚠️ Alta. Agrega {vol} de Ácido Muriático.\n💡 Consejo: También baja el pH para ayudar.",
-  "@alcalinidadAlta": {
-    "description": "Mensaje cuando la alcalinidad está alta. Incluye sugerencia de ácido y bajar pH.",
+  "borradoExitoso": "✅ Todos los datos fueron eliminados correctamente.",
+  "resetearTodoLabel": "Resetear todos los datos",
+  "confirm": "Confirmar",
+  "stockTitle": "Control de stock",
+  "available": "Disponible",
+  "editQuantity": "Editar cantidad",
+  "enterNewQuantity": "Ingrese nueva cantidad",
+  "save": "Guardar",
+  "productLiquidChlorine": "Cloro líquido (desinfectante)",
+  "productMuriaticAcid": "Ácido muriático (baja pH y alcalinidad)",
+  "productStabilizer": "Estabilizador CYA (protege el cloro)",
+  "productAlkalinityIncreaser": "Incrementador de alcalinidad",
+  "productCalciumHardnessIncreaser": "Dureza cálcica (calcio)",
+  "productPoolSalt": "Sal para piscina",
+  "editStockTitle": "Editar stock",
+  "amountLabel": "Cantidad",
+  "stockControlTitle": "Control de stock",
+  "availableLabel": "Disponible",
+  "cloroLibreLabel": "Cloro libre",
+  "ph": "pH",
+  "alcalinidad": "Alcalinidad",
+  "cya": "Estabilizador (CYA)",
+  "dureza": "Dureza cálcica",
+  "salinidad": "Salinidad",
+  "suggestReplenish": "Sugerir reabastecer",
+  "stockActual": "Stock actual",
+  "stockBajo": "Bajo stock. Es probable que no alcance para el próximo testeo.",
+  "controlStock": "Control de Stock",
+  "sinDatosStock": "No hay datos de stock disponibles.",
+  "nombreProductoCloro": "Cloro líquido",
+  "nombreComercialCloro": "HTH Pool Care Liquid Chlorine",
+  "nombreProductoPH": "pH Increaser (Sodium Carbonate)",
+  "nombreProductoAlcalinidad": "Incrementador de alcalinidad",
+  "nombreComercialAlcalinidad": "In The Swim Alkalinity Increaser",
+  "nombreProductoCYA": "Estabilizador",
+  "nombreComercialCYA": "Pool Mate Stabilizer",
+  "nombreProductoDureza": "Incrementador de dureza cálcica",
+  "nombreComercialDureza": "In The Swim Calcium Hardness Increaser",
+  "nombreProductoSal": "Sal para piscinas",
+  "nombreComercialSal": "Morton Pool Salt",
+  "seNecesitan": "Se necesitan",
+  "de": "de",
+  "agregar": "Agregar",
+  "cloroLibreAlto": "El nivel de cloro libre está por encima del recomendado. Reduzca la producción del generador.",
+  "phBajo": "El pH está bajo",
+  "phAlto": "El pH está alto",
+  "cyaBajo": "El estabilizador (CYA) está bajo",
+  "cyaAlto": "El estabilizador (CYA) está por encima del nivel recomendado. Puede afectar la efectividad del cloro.",
+  "durezaBaja": "La dureza cálcica está baja",
+  "durezaAlta": "La dureza cálcica está alta. Podría generar incrustaciones. Considere un cambio parcial de agua.",
+  "salinidadBaja": "La salinidad está baja",
+  "salinidadAlta": "La salinidad está por encima del nivel recomendado. Puede dañar el sistema de cloración. Considere reemplazar parte del agua.",
+  "testGuardado": "Test guardado exitosamente",
+  "recomendaciones": "Recomendaciones",
+  "testCompletoLabel": "Test Completo",
+  "guardar": "Guardar",
+  "ingreseGotas": "Ingrese la cantidad de gotas",
+  "volumenMuestra": "Volumen de la muestra",
+  "calcularDesdeGotas": "Calcular desde gotas",
+  "valorPPM": "Valor en ppm",
+  "ingreseStock": "Ingrese el stock actual del producto",
+  "noData": "Sin datos",
+  "selectParameter": "Seleccionar parámetro",
+  "useDrops": "¿Usar gotas?",
+  "drops": "Gotas",
+  "enterValue": "Ingresar valor",
+  "calculate": "Calcular",
+  "valorInvalido": "Valor inválido. Ingrese un número.",
+  "localLabel": "{param}",
+  "testIndividualTitle": "Test Individual",
+  "seleccionarParametro": "Seleccionar parámetro para testear",
+  "ingresarValor": "Ingresar valor",
+  "ppm": "ppm",
+  "calcularRecomendaciones": "Calcular recomendaciones",
+  "ingreseValorValido": "Ingrese un valor válido",
+  "valorDirecto": "Valor directo",
+  "seleccioneParametro": "Seleccione un parámetro",
+  "ingreseValor": "Ingrese un valor",
+  "cloroCombinadoLabel": "Cloro combinado",
+  "normalRangeCloroLibre": "Valor normal: 3–6 ppm",
+  "normalRangeCloroCombinado": "Valor normal: 0–0.5 ppm",
+  "normalRangePH": "Valor normal: 7.2–7.8",
+  "normalRangeAlcalinidad": "Valor normal: 80–120 ppm",
+  "normalRangeCYA": "Valor normal: 30–70 ppm",
+  "normalRangeDureza": "Valor normal: 200–400 ppm",
+  "normalRangeSalinidad": "Valor normal: 3000–3500 ppm",
+  "cloroLibreTip": "Nivel óptimo: 2–4 ppm. Vital para desinfección.",
+  "phTitulo@args": ["valor"],
+  "stockBajoPara": "⚠️ Stock bajo para",
+  "reabastecerProducto": "⚠️ Stock insuficiente. Reabastezca el producto para aplicar esta recomendación.",
+  "recomendadoTener": "Se recomienda tener al menos",
+  "recomendacionesTitulo": "✅ Recomendaciones:",
+  "valorNormal": "Valor normal",
+  "cloroLibreBajo": "El cloro libre está bajo",
+  "subirGenerador": "Subir el generador Jandy TruClear",
+  "cancelar": "Cancelar",
+  "borrarTodoTitulo": "¿Resetear todos los datos?",
+  "borrarTodoDescripcion": "Esta acción borrará todos los registros, gráficos y el historial de mantenimiento.",
+  "confirmResetTitle": "Confirmar Reinicio",
+  "confirmResetContent": "¿Estás seguro de que deseas borrar todos los registros y el historial de mantenimiento?",
+  "cloroLibreTitulo": "Cloro libre: {valor}",
+  "@cloroLibreTitulo": {
     "placeholders": {
-      "vol": {}
+      "valor": {}
+    }
+  },
+
+  "cloroCombinadoTitulo": "Cloro combinado: {valor}",
+  "@cloroCombinadoTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "phTitulo": "pH: {valor}",
+  "@phTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "alcalinidadTitulo": "Alcalinidad: {valor}",
+  "@alcalinidadTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "cyaTitulo": "Ácido Cianúrico (CYA): {valor}",
+  "@cyaTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "durezaTitulo": "Dureza Cálcica: {valor}",
+  "@durezaTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "salinidadTitulo": "Salinidad: {valor}",
+  "@salinidadTitulo": {
+    "placeholders": {
+      "valor": {}
     }
   },
   "estaEnRange": "✅ En rango normal.",
 
-  "borrarTodoTitulo": "¿Resetear todos los datos?",
-  "borrarTodoDescripcion": "Esta acción borrará todos los registros, gráficos y el historial de mantenimiento.",
-  "borradoExitoso": "✅ Todos los datos fueron eliminados correctamente.",
-  "resetearTodoLabel": "Resetear todos los datos",
 
-  "confirmResetTitle": "Confirmar Reinicio",
-  "confirmResetContent": "¿Estás seguro de que deseas borrar todos los registros y el historial de mantenimiento?",
-  "cancel": "Cancelar",
-  "confirm": "Confirmar"
+
+  "reabastecerSugerido": "Es posible que debas reabastecer {nombre}",
+  "@reabastecerSugerido": {
+    "description": "Mensaje de advertencia si el stock actual es menor a la cantidad necesaria",
+    "placeholders": {
+      "nombre": {}
+    }
+  },
+
+  "productoRecomendado": "Producto recomendado: {nombreCom}",
+  "@productoRecomendado": {
+    "description": "Nombre comercial del producto recomendado",
+    "placeholders": {
+      "nombreCom": {}
+    }
+  },
+
+  "cantidadRecomendada": "Cantidad necesaria: {cantidad} lb",
+  "@cantidadRecomendada": {
+    "description": "Cantidad en libras sugerida para reabastecimiento",
+    "placeholders": {
+      "cantidad": {}
+    },
+
+    "confirmResetTitle": "¿Estás seguro?",
+    "@confirmResetTitle": {
+      "description": "Título del diálogo para confirmar reinicio de la app"
+    },
+
+    "confirmResetContent": "Esta acción eliminará todos los datos guardados. ¿Deseas continuar?",
+    "@confirmResetContent": {
+      "description": "Contenido del diálogo para confirmar reinicio de la app"
+    },
+
+    "noRecordsYet": "Aún no hay registros.",
+    "@noRecordsYet": {
+      "description": "Mensaje mostrado cuando no hay registros de mantenimiento."
+    },
+
+    "maintenanceHistory": "Historial de mantenimiento",
+    "@maintenanceHistory": {
+      "description": "Título de la pantalla que muestra el historial de limpieza del filtro o celda."
+    },
+
+    "filterCleaningSectionTitle": "Limpieza del filtro",
+    "@filterCleaningSectionTitle": {
+      "description": "Título de la sección para los registros de limpieza del filtro de cartucho."
+    },
+
+    "cellCleaningSectionTitle": "Limpieza de la celda",
+    "@cellCleaningSectionTitle": {
+      "description": "Título de la sección para los registros de limpieza de la celda de cloración salina."
+    }
+
+
+  },
+
+  "noStockData": "Aún no hay datos de stock.",
+  "@noStockData": {
+    "description": "Mensaje mostrado cuando no hay datos de stock guardados."
+  },
+
+  "nombreProductoPHAlto": "Reductor de pH",
+  "nombreComercialPHAlto": "Ácido Muriático Klean Strip Verde",
+  "nombreProductoPHBajo": "Incrementador de pH (Carbonato de sodio)",
+  "nombreComercialPHBajo": "In The Swim pH Increaser",
+  "requiereTratamientoChoque": "Se recomienda un tratamiento de choque con cloro libre para eliminar cloraminas.",
+  "alertaStockInsuficiente": "Stock insuficiente para aplicar el ajuste recomendado",
+  "stockDisponibleSuficiente": "✅ Stock disponible: suficiente.",
+  "stockBajoPosibleReabastecer": "⚠️ El stock es bajo. Considerá reabastecer pronto.",
+  "phLabel": "pH",
+  "alcalinidadLabel": "Alcalinidad",
+  "cyaLabel": "CYA",
+  "durezaLabel": "Dureza cálcica",
+  "salinidadLabel": "Salinidad",
+
+  "cloroCombinadoTip": "Luego, revisar el generador y retestar en 24h.",
+
+
+
+  "cloroCombinadoAlto": "⚠️ Alto. Puede indicar presencia de cloraminas. Se recomienda un tratamiento de choque.",
+  "cloroCombinadoBajo": "⚠️ Bajo. Puede no estar desinfectando adecuadamente. Verificar generador o retestar.",
+  "cloroCombinadoNormal": "✅ Dentro del rango ideal. Sin acción necesaria.",
+  "alcalinidadNormal": "✅ Dentro del rango ideal.",
+  "stockInsuficiente": "❌ Stock insuficiente: solo {stock} disponibles.",
+  "stockSuficiente": "✅ Stock disponible: suficiente. {stock} disponibles.",
+  "alcalinidadAltaConsejo": "💡 Consejo: También baja el pH para ayudar.",
+  "cyaAltoConsejo": "💡 Consejo: Considera drenar parcialmente y rellenar con agua nueva.",
+  "durezaAltaConsejo": "💡 Consejo: Si la dureza es muy alta, considera vaciar parcialmente la piscina.",
+  "salinidadAltaConsejo": "💡 Consejo: Puedes diluir con agua fresca si es necesario.",
+
+
+  "alcalinidadBaja": "⚠️ Baja. Agrega {vol} de incrementador de alcalinidad (In The Swim Alkalinity Increaser).",
+  "@alcalinidadBaja": {
+    "placeholders": {
+      "vol": {}
+    }
+  },
+  "alcalinidadAlta": "⚠️ Alta. Agrega {vol} de ácido muriático (Klean Strip Green Muriatic Acid).\n💡 Consejo: También baja el pH para ayudar.",
+  "@alcalinidadAlta": {
+    "placeholders": {
+      "vol": {}
+    }
+  },
+
+
+
+  "testGuardadoExito": "Test guardado con éxito",
+  "guardarTesteo": "Guardar testeo",
+
+  "opcional": "opcional"
 }
+

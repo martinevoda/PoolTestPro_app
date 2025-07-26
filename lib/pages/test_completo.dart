@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
+import '../utils/stock_service.dart';
 
 class TestCompletoPage extends StatefulWidget {
   const TestCompletoPage({super.key});
@@ -31,6 +32,43 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
   String _volumenCloroCombinado = '10';
 
   Map<String, String> _recomendaciones = {};
+  Map<String, String> _registroActual = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTempRegistro();
+  }
+
+  Future<void> _loadTempRegistro() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString('temp_test_completo');
+    if (data != null) {
+      final registro = Map<String, dynamic>.from(json.decode(data));
+      setState(() {
+        _cloroLibreGotas.text =
+            _calcularGotas(registro['Cloro libre'], _volumenCloroLibre).toString();
+        _cloroCombinadoGotas.text =
+            _calcularGotas(registro['Cloro combinado'], _volumenCloroCombinado).toString();
+        for (var key in _controllers.keys) {
+          _controllers[key]?.text = registro[key] ?? '';
+        }
+        _registroActual = Map<String, String>.from(registro);
+      });
+
+      final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
+      final recomendaciones = await calcularAjustes(Map<String, String>.from(registro), context, unidadSistema);
+      setState(() {
+        _recomendaciones = recomendaciones;
+      });
+    }
+  }
+
+  int _calcularGotas(String? ppmStr, String volumen) {
+    final ppm = double.tryParse(ppmStr ?? '');
+    if (ppm == null) return 0;
+    return volumen == '10' ? (ppm / 0.5).round() : (ppm / 0.2).round();
+  }
 
   @override
   void dispose() {
@@ -42,7 +80,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     super.dispose();
   }
 
-  void _calcularYGuardar() {
+  Future<void> _calcularYGuardar() async {
     double cloroLibrePPM = 0;
     double cloroCombinadoPPM = 0;
 
@@ -65,20 +103,51 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
       'fecha': DateTime.now().toIso8601String(),
     };
 
-    _saveRegistro(registro);
-    _saveRegistrosComoTestRegistro(registro);
-
-    final local = AppLocalizations.of(context)!;
     final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
 
+    final recomendaciones = await calcularAjustes(registro, context, unidadSistema);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('temp_test_completo', json.encode(registro));
+
     setState(() {
-      _recomendaciones = calcularAjustes(registro, local, unidadSistema);
+      _recomendaciones = recomendaciones;
+      _registroActual = registro;
     });
+  }
+
+  Future<void> _guardar() async {
+    if (_registroActual.isEmpty) return;
+
+    await _saveRegistro(_registroActual);
+    await _saveRegistrosComoTestRegistro(_registroActual);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('temp_test_completo');
+
+    setState(() {
+      for (var controller in _controllers.values) {
+        controller.clear();
+      }
+      _cloroLibreGotas.clear();
+      _cloroCombinadoGotas.clear();
+      _volumenCloroLibre = '10';
+      _volumenCloroCombinado = '10';
+      _recomendaciones.clear();
+      _registroActual.clear();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.testGuardadoExito),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   Future<void> _saveRegistro(Map<String, String> registro) async {
     final prefs = await SharedPreferences.getInstance();
-
     final List<String> registros = prefs.getStringList('registros') ?? [];
     registros.add(registro.toString());
     await prefs.setStringList('registros', registros);
@@ -149,27 +218,59 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                   ),
                 ),
               ),
-            ElevatedButton(
-              onPressed: _calcularYGuardar,
-              child: Text(local.calcular),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             if (_recomendaciones.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _recomendaciones.entries.map((entry) {
-                  final tituloTraducido = localLabel(entry.key, local);
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      '$tituloTraducido:\n${entry.value}',
-                      style: TextStyle(
-                        color: entry.value.contains('⚠️') ? Colors.red : Colors.green,
+                children: [
+                  ..._recomendaciones.entries.map((entry) {
+                    final lines = entry.value.trim().split('\n');
+                    if (lines.isEmpty) return const SizedBox();
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lines.first,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          ...lines.skip(1).map(
+                                (line) => Text(
+                              line,
+                              style: TextStyle(
+                                color: line.contains('⚠️') ||
+                                    line.toLowerCase().contains('bajo') ||
+                                    line.toLowerCase().contains('alto') ||
+                                    line.toLowerCase().contains('insuficiente')
+                                    ? Colors.red
+                                    : line.contains('✅')
+                                    ? Colors.green
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }),
+                ],
               ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _calcularYGuardar,
+                  child: Text(local.calcular),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _guardar,
+                  child: Text(local.guardarTesteo),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -219,6 +320,20 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
         return local.dureza;
       case 'Salinidad':
         return local.salinidad;
+      case 'cloro_liquido':
+        return local.nombreProductoCloro;
+      case 'acido_muriatico':
+        return local.nombreProductoPHAlto;
+      case 'ph_increaser':
+        return local.nombreProductoPHBajo;
+      case 'alcalinidad':
+        return local.nombreProductoAlcalinidad;
+      case 'estabilizador':
+        return local.nombreProductoCYA;
+      case 'dureza':
+        return local.nombreProductoDureza;
+      case 'sal':
+        return local.nombreProductoSal;
       default:
         return key;
     }

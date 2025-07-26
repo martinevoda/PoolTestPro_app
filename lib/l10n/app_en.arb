@@ -1,76 +1,70 @@
 {
   "@@locale": "en",
   "settings": "Settings",
-  "darkMode": "Dark Mode",
+  "darkMode": "Dark mode",
   "language": "Language",
   "resetAll": "Reset all data",
   "resetGraphs": "Reset only graphs",
   "resetAllDone": "All data has been reset",
   "resetGraphsDone": "Graph records deleted",
-  "legalInfo": "Legal Information",
+  "legalInfo": "Legal information",
   "legalDisclaimer": "This app is for personal use only. It does not replace professional pool maintenance advice. No personal data is stored on external servers.",
   "spanish": "Spanish",
   "english": "English",
   "testCompleto": "Full test",
   "testIndividual": "Individual test",
   "verRegistrosAnteriores": "View previous records",
-  "verGraficoParametro": "View parameter graph",
+  "verGraficoParametro": "View parameter chart",
+  "title": "Pool App",
+  "cloroLibre": "Free chlorine",
+  "cloroCombinado": "Combined chlorine",
   "gotas": "Drops",
-  "cloroLibre": "Free Chlorine",
-  "cloroCombinado": "Combined Chlorine",
-  "calcularAjustes": "Calculate Adjustments",
-  "recomendacionesTitulo": "Recommendations",
+  "calcularAjustes": "Calculate adjustments",
   "usarGotasCheckbox": "Enter drops and volume",
   "cantidadGotas": "Number of drops",
   "valorEnPPM": "Value in ppm",
   "valorMedido": "Measured value",
   "parametro": "Parameter",
-  "registrosAnteriores": "Previous Records",
+  "registrosAnteriores": "Previous records",
   "sinRegistros": "No saved records.",
   "confirmarBorradoTitulo": "Delete record?",
   "confirmarBorradoMensaje": "Are you sure you want to delete this record?",
-  "cancelar": "Cancel",
+  "cancel": "Cancel",
   "borrar": "Delete",
-  "graficoParametro": "📈 Parameter Chart",
+  "graficoParametro": "📈 Parameter chart",
   "valor": "Value",
   "fecha": "Date",
   "valorIdeal": "✅ Ideal value: {min} – {max}",
   "noDataToPlot": "No data to plot.",
   "calcular": "Calculate",
-  "calcularTooltip": "Press to calculate adjustments",
+  "calcularTooltip": "Tap to calculate adjustments",
+  "registerFilterCleaning": "Register filter cleaning",
+  "filterCleaningSaved": "✅ Filter cleaning recorded",
+  "registerCellCleaning": "Register cell cleaning",
+  "cellCleaningSaved": "✅ Cell cleaning recorded",
+  "activateWeeklyReminder": "Enable weekly reminder",
+  "reminderDescription": "Weekly reminder for frequent parameters.",
+  "testReminderTitle": "Test reminder",
+  "testReminderBody": "Test chlorine, pH, and alkalinity. (CYA and hardness only monthly)",
+  "legalInfoContent": "This app does not replace professional water quality testing. Use for home support only. Data is stored locally on your device.",
+  "historialMantenimiento": "🧽 Maintenance history",
+  "filterCleaningTitle": "Filter cleaning",
+  "filterCleaningDescription": "Reminder to clean Jandy CS cartridge filter.",
+  "cellCleaningTitle": "Cell cleaning",
+  "cellCleaningDescription": "Reminder to clean the Jandy TruClear generator cell.",
   "scheduleFilterCleaningCalendar": "📅 Schedule filter cleaning in calendar",
   "scheduleCellCleaningCalendar": "📅 Schedule cell cleaning in calendar",
-  "filterCleaningTitle": "Pool filter cleaning",
-  "filterCleaningDescription": "Inspect and clean the Jandy CS cartridge filter",
-  "cellCleaningTitle": "Salt cell generator cleaning",
-  "cellCleaningDescription": "Inspect and clean the Jandy TruClear cell",
-  "registerFilterCleaning": "Register filter cleaning",
-  "filterCleaningSaved": "✅ Filter cleaning saved",
-  "registerCellCleaning": "Register cell cleaning",
-  "cellCleaningSaved": "✅ Cell cleaning saved",
-  "activateWeeklyReminder": "Activate weekly reminder",
-  "reminderDescription": "",
-  "testReminderTitle": "Test reminder",
-  "testReminderBody": "Do the test for chlorine, pH and alkalinity. (CYA and hardness only monthly)",
-  "legalInfoContent": "This app does not replace professional water quality tests. Use only as a domestic aid. Data is stored locally on your device.",
-  "historialMantenimiento": "🧽 Maintenance history",
-  "maintenanceHistoryTitle": "🧼 Maintenance History",
+  "maintenanceHistoryTitle": "🧼 Maintenance history",
   "filterSectionTitle": "🧼 Filter cleaning (Jandy CS)",
-  "cellSectionTitle": "⚡ Generator cell cleaning (TruClear)",
+  "cellSectionTitle": "⚡ Cell cleaning (TruClear)",
   "noRecords": "No records yet.",
-  "maintenanceHistory": "🧼 Maintenance History",
-  "filterCleaningSectionTitle": "🧼 Filter cleaning (Jandy CS)",
-  "cellCleaningSectionTitle": "⚡ Generator cell cleaning (TruClear)",
-  "noRecordsYet": "No records yet.",
-  "monthlyReminderTitle": "Activate monthly reminder",
-  "monthlyReminderSubtitle": "",
-  "activateMonthlyReminder": "Activate monthly reminder",
-  "monthlyReminderDescription": "",
-  "monthlyReminderBody": "📅 Monthly reminder! Don’t forget to test CYA and calcium hardness.",
+  "monthlyReminderTitle": "Enable monthly reminder",
+  "monthlyReminderSubtitle": "CYA and calcium hardness",
+  "activateMonthlyReminder": "Enable monthly reminder",
+  "monthlyReminderDescription": "Monthly reminder for specific parameters.",
+  "monthlyReminderBody": "📅 Monthly reminder! Don’t forget to check CYA and calcium hardness.",
   "weekdayLabel": "{day, select, 1{Monday} 2{Tuesday} 3{Wednesday} 4{Thursday} 5{Friday} 6{Saturday} 7{Sunday} other{}}",
-  "weekdayLabelHint": "Label for weekdays from integer 1 (Mon) to 7 (Sun)",
-  "selectWeekday": "Select weekday for Chlorine, pH and alkalinity test",
-  "selectMonthDay": "Select day of the month for CYA and hardness test",
+  "weekdayLabelHint": "Label for weekdays (1 to 7)",
   "weekdayLabel1": "Monday",
   "weekdayLabel2": "Tuesday",
   "weekdayLabel3": "Wednesday",
@@ -78,7 +72,8 @@
   "weekdayLabel5": "Friday",
   "weekdayLabel6": "Saturday",
   "weekdayLabel7": "Sunday",
-  "title": "Pool Maintenance",
+  "selectWeekday": "Select weekday to test Chlorine, pH, and Alk",
+  "selectMonthDay": "Select day of the month to test CYA and hardness",
   "monday": "Monday",
   "tuesday": "Tuesday",
   "wednesday": "Wednesday",
@@ -101,59 +96,228 @@
   "unidadLitro": "L",
   "unidadMililitro": "mL",
   "estaEnRango": "✅ Within ideal range.",
-
+  "borradoExitoso": "✅ All data was successfully deleted.",
+  "resetearTodoLabel": "Reset all data",
+  "confirm": "Confirm",
+  "stockTitle": "Stock control",
+  "available": "Available",
+  "editQuantity": "Edit quantity",
+  "enterNewQuantity": "Enter new quantity",
+  "save": "Save",
+  "productLiquidChlorine": "Liquid chlorine (sanitizer)",
+  "productMuriaticAcid": "Muriatic acid (lowers pH and alkalinity)",
+  "productStabilizer": "CYA stabilizer (protects chlorine)",
+  "productAlkalinityIncreaser": "Alkalinity increaser",
+  "productCalciumHardnessIncreaser": "Calcium hardness (calcium)",
+  "productPoolSalt": "Pool salt",
+  "editStockTitle": "Edit stock",
+  "amountLabel": "Amount",
+  "stockControlTitle": "Stock control",
+  "availableLabel": "Available",
   "cloroLibreLabel": "Free chlorine",
-  "cloroLibreTitulo": "🥄 Free chlorine: {valor} ppm\n🔷 Ideal range: 3.0 – 5.0 ppm",
-  "cloroLibreBajo": "⚠️ Low. Increase Jandy TruClear generator output by +10 %.",
-  "cloroLibreAgregar": "🧴 Add {vol} of Champion Pool Shock – Liquid Chlorinator.",
-  "cloroLibreTip": "💡 Tip: Adjust with generator arrows; +10 % usually balances it.",
-  "cloroLibreAlto": "⚠️ High. Check for chlorine overdose or reduce generator output.",
-
-  "cloroCombinadoLabel": "Combined chlorine",
-  "cloroCombinadoTitulo": "🥄 Combined chlorine: {valor} ppm\n🔷 Ideal range: 0.0 – 0.2 ppm",
-  "cloroCombinadoAlto": "⚠️ High. Possible chloramines present.",
-  "cloroCombinadoAgregar": "🧴 Add {vol} of Champion Pool Shock – Liquid Chlorinator.",
-  "cloroCombinadoTip": "💡 Tip: Also check filter cycle and status.",
-
   "ph": "pH",
-  "phTitulo": "🥄 pH: {valor}\n🔷 Ideal range: 7.4 – 7.6",
-  "phBajo": "⚠️ Low. Add {peso} of In The Swim pH Increaser.",
-  "phAlto": "⚠️ High. Add {vol} of Klean Strip Muriatic Acid.",
-
-  "alcalinidad": "Total Alkalinity",
-  "alcalinidadTitulo": "🥄 Total Alkalinity: {valor} ppm\n🔷 Ideal range: 80 – 120 ppm",
-  "alcalinidadBaja": "⚠️ Low. Add {peso} of In The Swim Alkalinity Increaser.",
-
-  "cya": "CYA (cyanuric acid)",
-  "cyaTitulo": "🥄 CYA (cyanuric acid): {valor} ppm\n🔷 Ideal range: 30 – 50 ppm (up to 70 for salt pools)",
-  "cyaBajo": "⚠️ Low. Add {peso} of Pool Mate Stabilizer.",
-  "cyaAlto": "⚠️ High. Partially drain and refill with fresh water.",
-
+  "alcalinidad": "Alkalinity",
+  "cya": "Stabilizer (CYA)",
   "dureza": "Calcium hardness",
-  "durezaTitulo": "🥄 Calcium hardness: {valor} ppm\n🔷 Ideal range: 200 – 450 ppm",
-  "durezaBaja": "⚠️ Low. Add {peso} of In The Swim Calcium Hardness Increaser.",
-  "durezaAlto": "⚠️ High. Check for evaporation or hard fill water.",
-
   "salinidad": "Salinity",
-  "salinidadTitulo": "🥄 Salinity: {valor} ppm\n🔷 Ideal range: 3000 – 3700 ppm",
-  "salinidadBaja": "⚠️ Low. Add {peso} of Morton Pool Salt.",
-  "salinidadAlta": "⚠️ High. Partially drain and refill with fresh water.",
+  "suggestReplenish": "Suggest replenishment",
+  "stockActual": "Current stock",
+  "stockBajo": "Low stock. May not be enough for next adjustment.",
+  "controlStock": "Stock Control",
+  "sinDatosStock": "No stock data available.",
+  "nombreProductoCloro": "Liquid chlorine",
+  "nombreComercialCloro": "HTH Pool Care Liquid Chlorine",
+  "nombreProductoPH": "Muriatic acid",
+  "nombreProductoAlcalinidad": "Alkalinity increaser",
+  "nombreComercialAlcalinidad": "In The Swim Alkalinity Increaser",
+  "nombreProductoCYA": "Stabilizer",
+  "nombreComercialCYA": "Pool Mate Stabilizer",
+  "nombreProductoDureza": "Calcium hardness increaser",
+  "nombreComercialDureza": "In The Swim Calcium Hardness Increaser",
+  "nombreProductoSal": "Pool salt",
+  "nombreComercialSal": "Morton Pool Salt",
+  "seNecesitan": "Needed",
+  "de": "of",
+  "agregar": "Add",
+  "normalRangeCloroLibre": "Normal range: 3–6 ppm",
+  "normalRangeCloroCombinado": "Normal range: 0–0.5 ppm",
+  "normalRangePH": "Normal range: 7.2–7.8",
+  "normalRangeAlcalinidad": "Normal range: 80–120 ppm",
+  "normalRangeCYA": "Normal range: 30–70 ppm",
+  "normalRangeDureza": "Normal range: 200–400 ppm",
+  "normalRangeSalinidad": "Normal range: 3000–3500 ppm",
+  "cloroLibreTitulo": "Free chlorine: {valor}",
+  "@cloroLibreTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
 
-  "alcalinidadAlta": "⚠️ High. Add {vol} of Muriatic Acid.\n💡 Tip: Also lower pH to help.",
-  "@alcalinidadAlta": {
-    "description": "Message shown when alkalinity is high. Suggests adding acid and lowering pH.",
+  "cloroCombinadoTitulo": "Combined chlorine: {valor}",
+  "@cloroCombinadoTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "phTitulo": "pH: {valor}",
+  "@phTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "alcalinidadTitulo": "Alkalinity: {valor}",
+  "@alcalinidadTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "cyaTitulo": "Cyanuric Acid (CYA): {valor}",
+  "@cyaTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "durezaTitulo": "Calcium Hardness: {valor}",
+  "@durezaTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+  "salinidadTitulo": "Salinity: {valor}",
+  "@salinidadTitulo": {
+    "placeholders": {
+      "valor": {}
+    }
+  },
+
+
+
+  "cloroLibreBajo": "Free chlorine is low",
+  "subirGenerador": "Increase Jandy TruClear generator",
+  "cloroLibreTip": "Optimal level: 3–6 ppm. Essential for disinfection.",
+  "cloroLibreAlto": "Free chlorine is above recommended level. Reduce generator output.",
+  "valorNormal": "Normal value",
+  "phAlto": "pH is high",
+  "phBajo": "pH is low",
+  "cancelar": "Cancel",
+  "recomendacionesTitulo": "Recommendations",
+  "cloroCombinadoLabel": "Combined chlorine",
+  "cyaBajo": "Cyanuric acid (CYA) is low",
+  "cyaAlto": "Cyanuric acid (CYA) is too high. It may affect chlorine efficiency.",
+  "durezaBaja": "Calcium hardness is low",
+  "durezaAlta": "Calcium hardness is high. May cause scaling. Consider partial water change.",
+  "salinidadBaja": "Salinity is low",
+  "salinidadAlta": "Salinity is above recommended level. May damage chlorination system.",
+
+  "estaEnRange": "✅ In normal range.",
+
+  "reabastecerSugerido": "You may need to restock {nombre}",
+  "@reabastecerSugerido": {
+    "description": "Warning message if current stock is lower than needed",
+    "placeholders": {
+      "nombre": {}
+    }
+  },
+
+  "productoRecomendado": "Recommended product: {nombreCom}",
+  "@productoRecomendado": {
+    "description": "Commercial product name recommended",
+    "placeholders": {
+      "nombreCom": {}
+    }
+  },
+
+  "cantidadRecomendada": "Required amount: {cantidad} lb",
+  "@cantidadRecomendada": {
+    "description": "Suggested amount in pounds for restocking",
+    "placeholders": {
+      "cantidad": {}
+    }
+  },
+
+  "confirmResetTitle": "Are you sure?",
+  "@confirmResetTitle": {
+    "description": "Title of the dialog to confirm app reset"
+  },
+
+  "confirmResetContent": "This action will delete all saved data. Do you want to continue?",
+  "@confirmResetContent": {
+    "description": "Content of the dialog to confirm app reset"
+  },
+
+  "noRecordsYet": "No records yet.",
+  "@noRecordsYet": {
+    "description": "Message shown when there are no maintenance records yet."
+  },
+
+  "maintenanceHistory": "Maintenance History",
+  "@maintenanceHistory": {
+    "description": "Title of the screen showing filter/cell cleaning history."
+  },
+
+  "filterCleaningSectionTitle": "Filter Cleaning",
+  "@filterCleaningSectionTitle": {
+    "description": "Section title for cartridge filter cleaning records."
+  },
+
+  "cellCleaningSectionTitle": "Cell Cleaning",
+  "@cellCleaningSectionTitle": {
+    "description": "Section title for salt cell cleaning records."
+  },
+
+  "noStockData": "No stock data available yet.",
+  "@noStockData": {
+    "description": "Message shown when there is no stock data saved."
+  },
+
+  "nombreProductoPHAlto": "pH Reducer",
+  "nombreComercialPHAlto": "Klean Strip Green Muriatic Acid",
+  "nombreProductoPHBajo": "pH Increaser (Sodium Carbonate)",
+  "nombreComercialPHBajo": "In The Swim pH Increaser",
+  "alertaStockInsuficiente": "Insufficient stock to apply the recommended adjustment",
+  "stockDisponibleSuficiente": "✅ Stock available: sufficient.",
+  "stockBajoPosibleReabastecer": "⚠️ Stock is low. Consider restocking soon.",
+  "phLabel": "pH",
+  "alcalinidadLabel": "Alkalinity",
+  "cyaLabel": "CYA",
+  "durezaLabel": "Calcium hardness",
+  "salinidadLabel": "Salinity",
+  "requiereTratamientoChoque": "Perform shock treatment with liquid chlorine.",
+  "cloroCombinadoTip": "Then check the generator and retest in 24h.",
+
+
+  "cloroCombinadoAlto": "⚠️ High. May indicate presence of chloramines. Shock treatment recommended.",
+  "cloroCombinadoBajo": "⚠️ Low. Might not be disinfecting effectively. Check generator or retest.",
+  "cloroCombinadoNormal": "✅ Within ideal range. No action needed.",
+  "alcalinidadNormal": "✅ Within ideal range.",
+  "stockInsuficiente": "❌ Insufficient stock: only {stock} available.",
+  "stockSuficiente": "✅ Stock available: sufficient. {stock} available.",
+  "alcalinidadAltaConsejo": "Tip: It also helps lower pH.",
+  "cyaAltoConsejo": "Tip: Consider partial draining and refilling the pool.",
+  "durezaAltaConsejo": "Tip: Drain part of the pool if hardness is very high.",
+  "salinidadAltaConsejo": "Tip: Consider dilution with fresh water.",
+
+
+  "alcalinidadBaja": "⚠️ Low. Add {vol} of alkalinity increaser (In The Swim Alkalinity Increaser).",
+  "@alcalinidadBaja": {
     "placeholders": {
       "vol": {}
     }
   },
-  "estaEnRange": "✅ In normal range.",
-  "borrarTodoTitulo": "Reset all data?",
-  "borrarTodoDescripcion": "This will delete all records, charts and maintenance history.",
-  "borradoExitoso": "✅ All data was successfully deleted.",
-  "resetearTodoLabel": "Reset all data",
+  "alcalinidadAlta": "⚠️ High. Add {vol} of muriatic acid (Klean Strip Green Muriatic Acid).\n💡 Tip: It also lowers the pH.",
+  "@alcalinidadAlta": {
+    "placeholders": {
+      "vol": {}
+    }
+  },
 
-  "confirmResetTitle": "Confirm Reset",
-  "confirmResetContent": "Are you sure you want to delete all records and maintenance history?",
-  "cancel": "Cancel",
-  "confirm": "Confirm"
+  "testGuardadoExito": "Test saved successfully",
+  "guardarTesteo": "Save test",
+
+  "opcional": "optional"
 }

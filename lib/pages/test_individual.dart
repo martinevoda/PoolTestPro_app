@@ -11,236 +11,301 @@ class TestIndividualScreen extends StatefulWidget {
   const TestIndividualScreen({super.key});
 
   @override
-  _TestIndividualScreenState createState() => _TestIndividualScreenState();
+  State<TestIndividualScreen> createState() => _TestIndividualScreenState();
 }
 
 class _TestIndividualScreenState extends State<TestIndividualScreen> {
   final TextEditingController _valorController = TextEditingController();
   final TextEditingController _gotasController = TextEditingController();
+
   String _parametroSeleccionado = 'Cloro libre';
   String _volumenSeleccionado = '10';
-  bool _usarGotas = true;
-
-  List<Map<String, dynamic>> _registros = [];
   Map<String, String> _recomendaciones = {};
+  Map<String, String> _registroActual = {};
 
   @override
   void initState() {
     super.initState();
-    _loadRegistros();
+    _cargarEstadoTemporal();
   }
 
-  @override
-  void dispose() {
-    _valorController.dispose();
-    _gotasController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadRegistros() async {
+  Future<void> _cargarEstadoTemporal() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString('test_individual') ?? '[]';
-    setState(() {
-      _registros = List<Map<String, dynamic>>.from(json.decode(data));
-    });
+    final tempRegistro = prefs.getString('temp_individual');
+    final tempRecs = prefs.getString('temp_recomendaciones_individual');
+
+    if (tempRegistro != null) {
+      final Map<String, dynamic> datos = json.decode(tempRegistro);
+      setState(() {
+        _registroActual = datos.map((k, v) => MapEntry(k, v.toString()));
+        _parametroSeleccionado = datos.keys.first;
+        _valorController.text = datos.values.first;
+      });
+    }
+
+    if (tempRecs != null) {
+      final Map<String, dynamic> recs = json.decode(tempRecs);
+      setState(() {
+        _recomendaciones = recs.map((k, v) => MapEntry(k, v.toString()));
+      });
+    }
   }
 
-  Future<void> _saveRegistro(Map<String, dynamic> registro) async {
-    final prefs = await SharedPreferences.getInstance();
-    _registros.add(registro);
-    await prefs.setString('test_individual', json.encode(_registros));
-  }
+  Future<void> _calcular() async {
+    final local = AppLocalizations.of(context)!;
+    final unidadSistema =
+        Provider.of<SettingsController>(context, listen: false).unidadSistema;
 
-  Future<void> _saveComoTestRegistro(String parametro, String valor) async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString('test_registros') ?? '[]';
-    List<Map<String, dynamic>> lista = List<Map<String, dynamic>>.from(json.decode(data));
+    double? valor;
+    final gotas = int.tryParse(_gotasController.text.trim());
 
-    lista.add({
-      'parametro': parametro,
-      'valor': double.tryParse(valor) ?? 0.0,
-      'fecha': DateTime.now().toIso8601String(),
+    if (_parametroSeleccionado.contains('Cloro') && gotas != null) {
+      valor = _volumenSeleccionado == '10' ? gotas * 0.5 : gotas * 0.2;
+    } else {
+      valor = double.tryParse(_valorController.text.trim());
+    }
+
+    if (valor == null) return;
+
+    final Map<String, String> registro = {
+      _parametroSeleccionado: valor.toStringAsFixed(2),
       'tipo': 'individual',
+      'fecha': DateTime.now().toIso8601String(),
+    };
+
+    final recomendaciones =
+    await calcularAjustes(registro, context, unidadSistema);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('temp_individual', json.encode(registro));
+    await prefs.setString(
+        'temp_recomendaciones_individual', json.encode(recomendaciones));
+
+    setState(() {
+      _registroActual = registro;
+      _recomendaciones = recomendaciones;
     });
+  }
+
+  Future<void> _guardarTesteo() async {
+    if (_registroActual.isEmpty) return;
+
+    await _saveRegistro(_registroActual);
+    await _saveRegistrosComoTestRegistro(_registroActual);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('temp_individual');
+    await prefs.remove('temp_recomendaciones_individual');
+
+    setState(() {
+      _registroActual.clear();
+      _recomendaciones.clear();
+      _valorController.clear();
+      _gotasController.clear();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.testGuardadoExito),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  Future<void> _saveRegistro(Map<String, String> registro) async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> registros = prefs.getStringList('registros') ?? [];
+    registros.add(registro.toString());
+    await prefs.setStringList('registros', registros);
+
+    final String? individualesData = prefs.getString('test_individual');
+    List<Map<String, dynamic>> individuales = [];
+
+    if (individualesData != null && individualesData.isNotEmpty) {
+      individuales = List<Map<String, dynamic>>.from(json.decode(individualesData));
+    }
+
+    individuales.add(registro);
+    await prefs.setString('test_individual', json.encode(individuales));
+  }
+
+  Future<void> _saveRegistrosComoTestRegistro(Map<String, String> registro) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? data = prefs.getString('test_registros');
+    List<Map<String, dynamic>> lista = [];
+
+    if (data != null) {
+      lista = List<Map<String, dynamic>>.from(json.decode(data));
+    }
+
+    final now = DateTime.now();
+    for (var entry in registro.entries) {
+      if (entry.key != 'fecha' && entry.key != 'tipo') {
+        final valor = double.tryParse(entry.value);
+        if (valor != null) {
+          final test = TestRegistro(
+            tipo: registro['tipo'] ?? 'individual',
+            parametro: entry.key,
+            valor: valor,
+            fecha: now,
+          );
+          lista.add(test.toJson());
+        }
+      }
+    }
 
     await prefs.setString('test_registros', json.encode(lista));
-  }
-
-  void _calcularYGuardar() {
-    double ppm = 0;
-    final registro = <String, String>{};
-
-    if (_usarGotas) {
-      final gotas = int.tryParse(_gotasController.text.trim()) ?? 0;
-      ppm = _volumenSeleccionado == '10' ? gotas * 0.5 : gotas * 0.2;
-    } else {
-      ppm = double.tryParse(_valorController.text.trim()) ?? 0;
-    }
-
-    final valorFinal = ppm.toStringAsFixed(2);
-    registro[_parametroSeleccionado] = valorFinal;
-    registro['tipo'] = 'individual';
-    registro['fecha'] = DateTime.now().toIso8601String();
-
-    _saveRegistro(Map<String, dynamic>.from(registro));
-    _saveComoTestRegistro(_parametroSeleccionado, valorFinal);
-
-    final local = AppLocalizations.of(context)!;
-    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
-
-    setState(() {
-      _recomendaciones = calcularAjustes(registro, local, unidadSistema);
-    });
-  }
-
-  Map<String, String> getParametros(AppLocalizations local) => {
-    'Cloro libre': local.cloroLibre,
-    'Cloro combinado': local.cloroCombinado,
-    'pH': 'pH',
-    'Alcalinidad': local.alcalinidad,
-    'CYA': local.cya,
-    'Dureza': local.dureza,
-    'Salinidad': local.salinidad,
-  };
-
-  Widget _buildInputFields(AppLocalizations local) {
-    if (_parametroSeleccionado == 'Cloro libre' || _parametroSeleccionado == 'Cloro combinado') {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Checkbox(
-                value: _usarGotas,
-                onChanged: (val) => setState(() => _usarGotas = val ?? true),
-              ),
-              Text(local.usarGotasCheckbox),
-            ],
-          ),
-          if (_usarGotas)
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _gotasController,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: local.cantidadGotas,
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12),
-                DropdownButton<String>(
-                  value: _volumenSeleccionado,
-                  items: ['10', '25']
-                      .map((v) => DropdownMenuItem(value: v, child: Text('$v mL')))
-                      .toList(),
-                  onChanged: (val) => setState(() => _volumenSeleccionado = val ?? '10'),
-                ),
-              ],
-            )
-          else
-            TextField(
-              controller: _valorController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: local.valorEnPPM,
-                border: OutlineInputBorder(),
-              ),
-            ),
-        ],
-      );
-    } else {
-      return TextField(
-        controller: _valorController,
-        keyboardType: TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: local.valorMedido,
-          border: OutlineInputBorder(),
-        ),
-      );
-    }
-  }
-
-  Color _getColor(String line) {
-    if (line.contains('✅')) return Colors.green[700]!;
-    if (line.contains('⚠️') || line.contains('Bajo') || line.contains('Alto')) return Colors.red[700]!;
-    if (line.contains('🔹')) return Colors.blueGrey;
-    return Colors.black87;
   }
 
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
-    final parametrosTraducidos = getParametros(local);
 
     return Scaffold(
-      appBar: AppBar(title: Text(local.testIndividual)),
+      appBar: AppBar(
+        title: Text(local.testIndividual),
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            DropdownButtonFormField<String>(
+            DropdownButton<String>(
               value: _parametroSeleccionado,
+              isExpanded: true,
+              items: [
+                'Cloro libre',
+                'Cloro combinado',
+                'pH',
+                'Alcalinidad',
+                'CYA',
+                'Dureza',
+                'Salinidad'
+              ]
+                  .map((param) => DropdownMenuItem(
+                value: param,
+                child: Text(localLabel(param, local)),
+              ))
+                  .toList(),
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
                     _parametroSeleccionado = value;
-                    _usarGotas = value == 'Cloro libre' || value == 'Cloro combinado';
+                    _valorController.clear();
+                    _gotasController.clear();
                   });
                 }
               },
-              items: parametrosTraducidos.entries.map((entry) {
-                return DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(entry.value),
-                );
-              }).toList(),
+            ),
+            const SizedBox(height: 12),
+            if (_parametroSeleccionado.contains('Cloro'))
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _gotasController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        labelText: '${local.gotas} (opcional)',
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  DropdownButton<String>(
+                    value: _volumenSeleccionado,
+                    items: ['10', '25']
+                        .map((v) =>
+                        DropdownMenuItem(value: v, child: Text('$v mL')))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() => _volumenSeleccionado = val);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _valorController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                labelText: local.parametro,
-                border: OutlineInputBorder(),
+                labelText: local.valor,
+                border: const OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-            _buildInputFields(local),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _calcularYGuardar,
-              child: Text(local.calcular),
-            ),
-            SizedBox(height: 24),
-            if (_recomendaciones.isNotEmpty) ...[
-              Text(
-                local.recomendacionesTitulo,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 12),
-              ..._recomendaciones.entries.map((entry) {
-                final lines = entry.value.split('\n');
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: lines.map((line) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          line,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: _getColor(line),
+            const SizedBox(height: 20),
+            if (_recomendaciones.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _recomendaciones.entries.map((entry) {
+                  final lines = entry.value.trim().split('\n');
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(lines.first, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ...lines.skip(1).map(
+                              (line) => Text(
+                            line,
+                            style: TextStyle(
+                              color: line.contains('⚠️') ||
+                                  line.toLowerCase().contains('bajo') ||
+                                  line.toLowerCase().contains('alto') ||
+                                  line.toLowerCase().contains('insuficiente')
+                                  ? Colors.red
+                                  : line.contains('✅')
+                                  ? Colors.green
+                                  : null,
+                            ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                );
-              }),
-            ],
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _calcular,
+                  child: Text(local.calcular),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _guardarTesteo,
+                  child: Text(local.guardarTesteo),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String localLabel(String key, AppLocalizations local) {
+    switch (key) {
+      case 'Cloro libre':
+        return local.cloroLibreLabel;
+      case 'Cloro combinado':
+        return local.cloroCombinadoLabel;
+      case 'pH':
+        return local.ph;
+      case 'Alcalinidad':
+        return local.alcalinidad;
+      case 'CYA':
+        return local.cya;
+      case 'Dureza':
+        return local.dureza;
+      case 'Salinidad':
+        return local.salinidad;
+      default:
+        return key;
+    }
   }
 }

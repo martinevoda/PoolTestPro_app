@@ -11,6 +11,8 @@ import 'package:piscina_app/pages/historial_mantenimiento.dart'; // NUEVO
 import 'package:piscina_app/utils/notification_service.dart';
 import 'package:piscina_app/utils/registro_loader.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:piscina_app/pages/pantalla_stock.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -150,7 +152,16 @@ class HomePage extends StatelessWidget {
             child: Text(' ${local.historialMantenimiento}'),
           ),
           const SizedBox(height: 10),
-
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PantallaStock()),
+              );
+            },
+            child: const Text('📦 Stock de Productos'),
+          ),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
               Navigator.push(
