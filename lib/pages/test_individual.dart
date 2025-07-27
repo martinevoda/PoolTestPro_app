@@ -6,6 +6,7 @@ import '../models/test_registro.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
+import '../utils/stock_service.dart';
 
 class TestIndividualScreen extends StatefulWidget {
   const TestIndividualScreen({super.key});
@@ -54,7 +55,9 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
   Future<void> _calcular() async {
     final local = AppLocalizations.of(context)!;
     final unidadSistema =
-        Provider.of<SettingsController>(context, listen: false).unidadSistema;
+        Provider
+            .of<SettingsController>(context, listen: false)
+            .unidadSistema;
 
     double? valor;
     final gotas = int.tryParse(_gotasController.text.trim());
@@ -92,6 +95,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
     await _saveRegistro(_registroActual);
     await _saveRegistrosComoTestRegistro(_registroActual);
+    await _descontarStockSiempre(_recomendaciones); // ✅ descuento automático
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('temp_individual');
@@ -123,14 +127,16 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     List<Map<String, dynamic>> individuales = [];
 
     if (individualesData != null && individualesData.isNotEmpty) {
-      individuales = List<Map<String, dynamic>>.from(json.decode(individualesData));
+      individuales =
+      List<Map<String, dynamic>>.from(json.decode(individualesData));
     }
 
     individuales.add(registro);
     await prefs.setString('test_individual', json.encode(individuales));
   }
 
-  Future<void> _saveRegistrosComoTestRegistro(Map<String, String> registro) async {
+  Future<void> _saveRegistrosComoTestRegistro(
+      Map<String, String> registro) async {
     final prefs = await SharedPreferences.getInstance();
     final String? data = prefs.getString('test_registros');
     List<Map<String, dynamic>> lista = [];
@@ -182,10 +188,11 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                 'Dureza',
                 'Salinidad'
               ]
-                  .map((param) => DropdownMenuItem(
-                value: param,
-                child: Text(localLabel(param, local)),
-              ))
+                  .map((param) =>
+                  DropdownMenuItem(
+                    value: param,
+                    child: Text(localLabel(param, local)),
+                  ))
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -204,7 +211,8 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                   Expanded(
                     child: TextField(
                       controller: _gotasController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
                         labelText: '${local.gotas} (opcional)',
                         border: const OutlineInputBorder(),
@@ -229,7 +237,8 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: _valorController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: local.valor,
                 border: const OutlineInputBorder(),
@@ -246,21 +255,25 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(lines.first, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(lines.first,
+                            style:
+                            const TextStyle(fontWeight: FontWeight.bold)),
                         ...lines.skip(1).map(
-                              (line) => Text(
-                            line,
-                            style: TextStyle(
-                              color: line.contains('⚠️') ||
-                                  line.toLowerCase().contains('bajo') ||
-                                  line.toLowerCase().contains('alto') ||
-                                  line.toLowerCase().contains('insuficiente')
-                                  ? Colors.red
-                                  : line.contains('✅')
-                                  ? Colors.green
-                                  : null,
-                            ),
-                          ),
+                              (line) =>
+                              Text(
+                                line,
+                                style: TextStyle(
+                                  color: line.contains('⚠️') ||
+                                      line.toLowerCase().contains('bajo') ||
+                                      line.toLowerCase().contains('alto') ||
+                                      line.toLowerCase().contains(
+                                          'insuficiente')
+                                      ? Colors.red
+                                      : line.contains('✅')
+                                      ? Colors.green
+                                      : null,
+                                ),
+                              ),
                         ),
                       ],
                     ),
@@ -306,6 +319,43 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
         return local.salinidad;
       default:
         return key;
+    }
+  }
+
+  Future<void> _descontarStockSiempre(
+      Map<String, String> recomendaciones) async {
+    final keyMap = {
+      'Cloro libre': 'cloro_liquido',
+      'Cloro combinado': 'cloro_liquido',
+      'pH': 'acido_muriatico',
+      'Alcalinidad': 'alcalinidad',
+      'CYA': 'estabilizador',
+      'Dureza': 'dureza',
+      'Salinidad': 'sal',
+    };
+
+    for (var entry in recomendaciones.entries) {
+      final texto = entry.value;
+
+      // Buscar "agregar 1.5 lb" o similar
+      final regex = RegExp(r'agregar\s+([\d.]+)\s+\w+', caseSensitive: false);
+      final match = regex.firstMatch(texto);
+
+      if (match != null) {
+        final cantidadStr = match.group(1);
+        final cantidad = double.tryParse(cantidadStr ?? '');
+        final keyOriginal = entry.key;
+        final productoKey = keyMap[keyOriginal] ?? keyOriginal;
+
+        if (cantidad != null && productoKey.isNotEmpty) {
+          await StockService.registrarUso(productoKey, cantidad);
+          debugPrint('🟢 Stock descontado: $productoKey - $cantidad');
+        } else {
+          debugPrint('🔴 No se pudo descontar stock para: $keyOriginal');
+        }
+      } else {
+        debugPrint('🔴 No se encontró cantidad en: "${entry.value}"');
+      }
     }
   }
 }

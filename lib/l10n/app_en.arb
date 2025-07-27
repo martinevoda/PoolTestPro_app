@@ -319,5 +319,10 @@
   "testGuardadoExito": "Test saved successfully",
   "guardarTesteo": "Save test",
 
-  "opcional": "optional"
+  "opcional": "optional",
+
+  "agregarCantidad": "Quantity to add",
+
+  "reemplazar": "Replace"
+
 }

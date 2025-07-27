@@ -29,8 +29,17 @@ class StockService {
 
   static Future<void> setStock(String key, double value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('stock_$key', value);
-    _stockCache[key] = value;
+    final actual = prefs.getDouble('stock_$key') ?? 0.0;
+    final nuevoTotal = actual + value;
+    await prefs.setDouble('stock_$key', nuevoTotal);
+    _stockCache[key] = nuevoTotal;
+  }
+
+  /// ✅ Nuevo método para reemplazar directamente el stock (sin sumar)
+  static Future<void> reemplazarStock(String key, double nuevoValor) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('stock_$key', nuevoValor);
+    _stockCache[key] = nuevoValor;
   }
 
   static Future<void> registrarUso(String key, double cantidadUsada) async {
@@ -39,6 +48,9 @@ class StockService {
     final nuevo = (actual - cantidadUsada).clamp(0.0, double.infinity);
     await prefs.setDouble('stock_$key', nuevo);
     _stockCache[key] = nuevo;
+
+    // Guardar también el último uso
+    await prefs.setDouble('uso_$key', cantidadUsada);
   }
 
   static Future<bool> necesitaReabastecer(String key, double cantidadNecesaria) async {
@@ -154,7 +166,6 @@ class StockService {
     return estimaciones[producto];
   }
 
-  // ✅ Método agregado
   static double obtenerStockSeguro(String key) {
     return _stockCache[key] ?? 0.0;
   }

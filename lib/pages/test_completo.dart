@@ -47,17 +47,22 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
       final registro = Map<String, dynamic>.from(json.decode(data));
       setState(() {
         _cloroLibreGotas.text =
-            _calcularGotas(registro['Cloro libre'], _volumenCloroLibre).toString();
+            _calcularGotas(registro['Cloro libre'], _volumenCloroLibre)
+                .toString();
         _cloroCombinadoGotas.text =
-            _calcularGotas(registro['Cloro combinado'], _volumenCloroCombinado).toString();
+            _calcularGotas(registro['Cloro combinado'], _volumenCloroCombinado)
+                .toString();
         for (var key in _controllers.keys) {
           _controllers[key]?.text = registro[key] ?? '';
         }
         _registroActual = Map<String, String>.from(registro);
       });
 
-      final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
-      final recomendaciones = await calcularAjustes(Map<String, String>.from(registro), context, unidadSistema);
+      final unidadSistema = Provider
+          .of<SettingsController>(context, listen: false)
+          .unidadSistema;
+      final recomendaciones = await calcularAjustes(
+          Map<String, String>.from(registro), context, unidadSistema);
       setState(() {
         _recomendaciones = recomendaciones;
       });
@@ -88,11 +93,14 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final gotasCombinado = int.tryParse(_cloroCombinadoGotas.text.trim());
 
     if (gotasLibre != null) {
-      cloroLibrePPM = _volumenCloroLibre == '10' ? gotasLibre * 0.5 : gotasLibre * 0.2;
+      cloroLibrePPM =
+      _volumenCloroLibre == '10' ? gotasLibre * 0.5 : gotasLibre * 0.2;
     }
 
     if (gotasCombinado != null) {
-      cloroCombinadoPPM = _volumenCloroCombinado == '10' ? gotasCombinado * 0.5 : gotasCombinado * 0.2;
+      cloroCombinadoPPM =
+      _volumenCloroCombinado == '10' ? gotasCombinado * 0.5 : gotasCombinado *
+          0.2;
     }
 
     final Map<String, String> registro = {
@@ -103,9 +111,12 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
       'fecha': DateTime.now().toIso8601String(),
     };
 
-    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
+    final unidadSistema = Provider
+        .of<SettingsController>(context, listen: false)
+        .unidadSistema;
 
-    final recomendaciones = await calcularAjustes(registro, context, unidadSistema);
+    final recomendaciones = await calcularAjustes(
+        registro, context, unidadSistema);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('temp_test_completo', json.encode(registro));
@@ -121,6 +132,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
     await _saveRegistro(_registroActual);
     await _saveRegistrosComoTestRegistro(_registroActual);
+    await _descontarStockSiempre(_recomendaciones); // ✅ descuento automático
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('temp_test_completo');
@@ -153,12 +165,14 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     await prefs.setStringList('registros', registros);
 
     final List<Map<String, dynamic>> completos =
-    List<Map<String, dynamic>>.from(json.decode(prefs.getString('test_completo') ?? '[]'));
+    List<Map<String, dynamic>>.from(
+        json.decode(prefs.getString('test_completo') ?? '[]'));
     completos.add(registro);
     await prefs.setString('test_completo', json.encode(completos));
   }
 
-  Future<void> _saveRegistrosComoTestRegistro(Map<String, String> registro) async {
+  Future<void> _saveRegistrosComoTestRegistro(
+      Map<String, String> registro) async {
     final prefs = await SharedPreferences.getInstance();
     final String? data = prefs.getString('test_registros');
     List<Map<String, dynamic>> lista = [];
@@ -211,7 +225,8 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: TextField(
                   controller: entry.value,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true),
                   decoration: InputDecoration(
                     labelText: localLabel(entry.key, local),
                     border: const OutlineInputBorder(),
@@ -236,19 +251,21 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           ...lines.skip(1).map(
-                                (line) => Text(
-                              line,
-                              style: TextStyle(
-                                color: line.contains('⚠️') ||
-                                    line.toLowerCase().contains('bajo') ||
-                                    line.toLowerCase().contains('alto') ||
-                                    line.toLowerCase().contains('insuficiente')
-                                    ? Colors.red
-                                    : line.contains('✅')
-                                    ? Colors.green
-                                    : null,
-                              ),
-                            ),
+                                (line) =>
+                                Text(
+                                  line,
+                                  style: TextStyle(
+                                    color: line.contains('⚠️') ||
+                                        line.toLowerCase().contains('bajo') ||
+                                        line.toLowerCase().contains('alto') ||
+                                        line.toLowerCase().contains(
+                                            'insuficiente')
+                                        ? Colors.red
+                                        : line.contains('✅')
+                                        ? Colors.green
+                                        : null,
+                                  ),
+                                ),
                           ),
                         ],
                       ),
@@ -296,7 +313,8 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
         DropdownButton<String>(
           value: volumenSeleccionado,
           items: ['10', '25']
-              .map((vol) => DropdownMenuItem(value: vol, child: Text('$vol mL')))
+              .map((vol) =>
+              DropdownMenuItem(value: vol, child: Text('$vol mL')))
               .toList(),
           onChanged: onChanged,
         ),
@@ -336,6 +354,43 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
         return local.nombreProductoSal;
       default:
         return key;
+    }
+  }
+
+  Future<void> _descontarStockSiempre(
+      Map<String, String> recomendaciones) async {
+    final keyMap = {
+      'Cloro libre': 'cloro_liquido',
+      'Cloro combinado': 'cloro_liquido',
+      'pH': 'acido_muriatico',
+      'Alcalinidad': 'alcalinidad',
+      'CYA': 'estabilizador',
+      'Dureza': 'dureza',
+      'Salinidad': 'sal',
+    };
+
+    for (var entry in recomendaciones.entries) {
+      final texto = entry.value;
+
+      // Buscar "agregar 1.5 lb" o similar
+      final regex = RegExp(r'agregar\s+([\d.]+)\s+\w+', caseSensitive: false);
+      final match = regex.firstMatch(texto);
+
+      if (match != null) {
+        final cantidadStr = match.group(1);
+        final cantidad = double.tryParse(cantidadStr ?? '');
+        final keyOriginal = entry.key;
+        final productoKey = keyMap[keyOriginal] ?? keyOriginal;
+
+        if (cantidad != null && productoKey.isNotEmpty) {
+          await StockService.registrarUso(productoKey, cantidad);
+          debugPrint('🟢 Stock descontado: $productoKey - $cantidad');
+        } else {
+          debugPrint('🔴 No se pudo descontar stock para: $keyOriginal');
+        }
+      } else {
+        debugPrint('🔴 No se encontró cantidad en: "${entry.value}"');
+      }
     }
   }
 }

@@ -361,6 +361,13 @@
   "testGuardadoExito": "Test guardado con éxito",
   "guardarTesteo": "Guardar testeo",
 
-  "opcional": "opcional"
+  "opcional": "opcional",
+
+  "agregarCantidad": "Cantidad a agregar",
+
+
+  "reemplazar": "Reemplazar"
+
+
 }
 

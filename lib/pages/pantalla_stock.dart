@@ -34,7 +34,9 @@ class _PantallaStockState extends State<PantallaStock> {
             builder: (context) {
               Future.delayed(Duration.zero, () {
                 controller.selection = TextSelection(
-                    baseOffset: 0, extentOffset: controller.text.length);
+                  baseOffset: 0,
+                  extentOffset: controller.text.length,
+                );
               });
 
               return TextField(
@@ -57,14 +59,28 @@ class _PantallaStockState extends State<PantallaStock> {
                 final value =
                 double.tryParse(controller.text.replaceAll(',', '.'));
                 if (value != null) {
-                  await StockService.setStock(productoKey, value);
+                  await StockService.setStock(productoKey, value); // sumar
                   Navigator.pop(context);
                   setState(() {
                     _stockFuture = StockService.getAllStock();
                   });
                 }
               },
-              child: Text(loc.save),
+              child: Text(loc.agregar),
+            ),
+            TextButton(
+              onPressed: () async {
+                final value =
+                double.tryParse(controller.text.replaceAll(',', '.'));
+                if (value != null) {
+                  await StockService.reemplazarStock(productoKey, value); // reemplazar
+                  Navigator.pop(context);
+                  setState(() {
+                    _stockFuture = StockService.getAllStock();
+                  });
+                }
+              },
+              child: Text(loc.reemplazar),
             ),
           ],
         );
