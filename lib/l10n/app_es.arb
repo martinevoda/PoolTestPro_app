@@ -359,15 +359,21 @@
   "opcional": "opcional",
   "agregarCantidad": "Cantidad a agregar",
   "reemplazar": "Reemplazar",
-
   "poolVolumeLabel": "Pool volume",
   "saveVolumeButton": "Save volume",
   "volumenGuardado": "✅ Volume saved successfully",
-
-
   "instruccionesCloro": "Indicá las gotas de cloro libre y combinado (10 mL muestra)",
   "calcularYGuardar": "Calcular y guardar",
-  "alertaStock": "⚠️ Alerta de stock bajo"
+  "alertaStock": "⚠️ Alerta de stock bajo",
+
+  "poolTypeLabel": "Tipo de pileta",
+  "poolTypeSalt": "Agua con sal (generador de cloro)",
+  "poolTypeFresh": "Agua sin sal (cloro manual)",
+  "poolTypeSaltSelected": "Seleccionado: Agua con sal",
+  "poolTypeFreshSelected": "Seleccionado: Agua sin sal"
+
+
+
 
 }
 

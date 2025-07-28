@@ -5,10 +5,12 @@ class SettingsController extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.light;
   String _idioma = 'es'; // Español por defecto
   String _unidadSistema = 'imperial'; // 'imperial' o 'metrico'
+  bool _esAguaSalada = true; // ✅ Por defecto es pileta con sal
 
   ThemeMode get themeMode => _themeMode;
   String get idioma => _idioma;
   String get unidadSistema => _unidadSistema;
+  bool get esAguaSalada => _esAguaSalada; // ✅ getter nuevo
   Locale get locale => Locale(_idioma);
 
   /// ✅ Carga las preferencias guardadas al iniciar la app
@@ -18,6 +20,7 @@ class SettingsController extends ChangeNotifier {
     final savedTheme = prefs.getString('themeMode');
     final savedIdioma = prefs.getString('idioma');
     final savedUnidad = prefs.getString('unidad_sistema');
+    final savedTipoPileta = prefs.getBool('tipo_pileta_salada'); // ✅ nueva clave
 
     if (savedTheme == 'dark') {
       _themeMode = ThemeMode.dark;
@@ -31,6 +34,10 @@ class SettingsController extends ChangeNotifier {
 
     if (savedUnidad != null && (savedUnidad == 'imperial' || savedUnidad == 'metrico')) {
       _unidadSistema = savedUnidad;
+    }
+
+    if (savedTipoPileta != null) {
+      _esAguaSalada = savedTipoPileta;
     }
 
     notifyListeners();
@@ -57,6 +64,14 @@ class SettingsController extends ChangeNotifier {
     _unidadSistema = nuevaUnidad;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('unidad_sistema', nuevaUnidad);
+    notifyListeners();
+  }
+
+  /// ✅ Cambia el tipo de pileta: true = con sal, false = sin sal
+  void setTipoPileta(bool nuevaOpcion) async {
+    _esAguaSalada = nuevaOpcion;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('tipo_pileta_salada', nuevaOpcion);
     notifyListeners();
   }
 

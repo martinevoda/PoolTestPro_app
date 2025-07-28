@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../controllers/settings_controller.dart';
+
+
+
 
 class RegistrosAnterioresPage extends StatefulWidget {
   const RegistrosAnterioresPage({super.key});
@@ -99,6 +104,7 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
   }
 
   Widget _buildRegistroCard(Map<String, dynamic> registro, int index, String tipo, AppLocalizations local) {
+    final esAguaSalada = Provider.of<SettingsController>(context).esAguaSalada;
     final fecha = DateTime.tryParse(registro['fecha'] ?? '');
     final sinFecha = fecha == null;
 
@@ -117,10 +123,12 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
               Text('📅 ${local.fecha}: ${fecha.toLocal().toString().substring(0, 16)}'),
             const SizedBox(height: 6),
             ...registro.entries
-                .where((e) => e.key != 'fecha' && e.key != 'tipo')
-                .map((e) => e.key != null && e.value != null
-                ? Text('${localLabel(e.key, local)}: ${e.value}')
-                : const SizedBox.shrink()),
+                .where((e) =>
+                      e.key != 'fecha' &&
+                      e.key != 'tipo' &&
+                      (esAguaSalada || e.key != 'Salinidad'))
+                .map((e) => Text('${localLabel(e.key, local)}: ${e.value}')),
+
           ],
         ),
         trailing: IconButton(

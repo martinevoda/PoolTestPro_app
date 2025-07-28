@@ -94,6 +94,69 @@ class _AjustesScreenState extends State<AjustesScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          // 1. Configuración general de la pileta
+          SwitchListTile(
+            title: Text(localizations.poolTypeLabel),
+            subtitle: Text(
+              settingsController.esAguaSalada
+                  ? localizations.poolTypeSalt
+                  : localizations.poolTypeFresh,
+            ),
+            value: settingsController.esAguaSalada,
+            onChanged: (value) {
+              settingsController.setTipoPileta(value);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    value
+                        ? localizations.poolTypeSaltSelected
+                        : localizations.poolTypeFreshSelected,
+                  ),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          TextField(
+            controller: _volumenController,
+            keyboardType: TextInputType.numberWithOptions(decimal: false),
+            decoration: InputDecoration(
+              labelText: localizations.poolVolumeLabel,
+              suffixText: esMetrico ? localizations.unidadLitro : localizations.unidadGalon,
+            ),
+            onSubmitted: (_) => _guardarVolumen(settingsController.unidadSistema),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () => _guardarVolumen(settingsController.unidadSistema),
+            child: Text(localizations.saveVolumeButton),
+          ),
+          const Divider(),
+          ListTile(
+            title: Text(localizations.unitSystem),
+            trailing: DropdownButton<String>(
+              value: settingsController.unidadSistema,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  settingsController.updateUnidadSistema(newValue);
+                  _cargarVolumen();
+                }
+              },
+              items: [
+                DropdownMenuItem(
+                  value: 'imperial',
+                  child: Text(localizations.imperialLabel),
+                ),
+                DropdownMenuItem(
+                  value: 'metrico',
+                  child: Text(localizations.metricLabel),
+                ),
+              ],
+            ),
+          ),
+
+          // 2. Recordatorios automáticos
+          const Divider(),
           DropdownButtonFormField<int>(
             value: _diaSemanaSeleccionado,
             decoration: InputDecoration(labelText: localizations.selectWeekday),
@@ -143,21 +206,8 @@ class _AjustesScreenState extends State<AjustesScreen> {
             ),
             onTap: () async => await _activarRecordatorioMensual(localizations),
           ),
-          const Divider(),
-          TextField(
-            controller: _volumenController,
-            keyboardType: TextInputType.numberWithOptions(decimal: false),
-            decoration: InputDecoration(
-              labelText: localizations.poolVolumeLabel,
-              suffixText: esMetrico ? localizations.unidadLitro : localizations.unidadGalon,
-            ),
-            onSubmitted: (_) => _guardarVolumen(settingsController.unidadSistema),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () => _guardarVolumen(settingsController.unidadSistema),
-            child: Text(localizations.saveVolumeButton),
-          ),
+
+          // 3. Mantenimiento físico
           const Divider(),
           ListTile(
             title: Text(localizations.registerFilterCleaning),
@@ -222,29 +272,8 @@ class _AjustesScreenState extends State<AjustesScreen> {
               }
             },
           ),
-          const Divider(),
-          ListTile(
-            title: Text(localizations.unitSystem),
-            trailing: DropdownButton<String>(
-              value: settingsController.unidadSistema,
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  settingsController.updateUnidadSistema(newValue);
-                  _cargarVolumen();
-                }
-              },
-              items: [
-                DropdownMenuItem(
-                  value: 'imperial',
-                  child: Text(localizations.imperialLabel),
-                ),
-                DropdownMenuItem(
-                  value: 'metrico',
-                  child: Text(localizations.metricLabel),
-                ),
-              ],
-            ),
-          ),
+
+          // 4. Preferencias
           const Divider(),
           SwitchListTile(
             title: Text(localizations.darkMode),
@@ -268,6 +297,8 @@ class _AjustesScreenState extends State<AjustesScreen> {
               ],
             ),
           ),
+
+          // 5. Gestión de datos
           const Divider(),
           ListTile(
             title: Text(localizations.resetAll),
@@ -313,6 +344,8 @@ class _AjustesScreenState extends State<AjustesScreen> {
             trailing: const Icon(Icons.show_chart),
             onTap: () => settingsController.resetCharts(context),
           ),
+
+          // 6. Información adicional
           const Divider(),
           ListTile(
             title: Text(localizations.legalInfo),

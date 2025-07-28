@@ -194,6 +194,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
+    final esAguaSalada = Provider.of<SettingsController>(context).esAguaSalada;
 
     return Scaffold(
       appBar: AppBar(
@@ -211,10 +212,12 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
               setState(() => _volumenCloroCombinado = val!);
             }, _volumenCloroCombinado),
             const SizedBox(height: 12),
+
             for (var entry in _controllers.entries)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: TextField(
+               if (esAguaSalada || entry.key != 'Salinidad')
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: TextField(
                   controller: entry.value,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
@@ -223,7 +226,8 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                   ),
                 ),
               ),
-            const SizedBox(height: 16),
+
+    const SizedBox(height: 16),
             if (_recomendaciones.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -14,6 +14,8 @@ Future<Map<String, String>> calcularAjustes(
   double? toDouble(String? valor) => double.tryParse(valor ?? '');
 
   final prefs = await SharedPreferences.getInstance();
+  final bool esAguaSalada = prefs.getBool('tipo_pileta_salada') ?? true;
+
   double volumenGalones = prefs.getDouble('volumen_piscina') ?? 13000;
   double volumenLitros = volumenGalones * 3.785;
   double factorVolumenEscala = volumenGalones / 10000;
@@ -250,7 +252,7 @@ Future<Map<String, String>> calcularAjustes(
   }
 
   // Salinidad (corregida)
-  if (salinidad != null) {
+  if (salinidad != null && esAguaSalada) {
     String valor = '${localizations.salinidadLabel}: ${salinidad.toStringAsFixed(0)}';
     if (salinidad < 3000) {
       double incremento = 3000 - salinidad;

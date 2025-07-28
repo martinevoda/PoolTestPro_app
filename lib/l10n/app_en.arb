@@ -322,11 +322,17 @@
   "poolVolumeLabel": "Volumen de la piscina",
   "saveVolumeButton": "Guardar volumen",
   "volumenGuardado": "✅ Volumen guardado correctamente",
-
   "instruccionesCloro": "Enter the drops of free and combined chlorine (10 mL sample)",
   "localLabel": "{parametro}",
   "calcularYGuardar": "Calculate and Save",
-  "alertaStock": "⚠️ Low stock alert"
+  "alertaStock": "⚠️ Low stock alert",
+
+  "poolTypeLabel": "Pool type",
+  "poolTypeSalt": "Saltwater (chlorine generator)",
+  "poolTypeFresh": "Freshwater (manual chlorine)",
+  "poolTypeSaltSelected": "Selected: Saltwater pool",
+  "poolTypeFreshSelected": "Selected: Freshwater pool"
+
 
 
 }

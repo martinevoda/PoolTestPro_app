@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/test_registro.dart';
 import '../utils/registro_loader.dart'; // Asegúrate que esta función existe
+import 'package:provider/provider.dart';
+import '../controllers/settings_controller.dart';
+
 
 class GraficoParametroPage extends StatefulWidget {
   const GraficoParametroPage({super.key});
@@ -143,15 +146,16 @@ class _GraficoParametroPageState extends State<GraficoParametroPage> {
                   color: color,
                   dotData: FlDotData(show: true),
                 ),
-                ...valoresNormales.map((limite) => LineChartBarData(
-                  spots: List.generate(
-                      spots.length, (i) => FlSpot(i.toDouble(), limite)),
-                  isCurved: false,
-                  barWidth: 1,
-                  color: Colors.green,
-                  dashArray: [5, 5],
-                  dotData: FlDotData(show: false),
-                )),
+                ...valoresNormales.map((limite) =>
+                    LineChartBarData(
+                      spots: List.generate(
+                          spots.length, (i) => FlSpot(i.toDouble(), limite)),
+                      isCurved: false,
+                      barWidth: 1,
+                      color: Colors.green,
+                      dashArray: [5, 5],
+                      dotData: FlDotData(show: false),
+                    )),
               ],
             ),
           ),
@@ -168,6 +172,10 @@ class _GraficoParametroPageState extends State<GraficoParametroPage> {
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
+    final esAguaSalada = Provider
+        .of<SettingsController>(context)
+        .esAguaSalada;
+
     final mapaParametros = {
       'Cloro libre': local.cloroLibre,
       'Cloro combinado': local.cloroCombinado,
@@ -175,8 +183,14 @@ class _GraficoParametroPageState extends State<GraficoParametroPage> {
       'Alcalinidad': local.alcalinidad,
       'CYA': local.cya,
       'Dureza': local.dureza,
-      'Salinidad': local.salinidad,
+      if (esAguaSalada) 'Salinidad': local.salinidad,
+      // ✅ solo si es agua salada
     };
+
+    // Si el parámetro actual seleccionado ya no está disponible (ej. salinidad en agua sin sal), cambiarlo
+    if (!mapaParametros.containsKey(parametroSeleccionado)) {
+      parametroSeleccionado = 'Cloro libre';
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(local.graficoParametro)),

@@ -167,6 +167,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
+    final esAguaSalada = Provider.of<SettingsController>(context).esAguaSalada;
 
     return Scaffold(
       appBar: AppBar(
@@ -188,6 +189,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                 'Dureza',
                 'Salinidad'
               ]
+                  .where((param) => esAguaSalada || param != 'Salinidad')
                   .map((param) =>
                   DropdownMenuItem(
                     value: param,
