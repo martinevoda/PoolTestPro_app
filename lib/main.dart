@@ -7,12 +7,11 @@ import 'package:piscina_app/pages/test_individual.dart';
 import 'package:piscina_app/pages/registros_anteriores.dart';
 import 'package:piscina_app/pages/grafico_parametro.dart';
 import 'package:piscina_app/pages/ajustes_screen.dart';
-import 'package:piscina_app/pages/historial_mantenimiento.dart'; // NUEVO
+import 'package:piscina_app/pages/historial_mantenimiento.dart';
 import 'package:piscina_app/utils/notification_service.dart';
 import 'package:piscina_app/utils/registro_loader.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:piscina_app/pages/pantalla_stock.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +56,7 @@ class PiscinaApp extends StatelessWidget {
     final settingsController = Provider.of<SettingsController>(context);
 
     return MaterialApp(
-      title: 'Mantenimiento Piscina',
+      title: 'PoolTest Pro',
       debugShowCheckedModeBanner: false,
       themeMode: settingsController.themeMode,
       theme: ThemeData(
@@ -95,12 +94,13 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('🧪 ${local.title}'),
+        title: const Text('PoolTest Pro'),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          const SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -140,7 +140,6 @@ class HomePage extends StatelessWidget {
             },
             child: Text('📈 ${local.verGraficoParametro}'),
           ),
-          const SizedBox(height: 10),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {

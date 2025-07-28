@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsController extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.light;
-  String _idioma = 'es'; // Español por defecto
+  String _idioma = 'en'; // Ingles por defecto
   String _unidadSistema = 'imperial'; // 'imperial' o 'metrico'
   bool _esAguaSalada = true; // ✅ Por defecto es pileta con sal
 
