@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piscina_app/utils/stock_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, String>> calcularAjustes(
     Map<String, String> parametros,
@@ -8,11 +9,14 @@ Future<Map<String, String>> calcularAjustes(
     String unidadSistema,
     ) async {
   final recomendaciones = <String, String>{};
-
   await StockService.getAllStock();
 
   double? toDouble(String? valor) => double.tryParse(valor ?? '');
-  double volumenLitros = 49210;
+
+  final prefs = await SharedPreferences.getInstance();
+  double volumenGalones = prefs.getDouble('volumen_piscina') ?? 13000;
+  double volumenLitros = volumenGalones * 3.785;
+  double factorVolumenEscala = volumenGalones / 10000;
 
   final localizations = AppLocalizations.of(context)!;
   bool esMetrico = unidadSistema == 'metrico';
@@ -88,8 +92,6 @@ Future<Map<String, String>> calcularAjustes(
 
     recomendaciones[key] = texto;
   }
-
-
 
   // Cloro libre
   if (cloroLibre != null) {
@@ -170,12 +172,12 @@ Future<Map<String, String>> calcularAjustes(
     }
   }
 
-  // Alcalinidad
+  // Alcalinidad (corregida)
   if (alcalinidad != null) {
     String valor = '${localizations.alcalinidadLabel}: ${alcalinidad.toStringAsFixed(0)}';
     if (alcalinidad < 80) {
       double incremento = 80 - alcalinidad;
-      double libras = incremento / 10;
+      double libras = incremento / 10 * factorVolumenEscala;
       double cantidad = esMetrico ? libras * factorPeso : libras;
       await procesarUso(
         key: 'alcalinidad',
@@ -186,7 +188,7 @@ Future<Map<String, String>> calcularAjustes(
         valorNormal: 'Valor normal: 80–120 ppm',
         valorActualFormateado: valor,
       );
-  } else if (alcalinidad > 120) {
+    } else if (alcalinidad > 120) {
       await procesarUso(
         key: 'acido_muriatico',
         cantidad: 300,
@@ -201,12 +203,12 @@ Future<Map<String, String>> calcularAjustes(
     }
   }
 
-  // CYA
+  // CYA (corregida)
   if (cya != null) {
     String valor = '${localizations.cyaLabel}: ${cya.toStringAsFixed(0)}';
     if (cya < 30) {
       double incremento = 30 - cya;
-      double libras = incremento / 10;
+      double libras = incremento / 10 * 1.25 * factorVolumenEscala;
       double cantidad = esMetrico ? libras * factorPeso : libras;
       await procesarUso(
         key: 'estabilizador',
@@ -224,12 +226,12 @@ Future<Map<String, String>> calcularAjustes(
     }
   }
 
-  // Dureza
+  // Dureza (corregida)
   if (dureza != null) {
     String valor = '${localizations.durezaLabel}: ${dureza.toStringAsFixed(0)}';
     if (dureza < 200) {
       double incremento = 200 - dureza;
-      double libras = incremento / 20;
+      double libras = incremento / 10 * 1.25 * factorVolumenEscala;
       double cantidad = esMetrico ? libras * factorPeso : libras;
       await procesarUso(
         key: 'dureza',
@@ -247,12 +249,12 @@ Future<Map<String, String>> calcularAjustes(
     }
   }
 
-  // Salinidad
+  // Salinidad (corregida)
   if (salinidad != null) {
     String valor = '${localizations.salinidadLabel}: ${salinidad.toStringAsFixed(0)}';
     if (salinidad < 3000) {
       double incremento = 3000 - salinidad;
-      double libras = incremento * 10.8 / 100;
+      double libras = incremento * 10.8 / 100 * factorVolumenEscala;
       double cantidad = esMetrico ? libras * factorPeso : libras;
       await procesarUso(
         key: 'sal',

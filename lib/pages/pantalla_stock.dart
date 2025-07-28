@@ -13,11 +13,15 @@ class PantallaStock extends StatefulWidget {
 
 class _PantallaStockState extends State<PantallaStock> {
   late Future<Map<String, double>> _stockFuture;
+  final Map<String, Key> _futureKeys = {};
 
   @override
   void initState() {
     super.initState();
     _stockFuture = StockService.getAllStock();
+    for (var producto in StockService.productos) {
+      _futureKeys[producto] = UniqueKey();
+    }
   }
 
   void _editarStock(BuildContext context, String productoKey, double actual) {
@@ -59,10 +63,12 @@ class _PantallaStockState extends State<PantallaStock> {
                 final value =
                 double.tryParse(controller.text.replaceAll(',', '.'));
                 if (value != null) {
-                  await StockService.setStock(productoKey, value); // sumar
+                  await StockService.setStock(productoKey, value);
                   Navigator.pop(context);
+                  await Future.delayed(const Duration(milliseconds: 100));
                   setState(() {
                     _stockFuture = StockService.getAllStock();
+                    _futureKeys[productoKey] = UniqueKey(); // 🔁 fuerza rebuild
                   });
                 }
               },
@@ -73,10 +79,12 @@ class _PantallaStockState extends State<PantallaStock> {
                 final value =
                 double.tryParse(controller.text.replaceAll(',', '.'));
                 if (value != null) {
-                  await StockService.reemplazarStock(productoKey, value); // reemplazar
+                  await StockService.reemplazarStock(productoKey, value);
                   Navigator.pop(context);
+                  await Future.delayed(const Duration(milliseconds: 100));
                   setState(() {
                     _stockFuture = StockService.getAllStock();
+                    _futureKeys[productoKey] = UniqueKey(); // 🔁 fuerza rebuild
                   });
                 }
               },
@@ -102,6 +110,9 @@ class _PantallaStockState extends State<PantallaStock> {
             onPressed: () {
               setState(() {
                 _stockFuture = StockService.getAllStock();
+                for (var producto in StockService.productos) {
+                  _futureKeys[producto] = UniqueKey(); // 🔁 al refrescar también
+                }
               });
             },
           ),
@@ -143,7 +154,7 @@ class _PantallaStockState extends State<PantallaStock> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${loc.available}: $formatted $unidad'),
+                          Text('${loc.available}: $formatted'),
                           Text(
                             comercial,
                             style: const TextStyle(
@@ -152,6 +163,7 @@ class _PantallaStockState extends State<PantallaStock> {
                             ),
                           ),
                           FutureBuilder<bool>(
+                            key: _futureKeys[productoKey], // ✅ fuerza rebuild
                             future: StockService.necesitaReabastecerUltimoUso(
                                 productoKey),
                             builder: (context, avisoSnapshot) {

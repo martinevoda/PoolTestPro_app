@@ -1,4 +1,3 @@
-// ajustes_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,11 +19,14 @@ class _AjustesScreenState extends State<AjustesScreen> {
   bool _semanalActivado = false;
   int _diaMesSeleccionado = 1;
   int _diaSemanaSeleccionado = DateTime.friday;
+  TextEditingController _volumenController = TextEditingController();
+  double _volumenPorDefectoGalones = 13000;
 
   @override
   void initState() {
     super.initState();
     _cargarPreferencias();
+    _cargarVolumen();
   }
 
   Future<void> _cargarPreferencias() async {
@@ -37,49 +39,26 @@ class _AjustesScreenState extends State<AjustesScreen> {
     });
   }
 
-  Future<void> _activarRecordatorioMensual(AppLocalizations localizations) async {
+  Future<void> _cargarVolumen() async {
     final prefs = await SharedPreferences.getInstance();
-    if (_mensualActivado) {
-      await NotificationService.cancelNotification(2);
-      await prefs.setBool('recordatorio_mensual', false);
-      setState(() => _mensualActivado = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.monthlyReminderDeactivated)));
-    } else {
-      final now = DateTime.now();
-      final proximo = DateTime(now.year, now.month + 1, _diaMesSeleccionado, 9);
-      await NotificationService.scheduleMonthlyNotification(
-        id: 2,
-        title: '📅 ${localizations.monthlyReminderTitle}',
-        body: localizations.monthlyReminderBody,
-        scheduledTime: proximo,
-      );
-      await prefs.setBool('recordatorio_mensual', true);
-      setState(() => _mensualActivado = true);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.monthlyReminderActivated)));
-    }
+    double? volumen = prefs.getDouble('volumen_piscina');
+    final settingsController = Provider.of<SettingsController>(context, listen: false);
+    final esMetrico = settingsController.unidadSistema == 'metrico';
+    final volumenMostrar = volumen ?? _volumenPorDefectoGalones;
+    _volumenController.text = esMetrico
+        ? (volumenMostrar * 3.785).toStringAsFixed(0)
+        : volumenMostrar.toStringAsFixed(0);
   }
 
-  Future<void> _activarRecordatorioSemanal(AppLocalizations localizations) async {
+  Future<void> _guardarVolumen(String unidadSistema) async {
     final prefs = await SharedPreferences.getInstance();
-    if (_semanalActivado) {
-      await NotificationService.cancelNotification(1);
-      await prefs.setBool('recordatorio_semanal', false);
-      setState(() => _semanalActivado = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.reminderDeactivated)));
-    } else {
-      final now = DateTime.now();
-      final daysToAdd = (_diaSemanaSeleccionado - now.weekday + 7) % 7;
-      final nextScheduled = now.add(Duration(days: daysToAdd));
-      final reminderTime = DateTime(nextScheduled.year, nextScheduled.month, nextScheduled.day, 9);
-      await NotificationService.scheduleWeeklyNotification(
-        id: 1,
-        title: '🧪 ${localizations.testReminderTitle}',
-        body: localizations.testReminderBody,
-        scheduledTime: reminderTime,
+    final input = double.tryParse(_volumenController.text);
+    if (input != null) {
+      double volumenGalones = unidadSistema == 'metrico' ? input / 3.785 : input;
+      await prefs.setDouble('volumen_piscina', volumenGalones);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.volumenGuardado)),
       );
-      await prefs.setBool('recordatorio_semanal', true);
-      setState(() => _semanalActivado = true);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.reminderActivated)));
     }
   }
 
@@ -108,6 +87,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final settingsController = Provider.of<SettingsController>(context);
+    final esMetrico = settingsController.unidadSistema == 'metrico';
 
     return Scaffold(
       appBar: AppBar(title: Text(localizations.settings)),
@@ -162,6 +142,21 @@ class _AjustesScreenState extends State<AjustesScreen> {
               color: _mensualActivado ? Colors.blue : Colors.black,
             ),
             onTap: () async => await _activarRecordatorioMensual(localizations),
+          ),
+          const Divider(),
+          TextField(
+            controller: _volumenController,
+            keyboardType: TextInputType.numberWithOptions(decimal: false),
+            decoration: InputDecoration(
+              labelText: localizations.poolVolumeLabel,
+              suffixText: esMetrico ? localizations.unidadLitro : localizations.unidadGalon,
+            ),
+            onSubmitted: (_) => _guardarVolumen(settingsController.unidadSistema),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () => _guardarVolumen(settingsController.unidadSistema),
+            child: Text(localizations.saveVolumeButton),
           ),
           const Divider(),
           ListTile(
@@ -235,6 +230,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
               onChanged: (String? newValue) {
                 if (newValue != null) {
                   settingsController.updateUnidadSistema(newValue);
+                  _cargarVolumen();
                 }
               },
               items: [
@@ -279,41 +275,34 @@ class _AjustesScreenState extends State<AjustesScreen> {
             onTap: () async {
               final confirm = await showDialog<bool>(
                 context: context,
-                builder: (_) =>
-                    AlertDialog(
-                      title: Text(localizations.confirmResetTitle),
-                      content: Text(localizations.confirmResetContent),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: Text(localizations.cancel),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: Text(localizations.confirm),
-                        ),
-                      ],
+                builder: (_) => AlertDialog(
+                  title: Text(localizations.confirmResetTitle),
+                  content: Text(localizations.confirmResetContent),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(localizations.cancel),
                     ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(localizations.confirm),
+                    ),
+                  ],
+                ),
               );
 
               if (confirm == true) {
                 final prefs = await SharedPreferences.getInstance();
-                // Borrar registros anteriores
                 await prefs.remove('test_completo');
                 await prefs.remove('test_individual');
-
-                // Borrar registros de gráficos
                 await prefs.remove('test_registros');
-
-                // Borrar historial de mantenimiento
                 await prefs.remove('limpieza_filtro');
                 await prefs.remove('limpieza_celda');
+                await prefs.remove('volumen_piscina');
 
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(localizations.borradoExitoso),
-                    ),
+                    SnackBar(content: Text(localizations.borradoExitoso)),
                   );
                 }
               }
@@ -348,8 +337,50 @@ class _AjustesScreenState extends State<AjustesScreen> {
       ),
     );
   }
+
+  Future<void> _activarRecordatorioMensual(AppLocalizations localizations) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_mensualActivado) {
+      await NotificationService.cancelNotification(2);
+      await prefs.setBool('recordatorio_mensual', false);
+      setState(() => _mensualActivado = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.monthlyReminderDeactivated)));
+    } else {
+      final now = DateTime.now();
+      final proximo = DateTime(now.year, now.month + 1, _diaMesSeleccionado, 9);
+      await NotificationService.scheduleMonthlyNotification(
+        id: 2,
+        title: '📅 ${localizations.monthlyReminderTitle}',
+        body: localizations.monthlyReminderBody,
+        scheduledTime: proximo,
+      );
+      await prefs.setBool('recordatorio_mensual', true);
+      setState(() => _mensualActivado = true);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.monthlyReminderActivated)));
+    }
+  }
+
+  Future<void> _activarRecordatorioSemanal(AppLocalizations localizations) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_semanalActivado) {
+      await NotificationService.cancelNotification(1);
+      await prefs.setBool('recordatorio_semanal', false);
+      setState(() => _semanalActivado = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.reminderDeactivated)));
+    } else {
+      final now = DateTime.now();
+      final daysToAdd = (_diaSemanaSeleccionado - now.weekday + 7) % 7;
+      final nextScheduled = now.add(Duration(days: daysToAdd));
+      final reminderTime = DateTime(nextScheduled.year, nextScheduled.month, nextScheduled.day, 9);
+      await NotificationService.scheduleWeeklyNotification(
+        id: 1,
+        title: '🧪 ${localizations.testReminderTitle}',
+        body: localizations.testReminderBody,
+        scheduledTime: reminderTime,
+      );
+      await prefs.setBool('recordatorio_semanal', true);
+      setState(() => _semanalActivado = true);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.reminderActivated)));
+    }
+  }
 }
-
-
-
-

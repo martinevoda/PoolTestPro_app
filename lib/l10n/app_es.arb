@@ -326,11 +326,7 @@
   "cyaLabel": "CYA",
   "durezaLabel": "Dureza cálcica",
   "salinidadLabel": "Salinidad",
-
   "cloroCombinadoTip": "Luego, revisar el generador y retestar en 24h.",
-
-
-
   "cloroCombinadoAlto": "⚠️ Alto. Puede indicar presencia de cloraminas. Se recomienda un tratamiento de choque.",
   "cloroCombinadoBajo": "⚠️ Bajo. Puede no estar desinfectando adecuadamente. Verificar generador o retestar.",
   "cloroCombinadoNormal": "✅ Dentro del rango ideal. Sin acción necesaria.",
@@ -360,14 +356,18 @@
 
   "testGuardadoExito": "Test guardado con éxito",
   "guardarTesteo": "Guardar testeo",
-
   "opcional": "opcional",
-
   "agregarCantidad": "Cantidad a agregar",
+  "reemplazar": "Reemplazar",
+
+  "poolVolumeLabel": "Pool volume",
+  "saveVolumeButton": "Save volume",
+  "volumenGuardado": "✅ Volume saved successfully",
 
 
-  "reemplazar": "Reemplazar"
-
+  "instruccionesCloro": "Indicá las gotas de cloro libre y combinado (10 mL muestra)",
+  "calcularYGuardar": "Calcular y guardar",
+  "alertaStock": "⚠️ Alerta de stock bajo"
 
 }
 

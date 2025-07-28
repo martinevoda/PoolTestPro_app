@@ -35,7 +35,6 @@ class StockService {
     _stockCache[key] = nuevoTotal;
   }
 
-  /// ✅ Nuevo método para reemplazar directamente el stock (sin sumar)
   static Future<void> reemplazarStock(String key, double nuevoValor) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('stock_$key', nuevoValor);
@@ -134,6 +133,10 @@ class StockService {
     final prefs = await SharedPreferences.getInstance();
     final actual = prefs.getDouble('stock_$key') ?? 0.0;
     final ultimoUso = prefs.getDouble('uso_$key') ?? 0.0;
+
+    // ✅ Asegura que el _stockCache también se actualice para coherencia con la app
+    _stockCache[key] = actual;
+
     return actual < ultimoUso;
   }
 

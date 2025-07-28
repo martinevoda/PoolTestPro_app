@@ -58,11 +58,8 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
         _registroActual = Map<String, String>.from(registro);
       });
 
-      final unidadSistema = Provider
-          .of<SettingsController>(context, listen: false)
-          .unidadSistema;
-      final recomendaciones = await calcularAjustes(
-          Map<String, String>.from(registro), context, unidadSistema);
+      final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
+      final recomendaciones = await calcularAjustes(Map<String, String>.from(registro), context, unidadSistema);
       setState(() {
         _recomendaciones = recomendaciones;
       });
@@ -99,8 +96,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
     if (gotasCombinado != null) {
       cloroCombinadoPPM =
-      _volumenCloroCombinado == '10' ? gotasCombinado * 0.5 : gotasCombinado *
-          0.2;
+      _volumenCloroCombinado == '10' ? gotasCombinado * 0.5 : gotasCombinado * 0.2;
     }
 
     final Map<String, String> registro = {
@@ -111,12 +107,9 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
       'fecha': DateTime.now().toIso8601String(),
     };
 
-    final unidadSistema = Provider
-        .of<SettingsController>(context, listen: false)
-        .unidadSistema;
+    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
 
-    final recomendaciones = await calcularAjustes(
-        registro, context, unidadSistema);
+    final recomendaciones = await calcularAjustes(registro, context, unidadSistema);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('temp_test_completo', json.encode(registro));
@@ -132,7 +125,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
     await _saveRegistro(_registroActual);
     await _saveRegistrosComoTestRegistro(_registroActual);
-    await _descontarStockSiempre(_recomendaciones); // ✅ descuento automático
+    await _descontarStockSiempre(_recomendaciones);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('temp_test_completo');
@@ -165,14 +158,12 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     await prefs.setStringList('registros', registros);
 
     final List<Map<String, dynamic>> completos =
-    List<Map<String, dynamic>>.from(
-        json.decode(prefs.getString('test_completo') ?? '[]'));
+    List<Map<String, dynamic>>.from(json.decode(prefs.getString('test_completo') ?? '[]'));
     completos.add(registro);
     await prefs.setString('test_completo', json.encode(completos));
   }
 
-  Future<void> _saveRegistrosComoTestRegistro(
-      Map<String, String> registro) async {
+  Future<void> _saveRegistrosComoTestRegistro(Map<String, String> registro) async {
     final prefs = await SharedPreferences.getInstance();
     final String? data = prefs.getString('test_registros');
     List<Map<String, dynamic>> lista = [];
@@ -225,8 +216,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: TextField(
                   controller: entry.value,
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: localLabel(entry.key, local),
                     border: const OutlineInputBorder(),
@@ -237,41 +227,35 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
             if (_recomendaciones.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ..._recomendaciones.entries.map((entry) {
-                    final lines = entry.value.trim().split('\n');
-                    if (lines.isEmpty) return const SizedBox();
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            lines.first,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                children: _recomendaciones.entries.map((entry) {
+                  final lines = entry.value.trim().split('\n');
+                  if (lines.isEmpty) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lines.first,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        ...lines.skip(1).map((line) => Text(
+                          line,
+                          style: TextStyle(
+                            color: line.contains('⚠️') ||
+                                line.toLowerCase().contains('bajo') ||
+                                line.toLowerCase().contains('alto') ||
+                                line.toLowerCase().contains('insuficiente')
+                                ? Colors.red
+                                : line.contains('✅')
+                                ? Colors.green
+                                : null,
                           ),
-                          ...lines.skip(1).map(
-                                (line) =>
-                                Text(
-                                  line,
-                                  style: TextStyle(
-                                    color: line.contains('⚠️') ||
-                                        line.toLowerCase().contains('bajo') ||
-                                        line.toLowerCase().contains('alto') ||
-                                        line.toLowerCase().contains(
-                                            'insuficiente')
-                                        ? Colors.red
-                                        : line.contains('✅')
-                                        ? Colors.green
-                                        : null,
-                                  ),
-                                ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
+                        )),
+                      ],
+                    ),
+                  );
+                }).toList(),
               ),
             const SizedBox(height: 16),
             Row(
@@ -313,8 +297,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
         DropdownButton<String>(
           value: volumenSeleccionado,
           items: ['10', '25']
-              .map((vol) =>
-              DropdownMenuItem(value: vol, child: Text('$vol mL')))
+              .map((vol) => DropdownMenuItem(value: vol, child: Text('$vol mL')))
               .toList(),
           onChanged: onChanged,
         ),
@@ -357,8 +340,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     }
   }
 
-  Future<void> _descontarStockSiempre(
-      Map<String, String> recomendaciones) async {
+  Future<void> _descontarStockSiempre(Map<String, String> recomendaciones) async {
     final keyMap = {
       'Cloro libre': 'cloro_liquido',
       'Cloro combinado': 'cloro_liquido',
@@ -371,8 +353,6 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
     for (var entry in recomendaciones.entries) {
       final texto = entry.value;
-
-      // Buscar "agregar 1.5 lb" o similar
       final regex = RegExp(r'agregar\s+([\d.]+)\s+\w+', caseSensitive: false);
       final match = regex.firstMatch(texto);
 
@@ -394,3 +374,4 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     }
   }
 }
+

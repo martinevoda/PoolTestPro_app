@@ -301,8 +301,6 @@
   "cyaAltoConsejo": "Tip: Consider partial draining and refilling the pool.",
   "durezaAltaConsejo": "Tip: Drain part of the pool if hardness is very high.",
   "salinidadAltaConsejo": "Tip: Consider dilution with fresh water.",
-
-
   "alcalinidadBaja": "⚠️ Low. Add {vol} of alkalinity increaser (In The Swim Alkalinity Increaser).",
   "@alcalinidadBaja": {
     "placeholders": {
@@ -318,11 +316,17 @@
 
   "testGuardadoExito": "Test saved successfully",
   "guardarTesteo": "Save test",
-
   "opcional": "optional",
-
   "agregarCantidad": "Quantity to add",
+  "reemplazar": "Replace",
+  "poolVolumeLabel": "Volumen de la piscina",
+  "saveVolumeButton": "Guardar volumen",
+  "volumenGuardado": "✅ Volumen guardado correctamente",
 
-  "reemplazar": "Replace"
+  "instruccionesCloro": "Enter the drops of free and combined chlorine (10 mL sample)",
+  "localLabel": "{parametro}",
+  "calcularYGuardar": "Calculate and Save",
+  "alertaStock": "⚠️ Low stock alert"
+
 
 }
