@@ -462,7 +462,18 @@
   "tutorialPage7Description": "Cambia las unidades, el volumen (por defecto 13,000 gal), el tipo de piscina (por defecto salada), el idioma y las alertas.",
 
   "tutorialPage8Title": "Notas Importantes",
-  "tutorialPage8Description": "⚠️ Los cálculos están basados en el kit Taylor K-2006C y un medidor digital de salinidad (ppm). Se asume por defecto una piscina de agua salada de 13,000 galones."
+  "tutorialPage8Description": "⚠️ Los cálculos están basados en el kit Taylor K-2006C y un medidor digital de salinidad (ppm). Se asume por defecto una piscina de agua salada de 13,000 galones.",
+
+  "tutorialPage9Title": "Información Legal",
+  "tutorialPage9Description": "📜 Versión en Español – Información Legal\n\n**Aviso Legal**\n\nEsta aplicación ha sido desarrollada con fines personales y educativos. El autor no se hace responsable del uso que cada persona le dé a la app, ni de los resultados obtenidos por los cálculos, ni de las consecuencias que estos puedan generar en la salud, seguridad o condiciones de la piscina.\n\nEl uso de esta app es bajo exclusiva responsabilidad del usuario. Se recomienda verificar todos los resultados y decisiones con un profesional calificado antes de aplicar cualquier producto químico.\n\nEl nombre PoolTest Pro y el contenido de esta aplicación son propiedad del autor, quien se reserva todos los derechos legales sobre su uso, distribución o copia.\n\n📜 English Version – Legal Notice\n\n**Disclaimer**\n\nThis app has been developed for personal and educational use. The author is not responsible for how users apply the app, the results from the calculations, or any consequences that may arise related to health, safety, or pool conditions.\n\nUse of this app is at the user's own risk. It is recommended to consult with a qualified professional before applying any chemical product.\n\nThe name PoolTest Pro and the contents of this app are the property of the author, who retains all legal rights regarding its use, distribution, or reproduction.",
+
+
+
+  "legalNowInTutorial": "La información legal ahora se encuentra en el tutorial",
+  "legalInTutorialMessage": "Podés ver la información legal al final del tutorial"
+
+
+
 
 
 }

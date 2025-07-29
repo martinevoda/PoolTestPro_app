@@ -21,6 +21,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
     Icons.inventory,
     Icons.settings,
     Icons.info,
+    Icons.gavel,
+
   ];
 
   @override
@@ -36,6 +38,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
       localizations.tutorialPage6Title,
       localizations.tutorialPage7Title,
       localizations.tutorialPage8Title,
+      localizations.tutorialPage9Title,
+
     ];
 
     final descriptions = [
@@ -47,6 +51,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
       localizations.tutorialPage6Description,
       localizations.tutorialPage7Description,
       localizations.tutorialPage8Description,
+      localizations.tutorialPage9Description,
     ];
 
     return Scaffold(
@@ -115,11 +120,16 @@ class _TutorialScreenState extends State<TutorialScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(
+                    description,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                ),
               ),
+
             ],
           ),
         ),

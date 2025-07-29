@@ -419,6 +419,15 @@
   "tutorialPage7Description": "Change units, volume (default 13,000 gal), pool type (default saltwater), language, and alert preferences.",
 
   "tutorialPage8Title": "Important Notes",
-  "tutorialPage8Description": "⚠️ Calculations are based on the Taylor K-2006C test kit and a digital salinity meter (ppm). Default values assume a 13,000 gallon saltwater pool."
+  "tutorialPage8Description": "⚠️ Calculations are based on the Taylor K-2006C test kit and a digital salinity meter (ppm). Default values assume a 13,000 gallon saltwater pool.",
+
+  "tutorialPage9Title": "Legal Information",
+  "tutorialPage9Description": "📜 Spanish Version – Información Legal\n\n**Aviso Legal**\n\nEsta aplicación ha sido desarrollada con fines personales y educativos. El autor no se hace responsable del uso que cada persona le dé a la app, ni de los resultados obtenidos por los cálculos, ni de las consecuencias que estos puedan generar en la salud, seguridad o condiciones de la piscina.\n\nEl uso de esta app es bajo exclusiva responsabilidad del usuario. Se recomienda verificar todos los resultados y decisiones con un profesional calificado antes de aplicar cualquier producto químico.\n\nEl nombre PoolTest Pro y el contenido de esta aplicación son propiedad del autor, quien se reserva todos los derechos legales sobre su uso, distribución o copia.\n\n📜 English Version – Legal Notice\n\n**Disclaimer**\n\nThis app has been developed for personal and educational use. The author is not responsible for how users apply the app, the results from the calculations, or any consequences that may arise related to health, safety, or pool conditions.\n\nUse of this app is at the user's own risk. It is recommended to consult with a qualified professional before applying any chemical product.\n\nThe name PoolTest Pro and the contents of this app are the property of the author, who retains all legal rights regarding its use, distribution, or reproduction.",
+
+
+  "legalNowInTutorial": "Legal information is now included in the tutorial",
+  "legalInTutorialMessage": "You can view the legal info at the end of the tutorial"
+
+
 
 }

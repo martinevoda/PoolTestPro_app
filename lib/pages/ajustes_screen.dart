@@ -345,23 +345,17 @@ class _AjustesScreenState extends State<AjustesScreen> {
             onTap: () => settingsController.resetCharts(context),
           ),
 
-          // 6. Información adicional
+          /// 6. Información adicional
           const Divider(),
           ListTile(
-            title: Text(localizations.legalInfo),
-            trailing: const Icon(Icons.info_outline),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: Text(localizations.legalInfo),
-                  content: Text(localizations.legalDisclaimer),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('OK'),
-                    ),
-                  ],
+              title: Text(AppLocalizations.of(context)!.legalInfo),
+              subtitle: Text(AppLocalizations.of(context)!.legalNowInTutorial),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.legalInTutorialMessage),
+                  duration: Duration(seconds: 3),
                 ),
               );
             },
