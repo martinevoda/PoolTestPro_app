@@ -93,98 +93,149 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('PoolTest Pro'),
-        centerTitle: true,
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFB3E5FC), // azul claro
+            Color(0xFFE1F5FE), // celeste más suave
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text('PoolTest Pro'),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Mostrar logo
+            Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    height: 120,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            _buildMenuButton(
+              context,
+              icon: Icons.science,
+              label: local.testCompleto,
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const TestCompletoPage()),
-              );
-            },
-            child: Text('🧪 ${local.testCompleto}'),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+              ),
+            ),
+            _buildMenuButton(
+              context,
+              icon: Icons.tune,
+              label: local.testIndividual,
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const TestIndividualScreen()),
-              );
-            },
-            child: Text('🧪 ${local.testIndividual}'),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+              ),
+            ),
+            _buildMenuButton(
+              context,
+              icon: Icons.list,
+              label: local.verRegistrosAnteriores,
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const RegistrosAnterioresPage()),
-              );
-            },
-            child: Text('📄 ${local.verRegistrosAnteriores}'),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+              ),
+            ),
+            _buildMenuButton(
+              context,
+              icon: Icons.show_chart,
+              label: local.verGraficoParametro,
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const GraficoParametroPage()),
-              );
-            },
-            child: Text('📈 ${local.verGraficoParametro}'),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+              ),
+            ),
+            _buildMenuButton(
+              context,
+              icon: Icons.cleaning_services,
+              label: local.historialMantenimiento,
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const HistorialMantenimientoScreen()),
-              );
-            },
-            child: Text(' ${local.historialMantenimiento}'),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+              ),
+            ),
+            _buildMenuButton(
+              context,
+              icon: Icons.inventory,
+              label: 'Stock de Productos',
+              onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const PantallaStock()),
-              );
-            },
-            child: const Text('📦 Stock de Productos'),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+                MaterialPageRoute(builder: (_) => const PantallaStock()),
+              ),
+            ),
+            _buildMenuButton(
+              context,
+              icon: Icons.settings,
+              label: local.settings,
+              onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AjustesScreen()),
-              );
-            },
-            child: Text('⚙️ ${local.settings}'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
+              ),
+            ),
+            _buildMenuButton(
+              context,
+              icon: Icons.school,
+              label: local.tutorialTitle,
+              onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const TutorialScreen()),
-              );
-            },
-            icon: const Icon(Icons.school),
-            label: Text(AppLocalizations.of(context)!.tutorialTitle),
-          ),
+                MaterialPageRoute(builder: (_) => const TutorialScreen()),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
 
-        ],
+  Widget _buildMenuButton(BuildContext context,
+      {required IconData icon, required String label, required VoidCallback onPressed}) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        leading: Icon(icon, size: 32, color: theme.colorScheme.primary),
+        title: Text(label, style: theme.textTheme.titleMedium),
+        trailing: const Icon(Icons.arrow_forward_ios),
+        onTap: onPressed,
       ),
     );
   }
 }
+
