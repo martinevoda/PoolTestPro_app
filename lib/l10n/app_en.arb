@@ -391,6 +391,34 @@
 
   "alcalinidadAltaTexto": "Alkalinity is high",
   "alcalinidadAltaConsejo1": "Tip: It also lowers the pH.",
-  "alcalinidadAltaConsejo2": "Tip: It also helps lower pH."
+  "alcalinidadAltaConsejo2": "Tip: It also helps lower pH.",
+  "tutorialTitle": "Tutorial",
+  "closeButtonLabel": "Close",
+
+
+
+  "tutorialPage1Title": "Welcome to PoolTest Pro",
+  "tutorialPage1Description": "This app helps you maintain your saltwater pool by guiding tests, product use, and stock management.",
+
+  "tutorialPage2Title": "Full Test",
+  "tutorialPage2Description": "Enter drop counts or test values. Get automatic recommendations for chemicals, doses, and stock tracking.",
+
+  "tutorialPage3Title": "Individual Test",
+  "tutorialPage3Description": "Choose a parameter (e.g. pH, chlorine) and enter a value or drops. Fast results and targeted advice.",
+
+  "tutorialPage4Title": "Charts",
+  "tutorialPage4Description": "Track the evolution of each parameter over time. Ideal ranges are highlighted for quick interpretation.",
+
+  "tutorialPage5Title": "Previous Records",
+  "tutorialPage5Description": "See saved tests and delete old entries. Useful for tracking trends and confirming changes.",
+
+  "tutorialPage6Title": "Stock Control",
+  "tutorialPage6Description": "Every product used is automatically subtracted from your available stock. Keep inventory up-to-date.",
+
+  "tutorialPage7Title": "Settings",
+  "tutorialPage7Description": "Change units, volume (default 13,000 gal), pool type (default saltwater), language, and alert preferences.",
+
+  "tutorialPage8Title": "Important Notes",
+  "tutorialPage8Description": "⚠️ Calculations are based on the Taylor K-2006C test kit and a digital salinity meter (ppm). Default values assume a 13,000 gallon saltwater pool."
 
 }

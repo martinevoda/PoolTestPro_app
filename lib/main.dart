@@ -12,6 +12,8 @@ import 'package:piscina_app/utils/notification_service.dart';
 import 'package:piscina_app/utils/registro_loader.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:piscina_app/pages/pantalla_stock.dart';
+import 'package:piscina_app/pages/tutorial_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -170,6 +172,17 @@ class HomePage extends StatelessWidget {
             },
             child: Text('⚙️ ${local.settings}'),
           ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TutorialScreen()),
+              );
+            },
+            icon: const Icon(Icons.school),
+            label: Text(AppLocalizations.of(context)!.tutorialTitle),
+          ),
+
         ],
       ),
     );

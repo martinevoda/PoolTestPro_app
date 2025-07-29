@@ -429,13 +429,41 @@
 
   "seNecesita": "Se necesita",
   "stockActual": "Stock actual",
-
   "alcalinidadBajaTexto": "La alcalinidad está baja",
-
-
   "alcalinidadAltaTexto": "La alcalinidad está alta",
   "alcalinidadAltaConsejo1": "Consejo: También reduce el pH.",
-  "alcalinidadAltaConsejo2": "Consejo: También ayuda a estabilizar el pH."
+  "alcalinidadAltaConsejo2": "Consejo: También ayuda a estabilizar el pH.",
+
+
+
+
+  "tutorialTitle": "Tutorial",
+  "closeButtonLabel": "Cerrar",
+
+  "tutorialPage1Title": "Bienvenido a PoolTest Pro",
+  "tutorialPage1Description": "Esta app te ayuda a mantener tu piscina de agua salada guiando los test, el uso de productos y el control de stock.",
+
+  "tutorialPage2Title": "Test Completo",
+  "tutorialPage2Description": "Ingresa el número de gotas o valores del test. Obtén recomendaciones automáticas sobre productos, dosis y control de inventario.",
+
+  "tutorialPage3Title": "Test Individual",
+  "tutorialPage3Description": "Elige un parámetro (ej. pH, cloro) e ingresa un valor o gotas. Resultados rápidos y consejos específicos.",
+
+  "tutorialPage4Title": "Gráficos",
+  "tutorialPage4Description": "Sigue la evolución de cada parámetro a lo largo del tiempo. Los rangos ideales están marcados para facilitar la interpretación.",
+
+  "tutorialPage5Title": "Registros Anteriores",
+  "tutorialPage5Description": "Consulta los test guardados y elimina registros antiguos. Útil para detectar tendencias y confirmar cambios.",
+
+  "tutorialPage6Title": "Control de Stock",
+  "tutorialPage6Description": "Cada producto usado se descuenta automáticamente del stock disponible. Mantén actualizado tu inventario.",
+
+  "tutorialPage7Title": "Ajustes",
+  "tutorialPage7Description": "Cambia las unidades, el volumen (por defecto 13,000 gal), el tipo de piscina (por defecto salada), el idioma y las alertas.",
+
+  "tutorialPage8Title": "Notas Importantes",
+  "tutorialPage8Description": "⚠️ Los cálculos están basados en el kit Taylor K-2006C y un medidor digital de salinidad (ppm). Se asume por defecto una piscina de agua salada de 13,000 galones."
+
 
 }
 
