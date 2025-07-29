@@ -430,13 +430,12 @@
   "seNecesita": "Se necesita",
   "stockActual": "Stock actual",
 
+  "alcalinidadBajaTexto": "La alcalinidad está baja",
 
 
-
-
-
-
-
+  "alcalinidadAltaTexto": "La alcalinidad está alta",
+  "alcalinidadAltaConsejo1": "Consejo: También reduce el pH.",
+  "alcalinidadAltaConsejo2": "Consejo: También ayuda a estabilizar el pH."
 
 }
 

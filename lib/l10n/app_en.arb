@@ -384,20 +384,13 @@
   },
 
   "seNecesita": "Required",
-  "stockActual": "In stock"
+  "stockActual": "In stock",
+
+  "alcalinidadBajaTexto": "Alkalinity is low",
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+  "alcalinidadAltaTexto": "Alkalinity is high",
+  "alcalinidadAltaConsejo1": "Tip: It also lowers the pH.",
+  "alcalinidadAltaConsejo2": "Tip: It also helps lower pH."
 
 }

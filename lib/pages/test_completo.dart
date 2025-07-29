@@ -125,7 +125,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
     await _saveRegistro(_registroActual);
     await _saveRegistrosComoTestRegistro(_registroActual);
-    await _descontarStockSiempre(_recomendaciones);
+
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('temp_test_completo');
@@ -154,8 +154,9 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
   Future<void> _saveRegistro(Map<String, String> registro) async {
     final prefs = await SharedPreferences.getInstance();
     final List<String> registros = prefs.getStringList('registros') ?? [];
-    registros.add(registro.toString());
+    registros.add(json.encode(registro));
     await prefs.setStringList('registros', registros);
+
 
     final List<Map<String, dynamic>> completos =
     List<Map<String, dynamic>>.from(json.decode(prefs.getString('test_completo') ?? '[]'));
@@ -339,40 +340,6 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
         return local.nombreProductoSal;
       default:
         return key;
-    }
-  }
-
-  Future<void> _descontarStockSiempre(Map<String, String> recomendaciones) async {
-    final keyMap = {
-      'Cloro libre': 'cloro_liquido',
-      'Cloro combinado': 'cloro_liquido',
-      'pH': 'acido_muriatico',
-      'Alcalinidad': 'alcalinidad',
-      'CYA': 'estabilizador',
-      'Dureza': 'dureza',
-      'Salinidad': 'sal',
-    };
-
-    for (var entry in recomendaciones.entries) {
-      final texto = entry.value;
-      final regex = RegExp(r'(agregar|add)\s+([\d.]+)', caseSensitive: false);
-      final match = regex.firstMatch(texto);
-
-      if (match != null) {
-        final cantidadStr = match.group(2);
-        final cantidad = double.tryParse(cantidadStr ?? '');
-        final keyOriginal = entry.key;
-        final productoKey = keyMap[keyOriginal] ?? keyOriginal;
-
-        if (cantidad != null && productoKey.isNotEmpty) {
-          await StockService.registrarUso(productoKey, cantidad);
-          debugPrint('🟢 Stock descontado: $productoKey - $cantidad');
-        } else {
-          debugPrint('🔴 No se pudo descontar stock para: $keyOriginal');
-        }
-      } else {
-        debugPrint('🔴 No se encontró cantidad en: "${entry.value}"');
-      }
     }
   }
 }

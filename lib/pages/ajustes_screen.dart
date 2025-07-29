@@ -345,6 +345,20 @@ class _AjustesScreenState extends State<AjustesScreen> {
             onTap: () => settingsController.resetCharts(context),
           ),
 
+          ElevatedButton(
+            onPressed: () async {
+              await borrarTodosLosDatos();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('✅ Todos los datos fueron eliminados'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+            child: const Text('🧹 Borrar todos los datos'),
+          ),
+
+
           // 6. Información adicional
           const Divider(),
           ListTile(
@@ -416,4 +430,17 @@ class _AjustesScreenState extends State<AjustesScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.reminderActivated)));
     }
   }
+}
+
+
+Future<void> borrarTodosLosDatos() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('registros');
+  await prefs.remove('test_individual');
+  await prefs.remove('test_completo');
+  await prefs.remove('test_registros');
+  await prefs.remove('temp_individual');
+  await prefs.remove('temp_test_completo');
+  await prefs.remove('temp_recomendaciones_individual');
+  print('🧹 SharedPreferences limpiado completamente');
 }
