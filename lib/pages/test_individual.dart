@@ -54,10 +54,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
   Future<void> _calcular() async {
     final local = AppLocalizations.of(context)!;
-    final unidadSistema =
-        Provider
-            .of<SettingsController>(context, listen: false)
-            .unidadSistema;
+    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
 
     double? valor;
     final gotas = int.tryParse(_gotasController.text.trim());
@@ -76,13 +73,11 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       'fecha': DateTime.now().toIso8601String(),
     };
 
-    final recomendaciones =
-    await calcularAjustes(registro, context, unidadSistema);
+    final recomendaciones = await calcularAjustes(registro, context, unidadSistema);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('temp_individual', json.encode(registro));
-    await prefs.setString(
-        'temp_recomendaciones_individual', json.encode(recomendaciones));
+    await prefs.setString('temp_recomendaciones_individual', json.encode(recomendaciones));
 
     setState(() {
       _registroActual = registro;
@@ -95,7 +90,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
     await _saveRegistro(_registroActual);
     await _saveRegistrosComoTestRegistro(_registroActual);
-    await _descontarStockSiempre(_recomendaciones); // ✅ descuento automático
+    await _descontarStockSiempre(_recomendaciones);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('temp_individual');
@@ -127,16 +122,14 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     List<Map<String, dynamic>> individuales = [];
 
     if (individualesData != null && individualesData.isNotEmpty) {
-      individuales =
-      List<Map<String, dynamic>>.from(json.decode(individualesData));
+      individuales = List<Map<String, dynamic>>.from(json.decode(individualesData));
     }
 
     individuales.add(registro);
     await prefs.setString('test_individual', json.encode(individuales));
   }
 
-  Future<void> _saveRegistrosComoTestRegistro(
-      Map<String, String> registro) async {
+  Future<void> _saveRegistrosComoTestRegistro(Map<String, String> registro) async {
     final prefs = await SharedPreferences.getInstance();
     final String? data = prefs.getString('test_registros');
     List<Map<String, dynamic>> lista = [];
@@ -190,11 +183,10 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                 'Salinidad'
               ]
                   .where((param) => esAguaSalada || param != 'Salinidad')
-                  .map((param) =>
-                  DropdownMenuItem(
-                    value: param,
-                    child: Text(localLabel(param, local)),
-                  ))
+                  .map((param) => DropdownMenuItem(
+                value: param,
+                child: Text(localLabel(param, local)),
+              ))
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -213,8 +205,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                   Expanded(
                     child: TextField(
                       controller: _gotasController,
-                      keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
                         labelText: '${local.gotas} (opcional)',
                         border: const OutlineInputBorder(),
@@ -225,8 +216,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                   DropdownButton<String>(
                     value: _volumenSeleccionado,
                     items: ['10', '25']
-                        .map((v) =>
-                        DropdownMenuItem(value: v, child: Text('$v mL')))
+                        .map((v) => DropdownMenuItem(value: v, child: Text('$v mL')))
                         .toList(),
                     onChanged: (val) {
                       if (val != null) {
@@ -239,8 +229,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: _valorController,
-              keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 labelText: local.valor,
                 border: const OutlineInputBorder(),
@@ -258,24 +247,18 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(lines.first,
-                            style:
-                            const TextStyle(fontWeight: FontWeight.bold)),
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
                         ...lines.skip(1).map(
-                              (line) =>
-                              Text(
-                                line,
-                                style: TextStyle(
-                                  color: line.contains('⚠️') ||
-                                      line.toLowerCase().contains('bajo') ||
-                                      line.toLowerCase().contains('alto') ||
-                                      line.toLowerCase().contains(
-                                          'insuficiente')
-                                      ? Colors.red
-                                      : line.contains('✅')
-                                      ? Colors.green
-                                      : null,
-                                ),
-                              ),
+                              (line) => Text(
+                            line,
+                            style: TextStyle(
+                              color: line.contains('⚠️') || line.contains('❌')
+                                  ? Colors.red
+                                  : line.contains('✅')
+                                  ? Colors.green
+                                  : null,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -324,8 +307,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     }
   }
 
-  Future<void> _descontarStockSiempre(
-      Map<String, String> recomendaciones) async {
+  Future<void> _descontarStockSiempre(Map<String, String> recomendaciones) async {
     final keyMap = {
       'Cloro libre': 'cloro_liquido',
       'Cloro combinado': 'cloro_liquido',
@@ -338,13 +320,11 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
     for (var entry in recomendaciones.entries) {
       final texto = entry.value;
-
-      // Buscar "agregar 1.5 lb" o similar
-      final regex = RegExp(r'agregar\s+([\d.]+)\s+\w+', caseSensitive: false);
+      final regex = RegExp(r'(agregar|add)\s+([\d.]+)', caseSensitive: false);
       final match = regex.firstMatch(texto);
 
       if (match != null) {
-        final cantidadStr = match.group(1);
+        final cantidadStr = match.group(2);
         final cantidad = double.tryParse(cantidadStr ?? '');
         final keyOriginal = entry.key;
         final productoKey = keyMap[keyOriginal] ?? keyOriginal;

@@ -121,7 +121,6 @@
   "dureza": "Calcium hardness",
   "salinidad": "Salinity",
   "suggestReplenish": "Suggest replenishment",
-  "stockActual": "Current stock",
   "stockBajo": "Low stock. May not be enough for next adjustment.",
   "controlStock": "Stock Control",
   "sinDatosStock": "No stock data available.",
@@ -280,7 +279,6 @@
   "nombreProductoPHBajo": "pH Increaser (Sodium Carbonate)",
   "nombreComercialPHBajo": "In The Swim pH Increaser",
   "alertaStockInsuficiente": "Insufficient stock to apply the recommended adjustment",
-  "stockDisponibleSuficiente": "✅ Stock available: sufficient.",
   "stockBajoPosibleReabastecer": "⚠️ Stock is low. Consider restocking soon.",
   "phLabel": "pH",
   "alcalinidadLabel": "Alkalinity",
@@ -295,8 +293,6 @@
   "cloroCombinadoBajo": "⚠️ Low. Might not be disinfecting effectively. Check generator or retest.",
   "cloroCombinadoNormal": "✅ Within ideal range. No action needed.",
   "alcalinidadNormal": "✅ Within ideal range.",
-  "stockInsuficiente": "❌ Insufficient stock: only {stock} available.",
-  "stockSuficiente": "✅ Stock available: sufficient. {stock} available.",
   "alcalinidadAltaConsejo": "Tip: It also helps lower pH.",
   "cyaAltoConsejo": "Tip: Consider partial draining and refilling the pool.",
   "durezaAltaConsejo": "Tip: Drain part of the pool if hardness is very high.",
@@ -331,7 +327,76 @@
   "poolTypeSalt": "Saltwater (chlorine generator)",
   "poolTypeFresh": "Freshwater (manual chlorine)",
   "poolTypeSaltSelected": "Selected: Saltwater pool",
-  "poolTypeFreshSelected": "Selected: Freshwater pool"
+  "poolTypeFreshSelected": "Selected: Freshwater pool",
+
+  "productoSal": "salt",
+  "productoPh": "pH increaser",
+  "productoCloro": "liquid chlorine",
+  "productoCya": "stabilizer (cyanuric acid)",
+  "productoAlcalinidad": "alkalinity increaser",
+  "productoDureza": "calcium hardness increaser",
+
+  "recomendacionProductoCloro": "⚠️ Free chlorine is low.\n🧪 Add {cantidad} {unidad} of liquid chlorine (HTH Pool Care Liquid Chlorine).",
+  "recomendacionProductoPh": "🧪 Add {cantidad} {unidad} of pH Increaser.",
+  "recomendacionProductoAlcalinidad": "🧪 Add {cantidad} {unidad} of In The Swim Alkalinity Increaser.",
+  "recomendacionProductoCya": "🧪 Add {cantidad} {unidad} of Pool Mate Stabilizer.",
+  "recomendacionProductoDureza": "🧪 Add {cantidad} {unidad} of In The Swim Calcium Hardness Increaser.",
+  "recomendacionProductoSal": "🧪 Add {cantidad} {unidad} of Morton Pool Salt.",
+  "cloroCombinadoAltoMensaje": "⚠️ Combined chlorine is high.\n💥 Requires shock treatment.\n🧪 Add {cantidad} {unidad} of liquid chlorine (HTH Pool Care Liquid Chlorine).\n💡 It's recommended to check free chlorine after 24 hours.",
+  "ajustarGeneradorTexto": "💡 Adjust salt generator or filtration time.",
+
+  "ajustarGenerador": "Consider adjusting the chlorine generator if needed.",
+
+
+  "recomendacionGenerica": "Add {cantidad} {unidad} of {producto} ({comercial}).",
+  "@recomendacionGenerica": {
+    "description": "Recommendation to add a quantity of a chemical product.",
+    "placeholders": {
+      "cantidad": {},
+      "unidad": {},
+      "producto": {},
+      "comercial": {}
+    }
+  },
+
+  "stockSuficiente": "Sufficient stock: {stock} available.",
+  "@stockSuficiente": {
+    "description": "Message shown when chemical stock is enough.",
+    "placeholders": {
+      "stock": {}
+    }
+  },
+
+  "stockInsuficiente": "⚠️ Insufficient stock of {nombreProducto} ({nombreComercial}).",
+  "@stockInsuficiente": {
+    "placeholders": {
+      "nombreProducto": {},
+      "nombreComercial": {}
+    }
+  },
+
+  "stockDisponibleSuficiente": "✅ Stock available: sufficient. {cantidad} {unidad}",
+  "@stockDisponibleSuficiente": {
+    "placeholders": {
+      "cantidad": {},
+      "unidad": {}
+    }
+  },
+
+  "seNecesita": "Required",
+  "stockActual": "In stock"
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

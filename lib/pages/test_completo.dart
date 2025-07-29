@@ -214,20 +214,20 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
             const SizedBox(height: 12),
 
             for (var entry in _controllers.entries)
-               if (esAguaSalada || entry.key != 'Salinidad')
+              if (esAguaSalada || entry.key != 'Salinidad')
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: TextField(
-                  controller: entry.value,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    labelText: localLabel(entry.key, local),
-                    border: const OutlineInputBorder(),
+                    controller: entry.value,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: localLabel(entry.key, local),
+                      border: const OutlineInputBorder(),
+                    ),
                   ),
                 ),
-              ),
 
-    const SizedBox(height: 16),
+            const SizedBox(height: 16),
             if (_recomendaciones.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,9 +247,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                           line,
                           style: TextStyle(
                             color: line.contains('⚠️') ||
-                                line.toLowerCase().contains('bajo') ||
-                                line.toLowerCase().contains('alto') ||
-                                line.toLowerCase().contains('insuficiente')
+                                line.contains('❌')
                                 ? Colors.red
                                 : line.contains('✅')
                                 ? Colors.green
@@ -357,11 +355,11 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
     for (var entry in recomendaciones.entries) {
       final texto = entry.value;
-      final regex = RegExp(r'agregar\s+([\d.]+)\s+\w+', caseSensitive: false);
+      final regex = RegExp(r'(agregar|add)\s+([\d.]+)', caseSensitive: false);
       final match = regex.firstMatch(texto);
 
       if (match != null) {
-        final cantidadStr = match.group(1);
+        final cantidadStr = match.group(2);
         final cantidad = double.tryParse(cantidadStr ?? '');
         final keyOriginal = entry.key;
         final productoKey = keyMap[keyOriginal] ?? keyOriginal;
@@ -378,4 +376,3 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     }
   }
 }
-

@@ -125,7 +125,6 @@
   "dureza": "Dureza cálcica",
   "salinidad": "Salinidad",
   "suggestReplenish": "Sugerir reabastecer",
-  "stockActual": "Stock actual",
   "stockBajo": "Bajo stock. Es probable que no alcance para el próximo testeo.",
   "controlStock": "Control de Stock",
   "sinDatosStock": "No hay datos de stock disponibles.",
@@ -319,7 +318,6 @@
   "nombreComercialPHBajo": "In The Swim pH Increaser",
   "requiereTratamientoChoque": "Se recomienda un tratamiento de choque con cloro libre para eliminar cloraminas.",
   "alertaStockInsuficiente": "Stock insuficiente para aplicar el ajuste recomendado",
-  "stockDisponibleSuficiente": "✅ Stock disponible: suficiente.",
   "stockBajoPosibleReabastecer": "⚠️ El stock es bajo. Considerá reabastecer pronto.",
   "phLabel": "pH",
   "alcalinidadLabel": "Alcalinidad",
@@ -331,8 +329,6 @@
   "cloroCombinadoBajo": "⚠️ Bajo. Puede no estar desinfectando adecuadamente. Verificar generador o retestar.",
   "cloroCombinadoNormal": "✅ Dentro del rango ideal. Sin acción necesaria.",
   "alcalinidadNormal": "✅ Dentro del rango ideal.",
-  "stockInsuficiente": "❌ Stock insuficiente: solo {stock} disponibles.",
-  "stockSuficiente": "✅ Stock disponible: suficiente. {stock} disponibles.",
   "alcalinidadAltaConsejo": "💡 Consejo: También baja el pH para ayudar.",
   "cyaAltoConsejo": "💡 Consejo: Considera drenar parcialmente y rellenar con agua nueva.",
   "durezaAltaConsejo": "💡 Consejo: Si la dureza es muy alta, considera vaciar parcialmente la piscina.",
@@ -370,10 +366,95 @@
   "poolTypeSalt": "Agua con sal (generador de cloro)",
   "poolTypeFresh": "Agua sin sal (cloro manual)",
   "poolTypeSaltSelected": "Seleccionado: Agua con sal",
-  "poolTypeFreshSelected": "Seleccionado: Agua sin sal"
+  "poolTypeFreshSelected": "Seleccionado: Agua sin sal",
+
+
+
+  "productoSal": "sal",
+  "productoPh": "incrementador de pH",
+  "productoCloro": "cloro líquido",
+  "productoCya": "estabilizador (ácido cianúrico)",
+  "productoAlcalinidad": "incrementador de alcalinidad",
+  "productoDureza": "incrementador de dureza cálcica",
+
+
+
+  "recomendacionProductoCloro": "⚠️ El cloro libre está bajo.\n🧪 Agregar {cantidad} {unidad} de cloro líquido (HTH Pool Care Liquid Chlorine).",
+  "recomendacionProductoPh": "🧪 Agregar {cantidad} {unidad} de subidor de pH (pH Increaser).",
+  "recomendacionProductoAlcalinidad": "🧪 Agregar {cantidad} {unidad} de In The Swim Alkalinity Increaser.",
+  "recomendacionProductoCya": "🧪 Agregar {cantidad} {unidad} de Pool Mate Stabilizer.",
+  "recomendacionProductoDureza": "🧪 Agregar {cantidad} {unidad} de In The Swim Calcium Hardness Increaser.",
+  "recomendacionProductoSal": "🧪 Agregar {cantidad} {unidad} de Morton Pool Salt.",
+  "cloroCombinadoAltoMensaje": "⚠️ El cloro combinado está alto.\n💥 Requiere tratamiento de choque.\n🧪 Agregar {cantidad} {unidad} de cloro líquido (HTH Pool Care Liquid Chlorine).\n💡 Se recomienda revisar el cloro libre tras 24 horas.",
+  "ajustarGeneradorTexto": "💡 Ajustar generador de sal o tiempo de filtrado.",
+
+  "ajustarGenerador": "Considera ajustar el generador de cloro si es necesario.",
+
+
+
+  "recomendacionGenerica": "Agregar {cantidad} {unidad} de {producto} ({comercial}).",
+  "@recomendacionGenerica": {
+    "description": "Recomendación para agregar una cantidad de un producto comercial.",
+    "placeholders": {
+      "cantidad": {},
+      "unidad": {},
+      "producto": {},
+      "comercial": {}
+    }
+  },
+
+  "stockSuficiente": "Stock suficiente: quedan {stock}.",
+  "@stockSuficiente": {
+    "description": "Mensaje cuando el stock es suficiente.",
+    "placeholders": {
+      "stock": {}
+    }
+  },
+
+  "stockInsuficiente": "⚠️ Stock insuficiente de {nombreProducto} ({nombreComercial}).",
+  "@stockInsuficiente": {
+    "placeholders": {
+      "nombreProducto": {},
+      "nombreComercial": {}
+    }
+  },
+
+  "stockDisponibleSuficiente": "✅ Stock disponible: suficiente. {cantidad} {unidad}",
+  "@stockDisponibleSuficiente": {
+    "placeholders": {
+      "cantidad": {},
+      "unidad": {}
+    }
+  },
+
+  "seNecesita": "Se necesita",
+  "stockActual": "Stock actual",
+
+
+
+
+
 
 
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
