@@ -28,13 +28,31 @@ Future<Map<String, String>> calcularAjustes(
   final unidadPeso = esMetrico ? localizations.unidadKg : localizations.unidadLb;
   final unidadVol = esMetrico ? localizations.unidadLitro : localizations.unidadGalon;
 
-  double? cloroLibre = toDouble(parametros['Cloro libre']);
-  double? cloroCombinado = toDouble(parametros['Cloro combinado']);
-  double? ph = toDouble(parametros['pH']);
-  double? alcalinidad = toDouble(parametros['Alcalinidad']);
-  double? cya = toDouble(parametros['CYA']);
-  double? dureza = toDouble(parametros['Dureza']);
-  double? salinidad = toDouble(parametros['Salinidad']);
+  final volumenMuestra = parametros['volumen_muestra'] ?? '25';
+  final double factorCloro = volumenMuestra == '10' ? 0.5 : 0.2;
+  final double factorAlcalinidad = volumenMuestra == '10' ? 10 : 4;
+  final double factorDureza = volumenMuestra == '10' ? 25 : 10;
+
+  final cloroLibre = parametros.containsKey('Cloro libre gotas')
+      ? toDouble(parametros['Cloro libre gotas'])! * factorCloro
+      : toDouble(parametros['Cloro libre']);
+
+  final cloroCombinado = parametros.containsKey('Cloro combinado gotas')
+      ? toDouble(parametros['Cloro combinado gotas'])! * factorCloro
+      : toDouble(parametros['Cloro combinado']);
+
+  final alcalinidad = parametros.containsKey('Alcalinidad gotas')
+      ? toDouble(parametros['Alcalinidad gotas'])! * factorAlcalinidad
+      : toDouble(parametros['Alcalinidad']);
+
+  final dureza = parametros.containsKey('Dureza gotas')
+      ? toDouble(parametros['Dureza gotas'])! * factorDureza
+      : toDouble(parametros['Dureza']);
+
+  final ph = toDouble(parametros['pH']);
+  final cya = toDouble(parametros['CYA']);
+  final salinidad = toDouble(parametros['Salinidad']);
+
 
   // Función auxiliar general
   Future<void> procesarUso({
@@ -167,49 +185,68 @@ Future<Map<String, String>> calcularAjustes(
         }
       }
 
-    if (ph != null) {
-      String valor = '${localizations.phLabel}: ${ph.toStringAsFixed(2)}';
-      if (ph > 7.8) {
-        double ml = (ph >= 8.0) ? 500 : 300;
-        double volumen = esMetrico ? ml : (ml / 29.5735);
-        String unidad = esMetrico ? 'mL' : 'fl oz';
-        await procesarUso(
-          key: 'acido_muriatico',
-          cantidad: volumen,
-          nombreProducto: localizations.nombreProductoPHAlto,
-          nombreComercial: localizations.nombreComercialPHAlto,
-          mensajeBase: '⚠️ ${localizations.phAlto}\n➕ ${localizations.recomendacionGenerica(
-            volumen.toStringAsFixed(1),
-            unidad,
-            localizations.nombreProductoPHAlto,
-            localizations.nombreComercialPHAlto,
-          )}',
-          valorNormal: localizations.normalRangePH,
-          valorActualFormateado: '${localizations.phLabel}: ${ph.toStringAsFixed(2)}',
-        );
-    } else if (ph < 7.2) {
-        double libras = ((7.2 - ph) * 0.16 * (volumenLitros / 1000));
-        double cantidad = esMetrico ? libras * factorPeso : libras;
-        await procesarUso(
-          key: 'ph_increaser',
-          cantidad: cantidad,
-          nombreProducto: localizations.productoPh,
-          nombreComercial: localizations.nombreComercialPHBajo,
-          mensajeBase: '⚠️ ${localizations.phBajo}\n➕ ${localizations.recomendacionGenerica(
-            cantidad.toStringAsFixed(1),
-            unidadPeso,
-            localizations.productoPh,
-            localizations.nombreComercialPHBajo,
-          )}',
-          valorNormal: localizations.normalRangePH,
-          valorActualFormateado: '${localizations.phLabel}: ${ph.toStringAsFixed(2)}',
-        );
-      } else {
-        recomendaciones['pH'] = '**${localizations
-            .phLabel}**\n📏 Valor normal: 7.2–7.8\n$valor\n✅ ${localizations
-            .valorNormal} (7.2–7.8)';
-      }
+  if (ph != null) {
+    String valor = '${localizations.phLabel}: ${ph.toStringAsFixed(2)}';
+    final gotasTexto = parametros['pH gotas'];
+    final gotas = int.tryParse(gotasTexto ?? '');
+
+    if (ph > 7.8 && gotas != null) {
+      final tablaPhAlta = {
+        1: "0.37 fl oz", 2: "0.73 fl oz", 3: "1.10 fl oz", 4: "1.47 fl oz", 5: "1.83 fl oz",
+        6: "2.20 fl oz", 7: "2.57 fl oz", 8: "2.94 fl oz", 9: "3.30 fl oz", 10: "3.67 fl oz"
+      };
+      final cantidadTexto = tablaPhAlta[gotas.clamp(1, 10)];
+      final cantidad = double.tryParse(cantidadTexto!.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0;
+
+      await procesarUso(
+        key: 'acido_muriatico',
+        cantidad: cantidad,
+        nombreProducto: localizations.productoPHAlto,
+        nombreComercial: localizations.nombreComercialPHAlto,
+        mensajeBase: '⚠️ ${localizations.phAltoTexto}\n'
+            '➕ ${localizations.recomendacionGenerica(
+          cantidadTexto,
+          unidadVol,
+          localizations.productoPHAlto,
+          localizations.nombreComercialPHAlto,
+        )}',
+        valorNormal: localizations.normalRangePH,
+        valorActualFormateado: valor,
+      );
+
+    } else if (ph < 7.2 && gotas != null) {
+      final tablaPhBaja = {
+        1: "0.51 lb", 2: "1.03 lb", 3: "1.54 lb", 4: "2.05 lb", 5: "2.56 lb",
+        6: "3.08 lb", 7: "3.59 lb", 8: "4.10 lb", 9: "4.61 lb", 10: "5.13 lb"
+      };
+      final cantidadTexto = tablaPhBaja[gotas.clamp(1, 10)];
+      final cantidad = double.tryParse(cantidadTexto!.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0;
+
+      await procesarUso(
+        key: 'ph_increaser',
+        cantidad: cantidad,
+        nombreProducto: localizations.productoPHBajo,
+        nombreComercial: localizations.nombreComercialPHBajo,
+        mensajeBase: '⚠️ ${localizations.phBajoTexto}\n'
+            '➕ ${localizations.recomendacionGenerica(
+          cantidadTexto,
+          unidadPeso,
+          localizations.productoPHBajo,
+          localizations.nombreComercialPHBajo,
+        )}',
+        valorNormal: localizations.normalRangePH,
+        valorActualFormateado: valor,
+      );
+
+    } else {
+      recomendaciones['pH'] = '**${localizations.phLabel}**\n'
+          '📏 ${localizations.normalRangePH}\n'
+          '$valor\n'
+          '✅ ${localizations.valorNormal} (7.2–7.8)';
     }
+  }
+
+
 
   if (alcalinidad != null) {
     String valor = '${localizations.alcalinidadLabel}: ${alcalinidad.toStringAsFixed(0)}';
@@ -244,18 +281,20 @@ Future<Map<String, String>> calcularAjustes(
           ? '${cantidad.toStringAsFixed(0)} mL'
           : '${cantidad.toStringAsFixed(2)} gal';
 
-      recomendaciones['Alcalinidad'] = '**${localizations.alcalinidadLabel}**\n'
-          '📏 ${localizations.normalRangeAlcalinidad}\n'
-          '$valor\n'
-          '⚠️ ${localizations.alcalinidadAltaTexto}\n'
-          '➕ ${localizations.recomendacionGenerica(
-        cantidadFormateada,
-        esMetrico ? 'mL' : 'gal',
-        localizations.nombreProductoPHAlto,
-        localizations.nombreComercialPHAlto,
-      )}\n'
-          '💡 ${localizations.alcalinidadAltaConsejo1}\n'
-          '💡 ${localizations.alcalinidadAltaConsejo2}';
+      await procesarUso(
+        key: 'acido_muriatico',
+        cantidad: cantidad,
+        nombreProducto: localizations.nombreProductoPHAlto,
+        nombreComercial: localizations.nombreComercialPHAlto,
+        mensajeBase: '⚠️ ${localizations.alcalinidadAltaTexto}\n➕ ${localizations.recomendacionGenerica(
+          cantidadFormateada,
+          esMetrico ? 'mL' : 'gal',
+          localizations.nombreProductoPHAlto,
+          localizations.nombreComercialPHAlto,
+        )}\n💡 ${localizations.alcalinidadAltaConsejo1}',
+        valorNormal: localizations.normalRangeAlcalinidad,
+        valorActualFormateado: valor,
+      );
 
 
     } else {

@@ -19,6 +19,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
   bool _semanalActivado = false;
   int _diaMesSeleccionado = 1;
   int _diaSemanaSeleccionado = DateTime.friday;
+  bool _modoTecnico = false;
   TextEditingController _volumenController = TextEditingController();
   double _volumenPorDefectoGalones = 13000;
 
@@ -36,6 +37,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
       _semanalActivado = prefs.getBool('recordatorio_semanal') ?? false;
       _diaMesSeleccionado = prefs.getInt('dia_mes_recordatorio') ?? 1;
       _diaSemanaSeleccionado = prefs.getInt('dia_semana_recordatorio') ?? DateTime.friday;
+      _modoTecnico = prefs.getBool('modo_tecnico') ?? false;
     });
   }
 
@@ -94,7 +96,6 @@ class _AjustesScreenState extends State<AjustesScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // 1. Configuración general de la pileta
           SwitchListTile(
             title: Text(localizations.poolTypeLabel),
             subtitle: Text(
@@ -154,8 +155,6 @@ class _AjustesScreenState extends State<AjustesScreen> {
               ],
             ),
           ),
-
-          // 2. Recordatorios automáticos
           const Divider(),
           DropdownButtonFormField<int>(
             value: _diaSemanaSeleccionado,
@@ -206,8 +205,6 @@ class _AjustesScreenState extends State<AjustesScreen> {
             ),
             onTap: () async => await _activarRecordatorioMensual(localizations),
           ),
-
-          // 3. Mantenimiento físico
           const Divider(),
           ListTile(
             title: Text(localizations.registerFilterCleaning),
@@ -272,8 +269,6 @@ class _AjustesScreenState extends State<AjustesScreen> {
               }
             },
           ),
-
-          // 4. Preferencias
           const Divider(),
           SwitchListTile(
             title: Text(localizations.darkMode),
@@ -298,7 +293,19 @@ class _AjustesScreenState extends State<AjustesScreen> {
             ),
           ),
 
-          // 5. Gestión de datos
+          /// ✅ Switch modo técnico (agregado aquí)
+          SwitchListTile(
+            title: Text(localizations.modoTecnico),
+            value: _modoTecnico,
+            onChanged: (bool value) async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('modo_tecnico', value);
+              setState(() {
+                _modoTecnico = value;
+              });
+            },
+          ),
+
           const Divider(),
           ListTile(
             title: Text(localizations.resetAll),
@@ -344,18 +351,16 @@ class _AjustesScreenState extends State<AjustesScreen> {
             trailing: const Icon(Icons.show_chart),
             onTap: () => settingsController.resetCharts(context),
           ),
-
-          /// 6. Información adicional
           const Divider(),
           ListTile(
-              title: Text(AppLocalizations.of(context)!.legalInfo),
-              subtitle: Text(AppLocalizations.of(context)!.legalNowInTutorial),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
+            title: Text(AppLocalizations.of(context)!.legalInfo),
+            subtitle: Text(AppLocalizations.of(context)!.legalNowInTutorial),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(AppLocalizations.of(context)!.legalInTutorialMessage),
-                  duration: Duration(seconds: 3),
+                  duration: const Duration(seconds: 3),
                 ),
               );
             },
@@ -411,6 +416,3 @@ class _AjustesScreenState extends State<AjustesScreen> {
     }
   }
 }
-
-
-

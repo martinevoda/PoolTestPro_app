@@ -426,7 +426,72 @@
 
 
   "legalNowInTutorial": "Legal information is now included in the tutorial",
-  "legalInTutorialMessage": "You can view the legal info at the end of the tutorial"
+  "legalInTutorialMessage": "You can view the legal info at the end of the tutorial",
+
+
+  "instruccionesCloroLibre": "1. Fill the cell to 10 or 25 mL.\n2. Add 2 level scoops of R-0870 (DPD powder).\n3. Titrate with R-0871 (FAS titrant) until the water turns clear.\n4. Count the drops.",
+  "@instruccionesCloroLibre": {
+    "description": "Instructions for free chlorine test",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "instruccionesCloroCombinado": "1. After the free chlorine test, add 5 drops of R-0003.\n2. If the water turns pink, titrate with R-0871 until clear.\n3. Count the drops.",
+  "@instruccionesCloroCombinado": {
+    "description": "Instructions for combined chlorine test",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "instruccionesAlcalinidad": "1. Add 2 drops of R-0007.\n2. Add 5 drops of R-0008 (turns green).\n3. Titrate with R-0009 until red.\n4. Count the drops.",
+  "@instruccionesAlcalinidad": {
+    "description": "Instructions for alkalinity test",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "instruccionesDureza": "1. Add 20 drops of R-0010.\n2. Add 5 drops of R-0011L (turns red).\n3. Titrate with R-0012 until blue.\n4. Count the drops.",
+  "@instruccionesDureza": {
+    "description": "Instructions for calcium hardness test",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "leyendaValorManual": "ℹ️ If you're not using drops, enter the estimated value here. Do not fill both fields.",
+
+  "phAltoConsejo": "Check the manual table if more accuracy is needed.",
+
+  "phBajoConsejo": "Check the manual table if more accuracy is needed.",
+  "normalRangePh": "Normal range: 7.2–7.8",
+  "instruccionesPh": "1. Fill the comparator cell up to the line (~44 mL).\n2. Add 5 drops of R-0004.\n3. Compare with the pH color scale.\n4. If the result is basic (high pH): Add R-005 drop by drop until the desired color is reached and record the number of drops used.\n5. If the result is acidic (low pH): Add R-006 drop by drop until the sample clears and record the number of drops used.",
+
+
+  "productoPHAlto": "pH Reducer",
+  "productoPHBajo": "pH Increaser",
+
+  "phBajoTexto": "pH is low",
+  "phAltoTexto": "pH is high",
+
+  "steps": "Steps:",
+
+  "instruccionesCya": "1. Mix equal parts of pool water and R-0013 up to the 14 mark.\n2. Shake for 30 seconds.\n3. Pour into the view tube until the black dot disappears.",
+
+  "instruccionesSalinidad": "1. Turn on the digital salinity meter.\n2. Make sure the screen shows **Salt** and the unit is **ppm**.\n3. Dip the meter into the water until the sensors are submerged.\n4. Wait a few seconds until the reading stabilizes.\n5. Record the value displayed.",
+
+  "modoTecnico": "Enable advanced mode (Show Full Test)",
+
+  "modoTecnicoDesactivadoExplicacion": "Enable technical mode in Settings to access the Full Test."
+
+
+
+
+
+
+
 
 
 

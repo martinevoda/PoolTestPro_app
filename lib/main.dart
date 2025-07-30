@@ -13,6 +13,8 @@ import 'package:piscina_app/utils/registro_loader.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:piscina_app/pages/pantalla_stock.dart';
 import 'package:piscina_app/pages/tutorial_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 void main() async {
@@ -87,8 +89,31 @@ class PiscinaApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _modoTecnico = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarModoTecnico();
+  }
+
+  Future<void> _cargarModoTecnico() async {
+    final prefs = await SharedPreferences.getInstance();
+    final valor = prefs.getBool('modo_tecnico') ?? false;
+    print('🧪 modo_tecnico recargado: $valor');
+    setState(() {
+      _modoTecnico = valor;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -98,10 +123,7 @@ class HomePage extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFB3E5FC), // azul claro
-            Color(0xFFE1F5FE), // celeste más suave
-          ],
+          colors: [Color(0xFFB3E5FC), Color(0xFFE1F5FE)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -117,7 +139,6 @@ class HomePage extends StatelessWidget {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Mostrar logo
             Center(
               child: Container(
                 decoration: BoxDecoration(
@@ -142,15 +163,30 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            _buildMenuButton(
-              context,
-              icon: Icons.science,
-              label: local.testCompleto,
-              onPressed: () => Navigator.push(
+            // ✅ Mostrar solo si modo técnico está activado
+            if (_modoTecnico)
+              _buildMenuButton(
                 context,
-                MaterialPageRoute(builder: (_) => const TestCompletoPage()),
+                icon: Icons.science,
+                label: local.testCompleto,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TestCompletoPage()),
+                ),
               ),
-            ),
+
+
+            if (!_modoTecnico)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Text(
+                  local.modoTecnicoDesactivadoExplicacion,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+              ),
+
+
             _buildMenuButton(
               context,
               icon: Icons.tune,
@@ -200,11 +236,16 @@ class HomePage extends StatelessWidget {
               context,
               icon: Icons.settings,
               label: local.settings,
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AjustesScreen()),
-              ),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AjustesScreen()),
+                );
+                _cargarModoTecnico(); // 🔁 recarga real al volver
+              },
             ),
+
+
             _buildMenuButton(
               context,
               icon: Icons.school,
@@ -238,4 +279,5 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
 

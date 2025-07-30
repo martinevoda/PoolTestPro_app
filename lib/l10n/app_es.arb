@@ -470,7 +470,67 @@
 
 
   "legalNowInTutorial": "La información legal ahora se encuentra en el tutorial",
-  "legalInTutorialMessage": "Podés ver la información legal al final del tutorial"
+  "legalInTutorialMessage": "Podés ver la información legal al final del tutorial",
+
+
+  "instruccionesCloroLibre": "1. Llenar la celda hasta 10 o 25 mL.\n2. Agregar 2 cucharadas niveladas de R-0870 (DPD powder).\n3. Titular con R-0871 (FAS titrant) hasta que el agua se vuelva transparente.\n4. Contar las gotas.",
+  "@instruccionesCloroLibre": {
+    "description": "Instrucciones para test de Cloro libre",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "instruccionesCloroCombinado": "1. Después del test de cloro libre, agregar 5 gotas de R-0003.\n2. Si el agua se vuelve rosa, titular con R-0871 hasta que aclare.\n3. Contar las gotas.",
+  "@instruccionesCloroCombinado": {
+    "description": "Instrucciones para test de Cloro combinado",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "instruccionesAlcalinidad": "1. Agregar 2 gotas de R-0007.\n2. Agregar 5 gotas de R-0008 (se vuelve verde).\n3. Titular con R-0009 hasta que pase a rojo.\n4. Contar las gotas.",
+  "@instruccionesAlcalinidad": {
+    "description": "Instrucciones para test de Alcalinidad",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "instruccionesDureza": "1. Agregar 20 gotas de R-0010.\n2. Agregar 5 gotas de R-0011L (se vuelve rojo).\n3.Titular con R-0012 hasta que se vuelva azul.\n4. Contar las gotas.",
+  "@instruccionesDureza": {
+    "description": "Instrucciones para test de Dureza cálcica",
+    "placeholders": {
+      "volumen": {}
+    }
+  },
+
+  "leyendaValorManual": "ℹ️ Si no usás gotas, ingresá el valor estimado aquí. No completes ambos campos.",
+
+
+
+  "phAltoConsejo": "Consulta la tabla si necesitas más precisión.",
+
+  "phBajoConsejo": "Consulta la tabla si necesitas más precisión.",
+  "normalRangePh": "Rango normal: 7.2–7.8",
+  "instruccionesPh": "1. Llenar la celda del comparador hasta la línea (~44 mL).\n2. Agregar 5 gotas de R-0004.\n3. Comparar con la escala de colores de pH.\n4. Si el resultado es básico (pH alto): Agregar R-005 gota a gota hasta alcanzar el color deseado y registrar cuántas gotas se usaron.\n5. Si el resultado es ácido (pH bajo): Agregar R-006 gota a gota hasta aclarar la muestra y registrar cuántas gotas se usaron.",
+
+  "productoPHAlto": "Reductor de pH",
+  "productoPHBajo": "Incrementador de pH",
+
+
+  "phBajoTexto": "El pH está bajo",
+  "phAltoTexto": "El pH está alto",
+
+  "steps": "Pasos:",
+
+  "instruccionesCya": "1. Mezclar partes iguales de agua y R-0013 hasta la marca de 14.\n2. Agitar por 30 segundos.\n3. Verter en el tubo hasta que el punto negro desaparezca en el tubo finito.",
+
+  "instruccionesSalinidad": "1. Encender el medidor digital de salinidad.\n2. Asegurarse de que en pantalla diga **Salt** y la unidad sea **ppm**.\n3. Introducir el medidor en el agua hasta cubrir los sensores.\n4. Esperar unos segundos hasta que el valor se estabilice.\n5. Leer y registrar el valor que aparece en pantalla.",
+
+  "modoTecnico": "Habilitar modo técnico (Mostrar Test Completo)",
+
+  "modoTecnicoDesactivadoExplicacion": "Activa el modo técnico en Ajustes para acceder al Test Completo."
 
 
 

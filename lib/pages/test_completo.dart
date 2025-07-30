@@ -90,13 +90,11 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final gotasCombinado = int.tryParse(_cloroCombinadoGotas.text.trim());
 
     if (gotasLibre != null) {
-      cloroLibrePPM =
-      _volumenCloroLibre == '10' ? gotasLibre * 0.5 : gotasLibre * 0.2;
+      cloroLibrePPM = _volumenCloroLibre == '10' ? gotasLibre * 0.5 : gotasLibre * 0.2;
     }
 
     if (gotasCombinado != null) {
-      cloroCombinadoPPM =
-      _volumenCloroCombinado == '10' ? gotasCombinado * 0.5 : gotasCombinado * 0.2;
+      cloroCombinadoPPM = _volumenCloroCombinado == '10' ? gotasCombinado * 0.5 : gotasCombinado * 0.2;
     }
 
     final Map<String, String> registro = {
@@ -125,7 +123,6 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
     await _saveRegistro(_registroActual);
     await _saveRegistrosComoTestRegistro(_registroActual);
-
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('temp_test_completo');
@@ -156,7 +153,6 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final List<String> registros = prefs.getStringList('registros') ?? [];
     registros.add(json.encode(registro));
     await prefs.setStringList('registros', registros);
-
 
     final List<Map<String, dynamic>> completos =
     List<Map<String, dynamic>>.from(json.decode(prefs.getString('test_completo') ?? '[]'));
