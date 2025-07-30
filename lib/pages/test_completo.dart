@@ -1,3 +1,4 @@
+// ... importaciones igual
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -33,44 +34,6 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
 
   Map<String, String> _recomendaciones = {};
   Map<String, String> _registroActual = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTempRegistro();
-  }
-
-  Future<void> _loadTempRegistro() async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString('temp_test_completo');
-    if (data != null) {
-      final registro = Map<String, dynamic>.from(json.decode(data));
-      setState(() {
-        _cloroLibreGotas.text =
-            _calcularGotas(registro['Cloro libre'], _volumenCloroLibre)
-                .toString();
-        _cloroCombinadoGotas.text =
-            _calcularGotas(registro['Cloro combinado'], _volumenCloroCombinado)
-                .toString();
-        for (var key in _controllers.keys) {
-          _controllers[key]?.text = registro[key] ?? '';
-        }
-        _registroActual = Map<String, String>.from(registro);
-      });
-
-      final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
-      final recomendaciones = await calcularAjustes(Map<String, String>.from(registro), context, unidadSistema);
-      setState(() {
-        _recomendaciones = recomendaciones;
-      });
-    }
-  }
-
-  int _calcularGotas(String? ppmStr, String volumen) {
-    final ppm = double.tryParse(ppmStr ?? '');
-    if (ppm == null) return 0;
-    return volumen == '10' ? (ppm / 0.5).round() : (ppm / 0.2).round();
-  }
 
   @override
   void dispose() {
@@ -154,10 +117,15 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     registros.add(json.encode(registro));
     await prefs.setStringList('registros', registros);
 
-    final List<Map<String, dynamic>> completos =
-    List<Map<String, dynamic>>.from(json.decode(prefs.getString('test_completo') ?? '[]'));
-    completos.add(registro);
-    await prefs.setString('test_completo', json.encode(completos));
+    final String? existentes = prefs.getString('test_completo');
+    List<Map<String, dynamic>> lista = [];
+
+    if (existentes != null) {
+      lista = List<Map<String, dynamic>>.from(json.decode(existentes));
+    }
+
+    lista.add(registro);
+    await prefs.setString('test_completo', json.encode(lista));
   }
 
   Future<void> _saveRegistrosComoTestRegistro(Map<String, String> registro) async {
@@ -172,7 +140,8 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final now = DateTime.now();
     for (var entry in registro.entries) {
       if (entry.key != 'fecha' && entry.key != 'tipo') {
-        final valor = double.tryParse(entry.value);
+        final valorStr = entry.value.trim();
+        final valor = double.tryParse(valorStr);
         if (valor != null) {
           final test = TestRegistro(
             tipo: registro['tipo'] ?? 'completo',
@@ -194,26 +163,21 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final esAguaSalada = Provider.of<SettingsController>(context).esAguaSalada;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(local.testCompleto),
-      ),
+      appBar: AppBar(title: Text(local.testCompleto)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildCloroField(local.cloroLibre, _cloroLibreGotas, (val) {
-              setState(() => _volumenCloroLibre = val!);
-            }, _volumenCloroLibre),
+            _buildCloroField(local.cloroLibre, _cloroLibreGotas,
+                    (val) => setState(() => _volumenCloroLibre = val!), _volumenCloroLibre),
             const SizedBox(height: 12),
-            _buildCloroField(local.cloroCombinado, _cloroCombinadoGotas, (val) {
-              setState(() => _volumenCloroCombinado = val!);
-            }, _volumenCloroCombinado),
-            const SizedBox(height: 12),
-
+            _buildCloroField(local.cloroCombinado, _cloroCombinadoGotas,
+                    (val) => setState(() => _volumenCloroCombinado = val!), _volumenCloroCombinado),
+            const SizedBox(height: 16),
             for (var entry in _controllers.entries)
               if (esAguaSalada || entry.key != 'Salinidad')
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
+                  padding: const EdgeInsets.only(bottom: 12),
                   child: TextField(
                     controller: entry.value,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -223,40 +187,33 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                     ),
                   ),
                 ),
-
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             if (_recomendaciones.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _recomendaciones.entries.map((entry) {
-                  final lines = entry.value.trim().split('\n');
-                  if (lines.isEmpty) return const SizedBox();
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          lines.first,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        ...lines.skip(1).map((line) => Text(
-                          line,
+              Card(
+                color: Theme.of(context).cardColor,
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _recomendaciones.entries.map((entry) {
+                      final mensaje = entry.value;
+                      final esNormal = mensaje.contains('✅');
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          '${localLabel(entry.key, local)}: $mensaje',
                           style: TextStyle(
-                            color: line.contains('⚠️') ||
-                                line.contains('❌')
-                                ? Colors.red
-                                : line.contains('✅')
-                                ? Colors.green
-                                : null,
+                            color: esNormal ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.w600,
                           ),
-                        )),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -320,20 +277,6 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
         return local.dureza;
       case 'Salinidad':
         return local.salinidad;
-      case 'cloro_liquido':
-        return local.nombreProductoCloro;
-      case 'acido_muriatico':
-        return local.nombreProductoPHAlto;
-      case 'ph_increaser':
-        return local.nombreProductoPHBajo;
-      case 'alcalinidad':
-        return local.nombreProductoAlcalinidad;
-      case 'estabilizador':
-        return local.nombreProductoCYA;
-      case 'dureza':
-        return local.nombreProductoDureza;
-      case 'sal':
-        return local.nombreProductoSal;
       default:
         return key;
     }

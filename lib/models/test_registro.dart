@@ -3,16 +3,16 @@ class TestRegistro {
   final DateTime fecha;
   final String parametro;
   final double valor;
+  final String? recomendacion; // ✅ nuevo campo opcional
 
-  // ✅ CONSTRUCTOR PRINCIPAL NECESARIO PARA GRAFICOS Y USO GENERAL
   TestRegistro({
     required this.tipo,
     required this.fecha,
     required this.parametro,
     required this.valor,
+    this.recomendacion,
   });
 
-  // ✅ CONSTRUCTOR DESDE JSON (acepta num o string)
   factory TestRegistro.fromJson(Map<String, dynamic> json) {
     final rawValor = json['valor'];
     double parsedValor;
@@ -30,18 +30,17 @@ class TestRegistro {
       fecha: DateTime.parse(json['fecha']),
       parametro: json['parametro'],
       valor: parsedValor,
+      recomendacion: json['recomendacion'], // ✅ cargar recomendación si existe
     );
   }
 
-  // ✅ EXPORTAR A JSON
   Map<String, dynamic> toJson() {
     return {
       'tipo': tipo,
       'fecha': fecha.toIso8601String(),
       'parametro': parametro,
       'valor': valor,
+      'recomendacion': recomendacion, // ✅ guardar recomendación
     };
   }
 }
-
-

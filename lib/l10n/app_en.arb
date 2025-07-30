@@ -445,7 +445,7 @@
     }
   },
 
-  "instruccionesAlcalinidad": "1. Add 2 drops of R-0007.\n2. Add 5 drops of R-0008 (turns green).\n3. Titrate with R-0009 until red.\n4. Count the drops.",
+  "instruccionesAlcalinidad": "1. Fill the cell to 10 or 25 mL.\n2. Add 2 drops of R-0007.\n3. Add 5 drops of R-0008 (turns green).\n4. Titrate with R-0009 until red.\n5. Count the drops.",
   "@instruccionesAlcalinidad": {
     "description": "Instructions for alkalinity test",
     "placeholders": {
@@ -453,7 +453,7 @@
     }
   },
 
-  "instruccionesDureza": "1. Add 20 drops of R-0010.\n2. Add 5 drops of R-0011L (turns red).\n3. Titrate with R-0012 until blue.\n4. Count the drops.",
+  "instruccionesDureza": "1. Fill the cell to 10 or 25 mL.\n2. Add 20 drops of R-0010.\n3. Add 5 drops of R-0011L (turns red).\n4. Titrate with R-0012 until blue.\n4. Count the drops.",
   "@instruccionesDureza": {
     "description": "Instructions for calcium hardness test",
     "placeholders": {
@@ -484,15 +484,12 @@
 
   "modoTecnico": "Enable advanced mode (Show Full Test)",
 
-  "modoTecnicoDesactivadoExplicacion": "Enable technical mode in Settings to access the Full Test."
+  "modoTecnicoDesactivadoExplicacion": "Enable technical mode in Settings to access the Full Test.",
 
+  "ok": "OK",
 
+  "sinRecomendaciones": "No recommendations available",
 
-
-
-
-
-
-
+  "phFueraDeRango": "pH is outside the ideal range."
 
 }

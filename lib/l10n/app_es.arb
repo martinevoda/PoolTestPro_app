@@ -489,7 +489,7 @@
     }
   },
 
-  "instruccionesAlcalinidad": "1. Agregar 2 gotas de R-0007.\n2. Agregar 5 gotas de R-0008 (se vuelve verde).\n3. Titular con R-0009 hasta que pase a rojo.\n4. Contar las gotas.",
+  "instruccionesAlcalinidad": "1. Llenar la celda hasta 10 o 25 mL.\n2. Agregar 2 gotas de R-0007.\n3. Agregar 5 gotas de R-0008 (se vuelve verde).\n4. Titular con R-0009 hasta que pase a rojo.\n5. Contar las gotas.",
   "@instruccionesAlcalinidad": {
     "description": "Instrucciones para test de Alcalinidad",
     "placeholders": {
@@ -497,7 +497,7 @@
     }
   },
 
-  "instruccionesDureza": "1. Agregar 20 gotas de R-0010.\n2. Agregar 5 gotas de R-0011L (se vuelve rojo).\n3.Titular con R-0012 hasta que se vuelva azul.\n4. Contar las gotas.",
+  "instruccionesDureza": "1. Llenar la celda hasta 10 o 25 mL.\n2. Agregar 20 gotas de R-0010.\n3. Agregar 5 gotas de R-0011L (se vuelve rojo).\n4.Titular con R-0012 hasta que se vuelva azul.\n5. Contar las gotas.",
   "@instruccionesDureza": {
     "description": "Instrucciones para test de Dureza cálcica",
     "placeholders": {
@@ -524,15 +524,20 @@
 
   "steps": "Pasos:",
 
-  "instruccionesCya": "1. Mezclar partes iguales de agua y R-0013 hasta la marca de 14.\n2. Agitar por 30 segundos.\n3. Verter en el tubo hasta que el punto negro desaparezca en el tubo finito.",
+  "instruccionesCya": "1. Mezclar partes iguales de agua y R-0013 hasta la marca de 14.\n3. Agitar por 30 segundos.\n4. Verter en el tubo hasta que el punto negro desaparezca en el tubo finito.",
 
   "instruccionesSalinidad": "1. Encender el medidor digital de salinidad.\n2. Asegurarse de que en pantalla diga **Salt** y la unidad sea **ppm**.\n3. Introducir el medidor en el agua hasta cubrir los sensores.\n4. Esperar unos segundos hasta que el valor se estabilice.\n5. Leer y registrar el valor que aparece en pantalla.",
 
   "modoTecnico": "Habilitar modo técnico (Mostrar Test Completo)",
 
-  "modoTecnicoDesactivadoExplicacion": "Activa el modo técnico en Ajustes para acceder al Test Completo."
+  "modoTecnicoDesactivadoExplicacion": "Activa el modo técnico en Ajustes para acceder al Test Completo.",
+
+  "ok": "Aceptar",
 
 
+  "sinRecomendaciones": "Sin recomendaciones disponibles",
+
+  "phFueraDeRango": "El pH está fuera del rango ideal."
 
 
 

@@ -27,10 +27,12 @@ class _GraficoParametroPageState extends State<GraficoParametroPage> {
 
   void _cargarRegistros() async {
     final datos = await cargarTodosLosRegistros();
+    
     setState(() {
       registros = datos;
     });
   }
+
 
   List<TestRegistro> _filtrarPorParametro(String parametro) {
     return registros.where((r) => r.parametro == parametro).toList()

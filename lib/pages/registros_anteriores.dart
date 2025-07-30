@@ -4,9 +4,8 @@ import 'dart:convert';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
-
-
-
+import '../models/test_registro.dart';
+import '../utils/pool_calculator.dart';
 
 class RegistrosAnterioresPage extends StatefulWidget {
   const RegistrosAnterioresPage({super.key});
@@ -16,8 +15,7 @@ class RegistrosAnterioresPage extends StatefulWidget {
 }
 
 class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
-  List<Map<String, dynamic>> _completos = [];
-  List<Map<String, dynamic>> _individuales = [];
+  List<TestRegistro> _testRegistros = [];
 
   @override
   void initState() {
@@ -27,38 +25,29 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
 
   Future<void> _loadRegistros() async {
     final prefs = await SharedPreferences.getInstance();
-    final completos = prefs.getString('test_completo') ?? '[]';
-    final individuales = prefs.getString('test_individual') ?? '[]';
+    final registrosRaw = prefs.getString('test_registros') ?? '[]';
+    final List decoded = json.decode(registrosRaw);
+    final List<TestRegistro> registros = decoded
+        .map((e) => TestRegistro.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    registros.sort((a, b) => b.fecha.compareTo(a.fecha)); // Más nuevos arriba
 
     setState(() {
-      _completos = List<Map<String, dynamic>>.from(json.decode(completos));
-      _individuales = List<Map<String, dynamic>>.from(json.decode(individuales));
+      _testRegistros = registros;
     });
   }
 
-  Future<void> _borrarRegistro(int index, String tipo) async {
+  Future<void> _borrarRegistro(TestRegistro registro) async {
     final prefs = await SharedPreferences.getInstance();
-    final lista = tipo == 'completo' ? _completos : _individuales;
-    final registro = lista[index];
-    final fecha = registro['fecha'];
-
-    // Borrar del tipo correspondiente
-    final key = tipo == 'completo' ? 'test_completo' : 'test_individual';
-    final data = prefs.getString(key) ?? '[]';
-    final registrosGuardados = List<Map<String, dynamic>>.from(json.decode(data));
-    registrosGuardados.removeWhere((item) => item['fecha'] == fecha);
-    await prefs.setString(key, json.encode(registrosGuardados));
-
-    // Borrar también de test_registros
-    final registrosGraficosRaw = prefs.getString('test_registros') ?? '[]';
-    final registrosGraficos = List<Map<String, dynamic>>.from(json.decode(registrosGraficosRaw));
-    registrosGraficos.removeWhere((item) => item['fecha'] == fecha);
-    await prefs.setString('test_registros', json.encode(registrosGraficos));
-
+    final registrosRaw = prefs.getString('test_registros') ?? '[]';
+    final List decoded = json.decode(registrosRaw);
+    decoded.removeWhere((item) => item['fecha'] == registro.fecha.toIso8601String());
+    await prefs.setString('test_registros', json.encode(decoded));
     _loadRegistros();
   }
 
-  void _confirmarBorrado(int index, String tipo) {
+  void _confirmarBorrado(TestRegistro registro) {
     final local = AppLocalizations.of(context)!;
     showDialog(
       context: context,
@@ -73,7 +62,7 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _borrarRegistro(index, tipo);
+              _borrarRegistro(registro);
             },
             child: Text(local.borrar),
           ),
@@ -83,95 +72,156 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
   }
 
   String localLabel(String key, AppLocalizations local) {
-    switch (key) {
-      case 'Cloro libre':
+    switch (key.toLowerCase()) {
+      case 'cloro libre':
         return local.cloroLibreLabel;
-      case 'Cloro combinado':
+      case 'cloro combinado':
         return local.cloroCombinadoLabel;
-      case 'pH':
+      case 'ph':
         return local.ph;
-      case 'Alcalinidad':
+      case 'alcalinidad':
         return local.alcalinidad;
-      case 'CYA':
+      case 'cya':
         return local.cya;
-      case 'Dureza':
+      case 'dureza':
         return local.dureza;
-      case 'Salinidad':
+      case 'salinidad':
         return local.salinidad;
       default:
         return key;
     }
   }
 
-  Widget _buildRegistroCard(Map<String, dynamic> registro, int index, String tipo, AppLocalizations local) {
+  Widget _buildRegistroCard(TestRegistro registro, AppLocalizations local) {
     final esAguaSalada = Provider.of<SettingsController>(context).esAguaSalada;
-    final fecha = DateTime.tryParse(registro['fecha'] ?? '');
-    final sinFecha = fecha == null;
+    if (!esAguaSalada && registro.parametro.toLowerCase() == 'salinidad') {
+      return const SizedBox.shrink();
+    }
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: ListTile(
         title: Text(
-          tipo == 'completo'
+          registro.tipo == 'completo'
               ? '🧪 ${local.testCompleto}'
               : '🧪 ${local.testIndividual}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!sinFecha)
-              Text('📅 ${local.fecha}: ${fecha.toLocal().toString().substring(0, 16)}'),
             const SizedBox(height: 6),
-            ...registro.entries
-                .where((e) =>
-                      e.key != 'fecha' &&
-                      e.key != 'tipo' &&
-                      (esAguaSalada || e.key != 'Salinidad'))
-                .map((e) => Text('${localLabel(e.key, local)}: ${e.value}')),
-
+            Text(
+              '📅 ${local.fecha}: ${registro.fecha.toLocal().toString().substring(0, 16)}',
+              style: const TextStyle(color: Colors.blue),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${localLabel(registro.parametro, local)}: ${registro.valor.toStringAsFixed(1)}',
+            ),
           ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () => _confirmarBorrado(index, tipo),
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: () => _confirmarBorrado(registro),
         ),
+        onTap: () => _mostrarDetalles(registro, local),
       ),
     );
+  }
+
+  void _mostrarDetalles(TestRegistro registro, AppLocalizations local) async {
+    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
+    final parametroTraducido = traducirParametro(registro.parametro.toLowerCase());
+    final parametroNormalizado = normalizarParametro(parametroTraducido);
+    final valores = {
+      parametroNormalizado: registro.valor,
+      'volumen_muestra': 10,
+    };
+
+    final resultado = await calcularAjustes(valores, context, unidadSistema);
+    final recomendaciones = resultado.entries.map((e) => e.value.trim()).where((t) => t.isNotEmpty).join('\n\n');
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('${localLabel(registro.parametro, local)} (${registro.valor.toStringAsFixed(1)})'),
+        content: SingleChildScrollView(
+          child: Text(
+            recomendaciones.isNotEmpty
+                ? recomendaciones
+                : local.sinRecomendaciones,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String traducirParametro(String key) {
+    final k = key.trim().toLowerCase();
+    if (k.contains('free chlorine')) return 'cloro libre';
+    if (k.contains('combined chlorine')) return 'cloro combinado';
+    if (k.contains('ph')) return 'ph';
+    if (k.contains('alkalinity')) return 'alcalinidad';
+    if (k.contains('stabilizer') || k.contains('cya')) return 'cya';
+    if (k.contains('hardness') || k.contains('calcium')) return 'dureza';
+    if (k.contains('salinity')) return 'salinidad';
+    return key;
+  }
+
+  String normalizarParametro(String parametro) {
+    final p = parametro.toLowerCase();
+    if (p.contains('cloro libre')) return 'Free chlorine';
+    if (p.contains('cloro combinado')) return 'Combined chlorine';
+    if (p.contains('ph')) return 'pH';
+    if (p.contains('alcalinidad')) return 'Alkalinity';
+    if (p.contains('cya') || p.contains('estabilizador')) return 'Stabilizer';
+    if (p.contains('dureza')) return 'Calcium hardness';
+    if (p.contains('salinidad')) return 'Salinity';
+    return parametro;
   }
 
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
+    final individuales = _testRegistros.where((r) => r.tipo == 'individual').toList();
+    final completos = _testRegistros.where((r) => r.tipo == 'completo').toList();
+
     return Scaffold(
       appBar: AppBar(title: Text(local.registrosAnteriores)),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            if (_individuales.isNotEmpty)
+            if (individuales.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('🧪 ${local.testIndividual}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    ...List.generate(_individuales.length,
-                            (index) => _buildRegistroCard(_individuales[index], index, 'individual', local)),
+                    ...individuales.map((r) => _buildRegistroCard(r, local)),
                   ],
                 ),
               ),
-            if (_completos.isNotEmpty)
+            if (completos.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('🧪 ${local.testCompleto}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    ...List.generate(_completos.length,
-                            (index) => _buildRegistroCard(_completos[index], index, 'completo', local)),
+                    ...completos.map((r) => _buildRegistroCard(r, local)),
                   ],
                 ),
               ),
-            if (_individuales.isEmpty && _completos.isEmpty)
+            if (_testRegistros.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(32),
                 child: Center(child: Text(local.sinRegistros)),

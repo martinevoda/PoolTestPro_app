@@ -22,8 +22,13 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
   String _parametroSeleccionado = 'Cloro libre';
   String _volumenSeleccionado = '10';
+  String? _titulantePhSeleccionado;
+
   Map<String, String> _recomendaciones = {};
-  Map<String, String> _registroActual = {};
+  Map<String, dynamic> _registroActual = {};
+  Map<String, Map<String, String>> _todasLasRecomendaciones = {};
+
+
 
   @override
   void initState() {
@@ -80,62 +85,138 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
   Future<void> _calcular() async {
     final local = AppLocalizations.of(context)!;
-    final unidadSistema =
-        Provider.of<SettingsController>(context, listen: false).unidadSistema;
+    final prefs = await SharedPreferences.getInstance();
 
-    final gotas = int.tryParse(_gotasController.text.trim());
+    final gotas = double.tryParse(_gotasController.text.trim());
     final valorManual = double.tryParse(_valorController.text.trim());
 
-    if (gotas == null && valorManual == null) return;
+    final parametro = _parametroSeleccionado;
+    final volumen = _volumenSeleccionado;
 
-    final Map<String, String> registro = {
-      'volumen_muestra': _volumenSeleccionado,
+    final registro = <String, dynamic>{
+      'volumen_muestra': volumen,
       'tipo': 'individual',
       'fecha': DateTime.now().toIso8601String(),
     };
 
-    if (_parametroSeleccionado.contains('Cloro') ||
-        _parametroSeleccionado == 'Alcalinidad' ||
-        _parametroSeleccionado == 'Dureza' ||
-        _parametroSeleccionado == 'pH') {
-      if (gotas != null) {
-        registro['${_parametroSeleccionado} gotas'] = gotas.toString();
-        if (_parametroSeleccionado == 'pH' && valorManual != null) {
-          registro['pH'] = valorManual.toStringAsFixed(2);
-        }
-      } else if (valorManual != null) {
-        registro[_parametroSeleccionado] = valorManual.toStringAsFixed(2);
-      }
-    } else {
-      if (valorManual != null) {
-        registro[_parametroSeleccionado] = valorManual.toStringAsFixed(2);
-      }
+    if (gotas != null) {
+      registro['${parametro} gotas'] = gotas;
     }
 
-    final recomendaciones =
-    await calcularAjustes(registro, context, unidadSistema);
+    // Calcular valor final en ppm
+    final valor = valorManual ??
+        (gotas != null
+            ? (parametro.toLowerCase().contains('cloro')
+            ? (volumen == '10' ? gotas * 0.5 : gotas * 0.2)
+            : gotas)
+            : null);
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('temp_individual', json.encode(registro));
-    await prefs.setString(
-        'temp_recomendaciones_individual', json.encode(recomendaciones));
+    if (valor != null) {
+      registro['parametro'] = parametro;
+      registro['valor_ppm'] = double.parse(valor.toStringAsFixed(2));
+    }
+
+    final unidad = Provider.of<SettingsController>(context, listen: false).unidadSistema;
+
+// Construir mapa de parámetros completo
+    final Map<String, dynamic> parametrosAjuste = {
+      parametro: valor ?? 0.0,
+      'volumen_muestra': volumen,
+    };
+    if (parametro == 'pH' && gotas != null) {
+      parametrosAjuste['pH gotas'] = gotas.toInt().toString();
+
+      if (_titulantePhSeleccionado != null) {
+        parametrosAjuste['pH titulante'] = _titulantePhSeleccionado;
+      }
+    } else if (gotas != null) {
+      parametrosAjuste['${parametro} gotas'] = gotas;
+    }
+
+
+    if (parametro == 'pH' && gotas != null) {
+      parametrosAjuste['pH gotas'] = gotas.toInt().toString(); // <-- necesario para el cálculo de pH dinámico
+    } else if (gotas != null) {
+      parametrosAjuste['${parametro} gotas'] = gotas;
+    }
+
+    final recomendaciones = await calcularAjustes(
+      parametrosAjuste,
+      context,
+      unidad,
+    );
+
+
+
+    if (recomendaciones.containsKey(parametro)) {
+      registro['recomendacion'] = recomendaciones[parametro];
+    }
+
+    print('Registro calculado: $registro');
+    print('Recomendaciones: $recomendaciones');
 
     setState(() {
-      _registroActual = registro;
-      _recomendaciones = recomendaciones;
+      _registroActual = registro.map((key, value) => MapEntry(key, value.toString()));
+      _todasLasRecomendaciones[_parametroSeleccionado] = recomendaciones;
     });
+
   }
+
 
   Future<void> _guardarTesteo() async {
     if (_registroActual.isEmpty) return;
 
-    await _saveRegistro(_registroActual);
-    await _saveRegistrosComoTestRegistro(_registroActual);
+    final parametro = _parametroSeleccionado;
+    final valorStr = _valorController.text.trim();
+    final gotasStr = _gotasController.text.trim();
+
+    final double? valor = double.tryParse(valorStr.isNotEmpty ? valorStr : gotasStr);
+    if (valor != null) {
+      _registroActual['parametro'] = parametro;
+      _registroActual['valor_ppm'] = valor; // ✅ Usar double directamente
+    }
+
+    _registroActual['tipo'] = 'individual'; // ✅ Clasificación
+    final texto = _todasLasRecomendaciones[parametro]?[parametro];
+
+    if (texto != null) {
+      _registroActual['recomendacion'] = _recomendaciones[parametro] ?? '';
+
+    }
+
+    // ✅ Imprimir antes de limpiar
+    print('Registro completo a guardar: $_registroActual');
+
+    await _saveRegistro(_registroActual); // Guarda en 'test_individual'
+
+    // ✅ Guardar también en test_registros (para gráficos)
+    final registro = TestRegistro(
+      tipo: 'individual',
+      fecha: DateTime.now(),
+      parametro: parametro,
+      valor: valor ?? 0.0,
+      recomendacion: texto,
+    );
 
     final prefs = await SharedPreferences.getInstance();
+    final registrosRaw = prefs.getString('test_registros') ?? '[]';
+    final List decoded = json.decode(registrosRaw);
+
+    // ✅ Asegurar que se guarda como Map<String, dynamic>
+    decoded.add(registro.toJson());
+
+    // ✅ Convertir a lista JSON
+    await prefs.setString('test_registros', json.encode(decoded));
+
+    print('✅ Registro guardado correctamente en test_registros: ${registro.toJson()}');
+
+    // ✅ Limpiar estado temporal
     await prefs.remove('temp_individual');
     await prefs.remove('temp_recomendaciones_individual');
+    _todasLasRecomendaciones.remove(_parametroSeleccionado);
 
+
+    // ✅ Limpiar inputs
     setState(() {
       _registroActual.clear();
       _recomendaciones.clear();
@@ -152,26 +233,37 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     );
   }
 
-  Future<void> _saveRegistro(Map<String, String> registro) async {
+
+
+
+  Future<void> _saveRegistro(Map<String, dynamic> registro) async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Guardar también en lista de 'registros' (opcional si todavía lo usás)
     final List<String> registros = prefs.getStringList('registros') ?? [];
     registros.add(json.encode(registro));
     await prefs.setStringList('registros', registros);
 
-    final String? individualesData = prefs.getString('test_individual');
-    List<Map<String, dynamic>> individuales = [];
+    // Guardar en 'test_individual' o 'test_completo' según tipo
+    final String tipo = registro['tipo'] ?? 'individual';
+    final String clave = tipo == 'completo' ? 'test_completo' : 'test_individual';
 
-    if (individualesData != null && individualesData.isNotEmpty) {
-      individuales =
-      List<Map<String, dynamic>>.from(json.decode(individualesData));
+    final String? dataGuardada = prefs.getString(clave);
+    List<Map<String, dynamic>> lista = [];
+
+    if (dataGuardada != null && dataGuardada.isNotEmpty) {
+      try {
+        lista = List<Map<String, dynamic>>.from(json.decode(dataGuardada));
+      } catch (_) {}
     }
 
-    individuales.add(registro);
-    await prefs.setString('test_individual', json.encode(individuales));
+    lista.add(registro);
+    await prefs.setString(clave, json.encode(lista));
   }
 
-  Future<void> _saveRegistrosComoTestRegistro(
-      Map<String, String> registro) async {
+
+
+  Future<void> _saveRegistrosComoTestRegistro(Map<String, dynamic> registro) async {
     final prefs = await SharedPreferences.getInstance();
     final String? data = prefs.getString('test_registros');
     List<Map<String, dynamic>> lista = [];
@@ -181,23 +273,39 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     }
 
     final now = DateTime.now();
-    for (var entry in registro.entries) {
-      if (entry.key != 'fecha' && entry.key != 'tipo') {
-        final valor = double.tryParse(entry.value);
-        if (valor != null) {
-          final test = TestRegistro(
-            tipo: registro['tipo'] ?? 'individual',
-            parametro: entry.key,
-            valor: valor,
-            fecha: now,
-          );
-          lista.add(test.toJson());
-        }
+
+    final parametro = registro['parametro']?.toString();
+    final valorRaw = registro['valor_ppm'];
+    double? valor;
+
+    try {
+      if (valorRaw is double) {
+        valor = valorRaw;
+      } else if (valorRaw is int) {
+        valor = valorRaw.toDouble();
+      } else if (valorRaw is String) {
+        valor = double.tryParse(valorRaw);
       }
+    } catch (_) {
+      valor = null;
     }
 
-    await prefs.setString('test_registros', json.encode(lista));
+
+    if (parametro != null && valor != null) {
+      final test = TestRegistro(
+        tipo: registro['tipo']?.toString() ?? 'individual',
+        parametro: parametro,
+        valor: valor,
+        fecha: now,
+      );
+      lista.add(test.toJson());
+      await prefs.setString('test_registros', json.encode(lista));
+      print('✅ Registro guardado correctamente en test_registros: ${test.toJson()}');
+    } else {
+      print('❌ No se pudo guardar el test: valor o parámetro inválido');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -206,14 +314,18 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
         Provider.of<SettingsController>(context).esAguaSalada;
 
     return Scaffold(
+        backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(local.testIndividual),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            DropdownButton<String>(
+    body: SingleChildScrollView(
+    child: Container(
+    color: Colors.white, // ✅ Esto forza el fondo blanco
+    padding: const EdgeInsets.all(16),
+    child: Column(
+    children: [
+
+    DropdownButton<String>(
               value: _parametroSeleccionado,
               isExpanded: true,
               items: [
@@ -316,18 +428,44 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                 ],
               )
             else if (_parametroSeleccionado == 'pH')
-              TextField(
-                controller: _gotasController,
-                keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: '${local.gotas}',
-                  border: const OutlineInputBorder(),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: _gotasController,
+                      keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        labelText: local.gotas,
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 3,
+                    child: DropdownButtonFormField<String>(
+                      value: _titulantePhSeleccionado,
+                      isExpanded: true,
+                      hint: Text('R-005 / R-006'),
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        DropdownMenuItem(value: 'R-005', child: Text('R-005 (ácido)')),
+                        DropdownMenuItem(value: 'R-006', child: Text('R-006 (base)')),
+                      ],
+                      onChanged: (val) {
+                        setState(() {
+                          _titulantePhSeleccionado = val;
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
-
             const SizedBox(height: 12),
-
             if (!(_parametroSeleccionado.contains('Cloro') ||
                 _parametroSeleccionado == 'Alcalinidad' ||
                 _parametroSeleccionado == 'Dureza' ||
@@ -346,7 +484,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                     style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                 ),
-
               TextField(
                 controller: _valorController,
                 keyboardType:
@@ -357,17 +494,28 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                 ),
               ),
             ],
-
             const SizedBox(height: 20),
-
-            if (_recomendaciones.isNotEmpty)
+            if (_todasLasRecomendaciones[_parametroSeleccionado]?.isNotEmpty ?? false)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _recomendaciones.entries.map((entry) {
+                children: _todasLasRecomendaciones[_parametroSeleccionado]!.entries.map((entry) {
                   final lines = entry.value.trim().split('\n');
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white, // ✅ fondo blanco fijo
+                      border: Border.all(color: Colors.grey.shade400),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(2, 2),
+                        )
+                      ],
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -393,9 +541,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                   );
                 }).toList(),
               ),
-
-
-
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -414,6 +559,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
