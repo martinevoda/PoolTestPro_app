@@ -119,7 +119,6 @@
   "stockControlTitle": "Control de stock",
   "availableLabel": "Disponible",
   "cloroLibreLabel": "Cloro libre",
-  "ph": "pH",
   "alcalinidad": "Alcalinidad",
   "cya": "Estabilizador (CYA)",
   "dureza": "Dureza cálcica",
@@ -481,7 +480,8 @@
     }
   },
 
-  "instruccionesCloroCombinado": "1. Después del test de cloro libre, agregar 5 gotas de R-0003.\n2. Si el agua se vuelve rosa, titular con R-0871 hasta que aclare.\n3. Contar las gotas.",
+  "instruccionesCloroCombinado": "1. Primero, realizá el test de **Cloro libre**.\n2. Luego agregá **5 gotas de R-0003** a la misma muestra.\n3. Observá el agua:\n   - ✅ Si se mantiene **transparente**, **NO hay cloro combinado** → el test termina ahí, anotá **0 ppm**.\n   - ⚠️ Si se vuelve a poner **rosada**, hay **cloro combinado**.\n4. Si volvió a ponerse rosada:\n   - Titulá con **R-0871** como en el test anterior.\n   - Agregá gotas una por una hasta que desaparezca el color.\n   - Contá las gotas → eso indica los ppm de cloro combinado.",
+
   "@instruccionesCloroCombinado": {
     "description": "Instrucciones para test de Cloro combinado",
     "placeholders": {
@@ -497,7 +497,7 @@
     }
   },
 
-  "instruccionesDureza": "1. Llenar la celda hasta 10 o 25 mL.\n2. Agregar 20 gotas de R-0010.\n3. Agregar 5 gotas de R-0011L (se vuelve rojo).\n4.Titular con R-0012 hasta que se vuelva azul.\n5. Contar las gotas.",
+  "instruccionesDureza": "1. Llenar la celda hasta 25 mL.\n2. Agregar 20 gotas de R-0010.\n3. Agregar 5 gotas de R-0011L (se vuelve rojo).\n4.Titular con R-0012 hasta que se vuelva azul.\n5. Contar las gotas.",
   "@instruccionesDureza": {
     "description": "Instrucciones para test de Dureza cálcica",
     "placeholders": {
@@ -537,8 +537,49 @@
 
   "sinRecomendaciones": "Sin recomendaciones disponibles",
 
-  "phFueraDeRango": "El pH está fuera del rango ideal."
+  "phFueraDeRango": "El pH está fuera del rango ideal.",
 
+  "cloroCombinadoCero": "No se detectó cloro combinado (el agua permaneció transparente tras R-0003).",
+  "choqueAlto": "Dosis elevada de cloro líquido. Verificá el número de gotas o repetí el test.",
+
+  "cloroCombinadoAdvertenciaLeve": "Presencia leve de cloro combinado detectada (0.2–0.5 ppm). No requiere acción urgente, pero monitorear a diario.",
+
+  "cloroLibreAltoSugerencia": "Cloro libre alto: evitar uso de la piscina. Reducí el tiempo de funcionamiento o bajá la potencia del generador Jandy TruClear.",
+
+  "nombreProductoPhSubir": "Incrementador de pH",
+  "nombreComercialPhSubir": "In The Swim pH Increaser",
+  "nombreProductoPhBajar": "Reductor de pH",
+  "nombreComercialPhBajar": "Klean Strip Muriatic Acid",
+  "phTitulanteInvalido": "El titulante ingresado no es válido. Por favor seleccione R-005 (ácido) o R-006 (básico).",
+  "@nombreProductoPhSubir": {
+    "description": "Nombre del producto que sube el pH"
+  },
+  "@nombreComercialPhSubir": {
+    "description": "Nombre comercial del producto que sube el pH"
+  },
+  "@nombreProductoPhBajar": {
+    "description": "Nombre del producto que baja el pH"
+  },
+  "@nombreComercialPhBajar": {
+    "description": "Nombre comercial del producto que baja el pH"
+  },
+  "@phTitulanteInvalido": {
+    "description": "Mensaje cuando el titulante de pH no es R-005 o R-006"
+
+},
+
+  "rangoPhNormal": "Rango normal",
+  "phBajoRecomendacion": "El pH está muy bajo. Considerá subirlo.",
+  "phAltoRecomendacion": "El pH está muy alto. Considerá bajarlo.",
+  "phNormalLeyenda": "El pH está dentro del rango normal.",
+
+  "valorBajo": "Valor bajo",
+  "valorAlto": "Valor alto",
+  "phNormalLegend": "📏 Rango normal: 7.2–7.8",
+
+  "phVisualPlaceholder": "Estimado según titulante y gotas",
+
+  "ph": "pH"
 
 
 }

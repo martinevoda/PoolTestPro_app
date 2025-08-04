@@ -115,7 +115,6 @@
   "stockControlTitle": "Stock control",
   "availableLabel": "Available",
   "cloroLibreLabel": "Free chlorine",
-  "ph": "pH",
   "alcalinidad": "Alkalinity",
   "cya": "Stabilizer (CYA)",
   "dureza": "Calcium hardness",
@@ -437,7 +436,7 @@
     }
   },
 
-  "instruccionesCloroCombinado": "1. After the free chlorine test, add 5 drops of R-0003.\n2. If the water turns pink, titrate with R-0871 until clear.\n3. Count the drops.",
+  "instruccionesCloroCombinado": "1. First, complete the **Free Chlorine** test.\n2. Then, add **5 drops of R-0003** to the same sample.\n3. Observe the water:\n   - ✅ If it stays **clear**, there is **no combined chlorine** → **test is done**, record **0 ppm**.\n   - ⚠️ If it turns **pink again**, it means **combined chlorine is present**.\n4. If the sample turned pink:\n   - Titrate with **R-0871** (same as in free chlorine test).\n   - Add drops **one by one**, swirling after each, until the pink color disappears again.\n   - Count the **number of drops** → this gives the ppm of combined chlorine.",
   "@instruccionesCloroCombinado": {
     "description": "Instructions for combined chlorine test",
     "placeholders": {
@@ -453,7 +452,7 @@
     }
   },
 
-  "instruccionesDureza": "1. Fill the cell to 10 or 25 mL.\n2. Add 20 drops of R-0010.\n3. Add 5 drops of R-0011L (turns red).\n4. Titrate with R-0012 until blue.\n4. Count the drops.",
+  "instruccionesDureza": "1. Fill the cell to 25 mL.\n2. Add 20 drops of R-0010.\n3. Add 5 drops of R-0011L (turns red).\n4. Titrate with R-0012 until blue.\n4. Count the drops.",
   "@instruccionesDureza": {
     "description": "Instructions for calcium hardness test",
     "placeholders": {
@@ -490,6 +489,48 @@
 
   "sinRecomendaciones": "No recommendations available",
 
-  "phFueraDeRango": "pH is outside the ideal range."
+  "phFueraDeRango": "pH is outside the ideal range.",
 
+  "cloroCombinadoCero": "No combined chlorine detected (sample remained clear after R-0003).",
+  "choqueAlto": "High chlorine dose. Please check the drop count or repeat the test.",
+
+  "cloroCombinadoAdvertenciaLeve": "Slight presence of combined chlorine detected (0.2–0.5 ppm). No urgent action needed, but monitor daily.",
+
+  "cloroLibreAltoSugerencia": "High free chlorine: avoid using the pool. Reduce pump time or lower Jandy TruClear generator output.",
+
+
+
+  "nombreProductoPhSubir": "pH Increaser",
+  "nombreComercialPhSubir": "In The Swim pH Increaser",
+  "nombreProductoPhBajar": "pH Reducer",
+  "nombreComercialPhBajar": "Klean Strip Muriatic Acid",
+  "phTitulanteInvalido": "The selected titrant is not valid. Please choose R-005 (acidic) or R-006 (basic).",
+  "@nombreProductoPhSubir": {
+    "description": "Product name used to increase pH"
+  },
+  "@nombreComercialPhSubir": {
+    "description": "Brand name of the product used to increase pH"
+  },
+  "@nombreProductoPhBajar": {
+    "description": "Product name used to decrease pH"
+  },
+  "@nombreComercialPhBajar": {
+    "description": "Brand name of the product used to decrease pH"
+  },
+  "@phTitulanteInvalido": {
+    "description": "Message when the pH titrant is not R-005 or R-006"
+  },
+
+  "rangoPhNormal": "Normal range",
+  "phBajoRecomendacion": "pH is too low. Consider raising it.",
+  "phAltoRecomendacion": "pH is too high. Consider lowering it.",
+  "phNormalLeyenda": "pH is within the normal range.",
+
+  "valorBajo": "Low value",
+  "valorAlto": "High value",
+  "phNormalLegend": "📏 Normal range: 7.2–7.8",
+
+  "phVisualPlaceholder": "Estimated based on titrant and drops",
+
+  "ph": "pH"
 }

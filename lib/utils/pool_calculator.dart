@@ -37,16 +37,18 @@ Future<Map<String, String>> calcularAjustes(
 
   final volumenMuestra = parametros['volumen_muestra'] ?? '25';
   final double factorCloro = volumenMuestra == '10' ? 0.5 : 0.2;
-  final double factorAlcalinidad = volumenMuestra == '10' ? 10 : 4;
-  final double factorDureza = volumenMuestra == '10' ? 25 : 10;
+  final double factorAlcalinidad = volumenMuestra == '10' ? 25 : 10;
+  final double factorDureza = 10;
 
   final cloroLibre = parametros.containsKey('Cloro libre gotas')
       ? toDouble(parametros['Cloro libre gotas'])! * factorCloro
       : toDouble(parametros['Cloro libre']);
 
+
   final cloroCombinado = parametros.containsKey('Cloro combinado gotas')
       ? toDouble(parametros['Cloro combinado gotas'])! * factorCloro
       : toDouble(parametros['Cloro combinado']);
+
 
   final alcalinidad = parametros.containsKey('Alcalinidad gotas')
       ? toDouble(parametros['Alcalinidad gotas'])! * factorAlcalinidad
@@ -56,10 +58,10 @@ Future<Map<String, String>> calcularAjustes(
       ? toDouble(parametros['Dureza gotas'])! * factorDureza
       : toDouble(parametros['Dureza']);
 
-  final ph = toDouble(parametros['pH']);
+  double? ph = toDouble(parametros['pH']);
   final String? titulantePh = parametros['pH titulante'];
-  final int? gotasPh = int.tryParse(parametros['pH gotas'] ?? '');
-
+  final String? strGotasPh = parametros['pH gotas'];
+  final int? gotasPh = int.tryParse(strGotasPh ?? '');
   final cya = toDouble(parametros['CYA']);
   final salinidad = toDouble(parametros['Salinidad']);
 
@@ -80,17 +82,16 @@ Future<Map<String, String>> calcularAjustes(
         tituloTraducido = localizations.cloroLibreLabel;
         break;
       case 'ph_increaser':
-        tituloTraducido = localizations.phLabel;
+        tituloTraducido = 'pH';
         break;
       case 'acido_muriatico':
       // Diferenciar si se trata de alcalinidad alta
         if (mensajeBase.contains(localizations.alcalinidadAltaTexto)) {
           tituloTraducido = localizations.alcalinidadLabel;
         } else {
-          tituloTraducido = localizations.phLabel;
+          tituloTraducido = 'pH';
         }
         break;
-
       case 'alcalinidad':
         tituloTraducido = localizations.alcalinidadLabel;
         break;
@@ -113,7 +114,7 @@ Future<Map<String, String>> calcularAjustes(
     final stockActual = StockService.obtenerStockSeguro(key);
     final necesitaReabastecer = await StockService.necesitaReabastecer(key, cantidad);
 
-    String texto = '**$tituloTraducido**\n'
+    String texto = '$tituloTraducido\n'
         '📏 $valorNormal\n'
         '$valorActualFormateado\n'
         '$mensajeBase';
@@ -131,172 +132,171 @@ Future<Map<String, String>> calcularAjustes(
         unidadVisual,
       )}';
     }
-    await StockService.registrarUso(key, cantidad);
 
-    recomendaciones[tituloTraducido] = texto;
+    await StockService.registrarUso(key, cantidad);
+    recomendaciones[key] = texto;
   }
 
 
-    // BLOQUES PARA CADA PARÁMETRO
 
-    if (cloroLibre != null) {
-      String valor = '${localizations.cloroLibreLabel}: ${cloroLibre
-          .toStringAsFixed(1)}';
-      if (cloroLibre < 3.0) {
-        double incremento = 3.0 - cloroLibre;
-        double galones = (incremento * volumenLitros * 0.0002).clamp(0.5, 2.5);
-        double cantidad = esMetrico ? galones * factorVolumen : galones;
-        await procesarUso(
-          key: 'cloro_liquido',
-          cantidad: cantidad,
-          nombreProducto: localizations.nombreProductoCloro,
-          nombreComercial: localizations.nombreComercialCloro,
-          mensajeBase: '⚠️ ${localizations.cloroLibreBajo}\n➕ ${localizations.recomendacionGenerica(
-            cantidad.toStringAsFixed(1),
-            unidadVol,
-            localizations.nombreProductoCloro,
-            localizations.nombreComercialCloro,
-          )}',
-          valorNormal: localizations.normalRangeCloroLibre,
-          valorActualFormateado: '${localizations.cloroLibreLabel}: ${cloroLibre.toStringAsFixed(1)}',
-        );
-      } else if (cloroLibre > 6.0) {
-          recomendaciones['Cloro libre'] = '**${localizations
-              .cloroLibreLabel}**\n📏 Valor normal: 3.0–6.0 ppm\n$valor\n⚠️ ${localizations
-              .cloroLibreAlto}';
-        } else {
-          recomendaciones['Cloro libre'] = '**${localizations
-              .cloroLibreLabel}**\n📏 Valor normal: 3.0–6.0 ppm\n$valor\n✅ ${localizations
-              .valorNormal} (3.0–6.0 ppm)';
-        }
+  // BLOQUES PARA CADA PARÁMETRO
+
+  if (cloroLibre != null) {
+    String valor = '${localizations.cloroLibreLabel}: ${cloroLibre.toStringAsFixed(1)}';
+
+    if (cloroLibre < 1.0) {
+      // 🔻 Bajo → calcular cuánto agregar
+      double incremento = 3.0 - cloroLibre; // subir hasta 3 ppm
+      double galones = incremento * volumenLitros * 0.00013;
+      double cantidad = esMetrico ? galones * factorVolumen : galones;
+
+      String mensaje = '⚠️ ${localizations.cloroLibreBajo}\n➕ ${localizations.recomendacionGenerica(
+        cantidad.toStringAsFixed(1),
+        unidadVol,
+        localizations.nombreProductoCloro,
+        localizations.nombreComercialCloro,
+      )}';
+
+      if (galones > 5.0) {
+        mensaje += '\n⚠️ ${localizations.choqueAlto}';
       }
 
-    if (cloroCombinado != null) {
-      String valor = '${localizations.cloroCombinadoLabel}: ${cloroCombinado
-          .toStringAsFixed(1)}';
-      if (cloroCombinado > 0.5) {
-        double diferencia = cloroCombinado - 0.2;
-        double galones = (diferencia * volumenLitros * 0.00013).clamp(0.5, 2.5);
-        double cantidad = esMetrico ? galones * factorVolumen : galones;
-        await procesarUso(
-          key: 'cloro_liquido',
-          cantidad: cantidad,
-          nombreProducto: localizations.nombreProductoCloro,
-          nombreComercial: localizations.nombreComercialCloro,
-          mensajeBase: '⚠️ ${localizations.cloroCombinadoAlto}\n${localizations.requiereTratamientoChoque}\n➕ ${localizations.recomendacionGenerica(
-            cantidad.toStringAsFixed(1),
-            unidadVol,
-            localizations.nombreProductoCloro,
-            localizations.nombreComercialCloro,
-          )}',
-          valorNormal: localizations.normalRangeCloroCombinado,
-          valorActualFormateado: '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}',
-        );
-      } else if (cloroCombinado < 0.1) {
-          recomendaciones['Cloro combinado'] = '**${localizations
-              .cloroCombinadoLabel}**\n📏 Valor normal: 0–0.5 ppm\n$valor\n⚠️ ${localizations
-              .cloroCombinadoBajo}';
-        } else {
-          recomendaciones['Cloro combinado'] = '**${localizations
-              .cloroCombinadoLabel}**\n📏 Valor normal: 0–0.5 ppm\n$valor\n✅ ${localizations
-              .valorNormal} (0–0.5 ppm)';
-        }
-      }
-
-  if (ph != null) {
-    String valor = '${localizations.phLabel}: ${ph.toStringAsFixed(2)}';
-    final gotasTexto = parametros['pH gotas'];
-    final gotas = int.tryParse(gotasTexto ?? '');
-
-    if (ph > 7.8 && gotas != null) {
-      final qt = calcularPhAltoQt(gotas, volumenGalones);
-      final cantidad = esMetrico ? qt * 0.946 : qt;
-
       await procesarUso(
-        key: 'acido_muriatico',
+        key: 'cloro_liquido',
         cantidad: cantidad,
-        nombreProducto: localizations.productoPHAlto,
-        nombreComercial: localizations.nombreComercialPHAlto,
-        mensajeBase: '⚠️ ${localizations.phAltoTexto}\n'
-            '➕ ${localizations.recomendacionGenerica(
-          cantidad.toStringAsFixed(2),
-          unidadVol,
-          localizations.productoPHAlto,
-          localizations.nombreComercialPHAlto,
-        )}',
-        valorNormal: localizations.normalRangePH,
+        nombreProducto: localizations.nombreProductoCloro,
+        nombreComercial: localizations.nombreComercialCloro,
+        mensajeBase: mensaje,
+        valorNormal: localizations.normalRangeCloroLibre,
         valorActualFormateado: valor,
       );
-    } else if (ph < 7.2 && gotas != null) {
-      final libras = calcularPhBajoLb(gotas, volumenGalones);
-      final cantidad = esMetrico ? libras * factorPeso : libras;
-
-      await procesarUso(
-        key: 'ph_increaser',
-        cantidad: cantidad,
-        nombreProducto: localizations.productoPHBajo,
-        nombreComercial: localizations.nombreComercialPHBajo,
-        mensajeBase: '⚠️ ${localizations.phBajoTexto}\n'
-            '➕ ${localizations.recomendacionGenerica(
-          cantidad.toStringAsFixed(2),
-          unidadPeso,
-          localizations.productoPHBajo,
-          localizations.nombreComercialPHBajo,
-        )}',
-        valorNormal: localizations.normalRangePH,
-        valorActualFormateado: valor,
-      );
-    } else if (ph >= 7.2 && ph <= 7.8) {
-      recomendaciones['pH'] = '**${localizations.phLabel}**\n'
-          '📏 ${localizations.normalRangePH}\n'
-          '$valor\n'
-          '✅ ${localizations.valorNormal} (7.4–7.6)';
+    } else if (cloroLibre > 6.0) {
+      // 🚨 Muy alto → advertencia
+      recomendaciones['Cloro libre'] = '**${localizations.cloroLibreLabel}**\n📏 ${localizations.normalRangeCloroLibre}\n$valor\n⚠️ ${localizations.cloroLibreAltoSugerencia}';
     } else {
-      recomendaciones['pH'] = '**${localizations.phLabel}**\n'
-          '📏 ${localizations.normalRangePH}\n'
-          '$valor\n'
-          '⚠️ ${localizations.phFueraDeRango}';
+      // ✅ Normal
+      recomendaciones['Cloro libre'] = '**${localizations.cloroLibreLabel}**\n📏 ${localizations.normalRangeCloroLibre}\n$valor\n✅ ${localizations.valorNormal}';
     }
-  } else if (ph == null && gotasPh != null && titulantePh != null) {
-    if (titulantePh == 'R-005') {
-      final qt = calcularPhAltoQt(gotasPh, volumenGalones);
-      final cantidad = esMetrico ? qt * 0.946 : qt;
+  }
+
+
+
+
+
+  if (cloroCombinado != null) {
+    String valor = '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}';
+
+    if (cloroCombinado == 0.0) {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n✅ ${localizations.cloroCombinadoCero}';
+    } else if (cloroCombinado > 0.5) {
+      double diferencia = cloroCombinado - 0.2;
+      double galones = (diferencia * volumenLitros * 0.00013);
+      double cantidad = esMetrico ? galones * factorVolumen : galones;
+
+      String mensaje = '⚠️ ${localizations.cloroCombinadoAlto}\n${localizations.requiereTratamientoChoque}\n➕ ${localizations.recomendacionGenerica(
+        cantidad.toStringAsFixed(1),
+        unidadVol,
+        localizations.nombreProductoCloro,
+        localizations.nombreComercialCloro,
+      )}';
+
+      if (galones > 5.0) {
+        mensaje += '\n⚠️ ${localizations.choqueAlto}';
+      }
 
       await procesarUso(
-        key: 'acido_muriatico',
+        key: 'cloro_liquido',
         cantidad: cantidad,
-        nombreProducto: localizations.productoPHAlto,
-        nombreComercial: localizations.nombreComercialPHAlto,
-        mensajeBase: '⚠️ ${localizations.phAltoTexto}\n'
-            '➕ ${localizations.recomendacionGenerica(
-          cantidad.toStringAsFixed(2),
-          unidadVol,
-          localizations.productoPHAlto,
-          localizations.nombreComercialPHAlto,
-        )}',
-        valorNormal: localizations.normalRangePH,
-        valorActualFormateado: '${localizations.phLabel}: –',
+        nombreProducto: localizations.nombreProductoCloro,
+        nombreComercial: localizations.nombreComercialCloro,
+        mensajeBase: mensaje,
+        valorNormal: localizations.normalRangeCloroCombinado,
+        valorActualFormateado: '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}',
       );
-    } else if (titulantePh == 'R-006') {
-      final libras = calcularPhBajoLb(gotasPh, volumenGalones);
-      final cantidad = esMetrico ? libras * factorPeso : libras;
-
-      await procesarUso(
-        key: 'ph_increaser',
-        cantidad: cantidad,
-        nombreProducto: localizations.productoPHBajo,
-        nombreComercial: localizations.nombreComercialPHBajo,
-        mensajeBase: '⚠️ ${localizations.phBajoTexto}\n'
-            '➕ ${localizations.recomendacionGenerica(
-          cantidad.toStringAsFixed(2),
-          unidadPeso,
-          localizations.productoPHBajo,
-          localizations.nombreComercialPHBajo,
-        )}',
-        valorNormal: localizations.normalRangePH,
-        valorActualFormateado: '${localizations.phLabel}: –',
-      );
+    } else if (cloroCombinado >= 0.2 && cloroCombinado <= 0.5) {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n${localizations.cloroCombinadoAdvertenciaLeve}';
+    } else if (cloroCombinado < 0.1) {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n⚠️ ${localizations.cloroCombinadoBajo}';
+    } else {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n✅ ${localizations.valorNormal}';
     }
+  }
+
+
+
+
+
+  final String? titulante = parametros['pH titulante']; // 'R-005' o 'R-006'
+  final double? gotas = toDouble(parametros['pH gotas']);
+  final bool esMedicionManual = (gotas == null || gotas == 0 || titulante == null || titulante.isEmpty);
+
+  if (esMedicionManual && ph != null) {
+    // ✅ Modo manual (ingresado visualmente con tirilla o color)
+    String valor = '${localizations.ph}: ${ph.toStringAsFixed(2)}';
+
+    if (ph < 7.2) {
+      recomendaciones['pH'] =
+      '**${localizations.ph}**\n📏 ${localizations.normalRangePh}\n$valor\n⚠️ ${localizations.valorBajo}';
+    } else if (ph > 7.8) {
+      recomendaciones['pH'] =
+      '**${localizations.ph}**\n📏 ${localizations.normalRangePh}\n$valor\n⚠️ ${localizations.valorAlto}';
+    } else {
+      recomendaciones['pH'] =
+      '**${localizations.ph}**\n📏 ${localizations.normalRangePh}\n$valor\n✅ ${localizations.valorNormal}';
+    }
+
+  } else if (!esMedicionManual) {
+    // ✅ Modo visual (usando titulante R-005 o R-006 + gotas)
+    double cantidad;
+    String mensaje;
+    String producto;
+    String nombreComercial;
+    String valorVisual = localizations.phVisualPlaceholder;
+
+    if (titulante == 'R-006') {
+      // ✅ R-006 → BASE DEMAND → pH bajo → subir pH
+      cantidad = calcularPhBajoLb(gotas!.toInt(), volumenGalones);
+      producto = localizations.nombreProductoPhSubir;
+      nombreComercial = localizations.nombreComercialPhSubir;
+
+      mensaje = '⚠️ ${localizations.phBajo}\n➕ ${localizations.recomendacionGenerica(
+        cantidad.toStringAsFixed(2),
+        unidadPeso,
+        producto,
+        nombreComercial,
+      )}';
+    } else if (titulante == 'R-005') {
+      // ✅ R-005 → ACID DEMAND → pH alto → bajar pH
+      cantidad = calcularPhAltoQt(gotas!.toInt(), volumenGalones);
+      producto = localizations.nombreProductoPhBajar;
+      nombreComercial = localizations.nombreComercialPhBajar;
+
+      mensaje = '⚠️ ${localizations.phAlto}\n➖ ${localizations.recomendacionGenerica(
+        cantidad.toStringAsFixed(2),
+        unidadPeso,
+        producto,
+        nombreComercial,
+      )}';
+    } else {
+      recomendaciones['pH'] =
+      '**${localizations.ph}**\n📏 ${localizations.normalRangePh}\n⚠️ ${localizations.phTitulanteInvalido}';
+      return recomendaciones;
+    }
+
+    await procesarUso(
+      key: 'ph',
+      cantidad: cantidad,
+      nombreProducto: producto,
+      nombreComercial: nombreComercial,
+      mensajeBase: mensaje,
+      valorNormal: localizations.normalRangePh,
+      valorActualFormateado: valorVisual,
+
+    );
   }
 
 
@@ -341,7 +341,7 @@ Future<Map<String, String>> calcularAjustes(
         nombreComercial: localizations.nombreComercialPHAlto,
         mensajeBase: '⚠️ ${localizations.alcalinidadAltaTexto}\n➕ ${localizations.recomendacionGenerica(
           cantidadFormateada,
-          esMetrico ? 'mL' : 'gal',
+          '',
           localizations.nombreProductoPHAlto,
           localizations.nombreComercialPHAlto,
         )}\n💡 ${localizations.alcalinidadAltaConsejo1}',

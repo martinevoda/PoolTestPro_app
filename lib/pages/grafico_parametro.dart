@@ -27,7 +27,7 @@ class _GraficoParametroPageState extends State<GraficoParametroPage> {
 
   void _cargarRegistros() async {
     final datos = await cargarTodosLosRegistros();
-    
+
     setState(() {
       registros = datos;
     });

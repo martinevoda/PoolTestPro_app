@@ -28,6 +28,13 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
   Map<String, dynamic> _registroActual = {};
   Map<String, Map<String, String>> _todasLasRecomendaciones = {};
 
+  String _formatTitulo(String raw) {
+    final texto = raw.trim();
+    if (texto.toLowerCase() == 'ph') return 'pH';
+    return texto;
+  }
+
+
 
 
   @override
@@ -84,6 +91,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
   }
 
   Future<void> _calcular() async {
+
     final local = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
 
@@ -157,7 +165,9 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
     setState(() {
       _registroActual = registro.map((key, value) => MapEntry(key, value.toString()));
-      _todasLasRecomendaciones[_parametroSeleccionado] = recomendaciones;
+      _todasLasRecomendaciones[_parametroSeleccionado] =
+          recomendaciones.map((k, v) => MapEntry(k, v));
+
     });
 
   }
@@ -325,35 +335,41 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     child: Column(
     children: [
 
-    DropdownButton<String>(
-              value: _parametroSeleccionado,
-              isExpanded: true,
-              items: [
-                'Cloro libre',
-                'Cloro combinado',
-                'pH',
-                'Alcalinidad',
-                'CYA',
-                'Dureza',
-                'Salinidad'
-              ]
-                  .where((param) => esAguaSalada || param != 'Salinidad')
-                  .map((param) => DropdownMenuItem(
-                value: param,
-                child: Text(localLabel(param, local)),
-              ))
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _parametroSeleccionado = value;
-                    _valorController.clear();
-                    _gotasController.clear();
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 12),
+      DropdownButton<String>(
+        value: _parametroSeleccionado,
+        isExpanded: true,
+        items: [
+          'Cloro libre',
+          'Cloro combinado',
+          'pH',
+          'Alcalinidad',
+          'CYA',
+          'Dureza',
+          'Salinidad'
+        ]
+            .where((param) => esAguaSalada || param != 'Salinidad')
+            .map((param) => DropdownMenuItem(
+          value: param,
+          child: Text(localLabel(param, local)),
+        ))
+            .toList(),
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              _parametroSeleccionado = value;
+              _valorController.clear();
+              _gotasController.clear();
+
+              // ✅ Forzar 25 mL si se selecciona Dureza
+              if (value == 'Dureza') {
+                _volumenSeleccionado = '25';
+              }
+            });
+          }
+        },
+      ),
+
+      const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerLeft,
               child: Column(
@@ -390,44 +406,53 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
             const SizedBox(height: 12),
 
-            if (_parametroSeleccionado.contains('Cloro') ||
-                _parametroSeleccionado == 'Alcalinidad' ||
-                _parametroSeleccionado == 'Dureza')
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _gotasController,
-                      keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                      decoration: InputDecoration(
-                        labelText: '${local.gotas}',
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  DropdownButton<String>(
-                    value: ['10', '25'].contains(_volumenSeleccionado)
-                        ? _volumenSeleccionado
-                        : '10',
-                    items: ['10', '25']
-                        .map((v) => DropdownMenuItem<String>(
-                      value: v,
-                      child: Text('$v mL'),
-                    ))
-                        .toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() {
-                          _volumenSeleccionado = val;
-                        });
-                      }
-                    },
-                  ),
-                ],
-              )
-            else if (_parametroSeleccionado == 'pH')
+      if (_parametroSeleccionado == 'Dureza')
+        TextField(
+          controller: _gotasController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: '${local.gotas} (25 mL)',
+            border: const OutlineInputBorder(),
+          ),
+        )
+      else if (_parametroSeleccionado.contains('Cloro') ||
+          _parametroSeleccionado == 'Alcalinidad')
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _gotasController,
+                keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: '${local.gotas}',
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            DropdownButton<String>(
+              value: ['10', '25'].contains(_volumenSeleccionado)
+                  ? _volumenSeleccionado
+                  : '10',
+              items: ['10', '25']
+                  .map((v) => DropdownMenuItem<String>(
+                value: v,
+                child: Text('$v mL'),
+              ))
+                  .toList(),
+              onChanged: (val) {
+                if (val != null) {
+                  setState(() {
+                    _volumenSeleccionado = val;
+                  });
+                }
+              },
+            ),
+          ],
+        )
+
+      else if (_parametroSeleccionado == 'pH')
               Row(
                 children: [
                   Expanded(
@@ -520,9 +545,11 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          lines.first,
+                          _formatTitulo(lines.first.replaceAll('**', '')),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
+
+
                         const SizedBox(height: 4),
                         ...lines.skip(1).map(
                               (line) => Text(
