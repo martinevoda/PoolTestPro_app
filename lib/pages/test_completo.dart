@@ -1,4 +1,3 @@
-// ... importaciones igual
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -36,6 +35,54 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
   Map<String, String> _registroActual = {};
 
   @override
+  void initState() {
+    super.initState();
+    _cargarEstadoTemporal();
+  }
+
+  Future<void> _cargarEstadoTemporal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('temp_test_completo');
+    final tempRecs = prefs.getString('temp_recomendaciones_completo');
+
+    if (saved == null) return;
+
+    final Map<String, dynamic> data = json.decode(saved);
+
+    Map<String, String> recomendacionesRecuperadas = {};
+
+    if (tempRecs != null) {
+      final Map<String, dynamic> recs = json.decode(tempRecs);
+      recomendacionesRecuperadas = recs.map((k, v) => MapEntry(k, v.toString()));
+    }
+
+    setState(() {
+      _cloroLibreGotas.text = '';
+      _cloroCombinadoGotas.text = '';
+      _volumenCloroLibre = '10';
+      _volumenCloroCombinado = '10';
+      _registroActual = {};
+      _recomendaciones = recomendacionesRecuperadas;
+
+      data.forEach((key, value) {
+        if (key == 'Cloro libre') {
+          final gotas = double.tryParse(value.toString());
+          if (gotas != null) {
+            _cloroLibreGotas.text = (_volumenCloroLibre == '10' ? gotas / 0.5 : gotas / 0.2).toStringAsFixed(0);
+          }
+        } else if (key == 'Cloro combinado') {
+          final gotas = double.tryParse(value.toString());
+          if (gotas != null) {
+            _cloroCombinadoGotas.text = (_volumenCloroCombinado == '10' ? gotas / 0.5 : gotas / 0.2).toStringAsFixed(0);
+          }
+        } else if (_controllers.containsKey(key)) {
+          _controllers[key]!.text = value.toString();
+        }
+      });
+    });
+  }
+
+  @override
   void dispose() {
     for (var controller in _controllers.values) {
       controller.dispose();
@@ -46,24 +93,26 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
   }
 
   Future<void> _calcularYGuardar() async {
-    double cloroLibrePPM = 0;
-    double cloroCombinadoPPM = 0;
+    final local = AppLocalizations.of(context)!;
 
-    final gotasLibre = int.tryParse(_cloroLibreGotas.text.trim());
-    final gotasCombinado = int.tryParse(_cloroCombinadoGotas.text.trim());
+    final gotasLibre = double.tryParse(_cloroLibreGotas.text.trim());
+    final gotasCombinado = double.tryParse(_cloroCombinadoGotas.text.trim());
 
-    if (gotasLibre != null) {
-      cloroLibrePPM = _volumenCloroLibre == '10' ? gotasLibre * 0.5 : gotasLibre * 0.2;
-    }
+    final cloroLibrePPM = gotasLibre != null
+        ? (_volumenCloroLibre == '10' ? gotasLibre * 0.5 : gotasLibre * 0.2)
+        : null;
+    final cloroCombinadoPPM = gotasCombinado != null
+        ? (_volumenCloroCombinado == '10'
+        ? gotasCombinado * 0.5
+        : gotasCombinado * 0.2)
+        : null;
 
-    if (gotasCombinado != null) {
-      cloroCombinadoPPM = _volumenCloroCombinado == '10' ? gotasCombinado * 0.5 : gotasCombinado * 0.2;
-    }
-
-    final Map<String, String> registro = {
-      'Cloro libre': cloroLibrePPM.toStringAsFixed(2),
-      'Cloro combinado': cloroCombinadoPPM.toStringAsFixed(2),
-      for (var key in _controllers.keys) key: _controllers[key]!.text.trim(),
+    final Map<String, dynamic> registro = {
+      if (cloroLibrePPM != null) 'Cloro libre': cloroLibrePPM,
+      if (cloroCombinadoPPM != null) 'Cloro combinado': cloroCombinadoPPM,
+      for (var key in _controllers.keys)
+        if (_controllers[key]!.text.trim().isNotEmpty)
+          key: double.tryParse(_controllers[key]!.text.trim()) ?? 0.0,
       'tipo': 'completo',
       'fecha': DateTime.now().toIso8601String(),
     };
@@ -73,22 +122,26 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final recomendaciones = await calcularAjustes(registro, context, unidadSistema);
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('temp_test_completo', json.encode(registro));
-
     setState(() {
-      _recomendaciones = recomendaciones;
-      _registroActual = registro;
+      _recomendaciones = recomendaciones.map((k, v) => MapEntry(k, v.toString()));
+      _registroActual = registro.map((k, v) => MapEntry(k, v.toString()));
     });
+
+    await prefs.setString('temp_test_completo', json.encode(registro));
+    await prefs.setString('temp_recomendaciones_completo', json.encode(_recomendaciones));
   }
 
   Future<void> _guardar() async {
-    if (_registroActual.isEmpty) return;
+    if (_registroActual.isEmpty) {
+      await _calcularYGuardar();
+    }
 
     await _saveRegistro(_registroActual);
     await _saveRegistrosComoTestRegistro(_registroActual);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('temp_test_completo');
+    await prefs.remove('temp_recomendaciones_completo');
 
     setState(() {
       for (var controller in _controllers.values) {
@@ -120,8 +173,10 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final String? existentes = prefs.getString('test_completo');
     List<Map<String, dynamic>> lista = [];
 
-    if (existentes != null) {
-      lista = List<Map<String, dynamic>>.from(json.decode(existentes));
+    if (existentes != null && existentes.isNotEmpty) {
+      try {
+        lista = List<Map<String, dynamic>>.from(json.decode(existentes));
+      } catch (_) {}
     }
 
     lista.add(registro);
@@ -133,8 +188,10 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final String? data = prefs.getString('test_registros');
     List<Map<String, dynamic>> lista = [];
 
-    if (data != null) {
-      lista = List<Map<String, dynamic>>.from(json.decode(data));
+    if (data != null && data.isNotEmpty) {
+      try {
+        lista = List<Map<String, dynamic>>.from(json.decode(data));
+      } catch (_) {}
     }
 
     final now = DateTime.now();
@@ -148,6 +205,7 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
             parametro: entry.key,
             valor: valor,
             fecha: now,
+            recomendacion: _recomendaciones[entry.key],
           );
           lista.add(test.toJson());
         }
@@ -163,15 +221,16 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
     final esAguaSalada = Provider.of<SettingsController>(context).esAguaSalada;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(title: Text(local.testCompleto)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildCloroField(local.cloroLibre, _cloroLibreGotas,
+            _buildCloroField(local.cloroLibreLabel, _cloroLibreGotas,
                     (val) => setState(() => _volumenCloroLibre = val!), _volumenCloroLibre),
             const SizedBox(height: 12),
-            _buildCloroField(local.cloroCombinado, _cloroCombinadoGotas,
+            _buildCloroField(local.cloroCombinadoLabel, _cloroCombinadoGotas,
                     (val) => setState(() => _volumenCloroCombinado = val!), _volumenCloroCombinado),
             const SizedBox(height: 16),
             for (var entry in _controllers.entries)
@@ -189,29 +248,47 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                 ),
             const SizedBox(height: 20),
             if (_recomendaciones.isNotEmpty)
-              Card(
-                color: Theme.of(context).cardColor,
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _recomendaciones.entries.map((entry) {
-                      final mensaje = entry.value;
-                      final esNormal = mensaje.contains('✅');
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          '${localLabel(entry.key, local)}: $mensaje',
-                          style: TextStyle(
-                            color: esNormal ? Colors.green : Colors.red,
-                            fontWeight: FontWeight.w600,
-                          ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _recomendaciones.entries.map((entry) {
+                  final lines = entry.value.trim().split('\n');
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade400),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(2, 2),
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          localLabel(entry.key, local),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
+                        const SizedBox(height: 4),
+                        ...lines.skip(1).map((line) => Text(
+                          line,
+                          style: TextStyle(
+                            color: line.contains('⚠️') || line.contains('❌')
+                                ? Colors.red
+                                : line.contains('✅')
+                                ? Colors.green
+                                : null,
+                          ),
+                        )),
+                      ],
+                    ),
+                  );
+                }).toList(),
               ),
             const SizedBox(height: 24),
             Row(
@@ -223,7 +300,9 @@ class _TestCompletoPageState extends State<TestCompletoPage> {
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
-                  onPressed: _guardar,
+                  onPressed: () async {
+                    await _guardar();
+                  },
                   child: Text(local.guardarTesteo),
                 ),
               ],
