@@ -137,8 +137,6 @@ Future<Map<String, String>> calcularAjustes(
     recomendaciones[key] = texto;
   }
 
-
-
   // BLOQUES PARA CADA PARÁMETRO
 
   if (cloroLibre != null) {
@@ -178,10 +176,6 @@ Future<Map<String, String>> calcularAjustes(
       recomendaciones['Cloro libre'] = '**${localizations.cloroLibreLabel}**\n📏 ${localizations.normalRangeCloroLibre}\n$valor\n✅ ${localizations.valorNormal}';
     }
   }
-
-
-
-
 
   if (cloroCombinado != null) {
     String valor = '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}';
@@ -225,10 +219,6 @@ Future<Map<String, String>> calcularAjustes(
       '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n✅ ${localizations.valorNormal}';
     }
   }
-
-
-
-
 
   final String? titulante = parametros['pH titulante']; // 'R-005' o 'R-006'
   final double? gotas = toDouble(parametros['pH gotas']);
@@ -299,8 +289,6 @@ Future<Map<String, String>> calcularAjustes(
     );
   }
 
-
-
   if (alcalinidad != null) {
     String valor = '${localizations.alcalinidadLabel}: ${alcalinidad.toStringAsFixed(0)}';
     double volumenGalones = prefs.getDouble('volumen_piscina') ?? 13000;
@@ -354,7 +342,6 @@ Future<Map<String, String>> calcularAjustes(
       recomendaciones['Alcalinidad'] = '**${localizations.alcalinidadLabel}**\n📏 ${localizations.normalRangeAlcalinidad}\n$valor\n✅ ${localizations.valorNormal} (80–120 ppm)';
     }
   }
-
 
   if (cya != null) {
       String valor = '${localizations.cyaLabel}: ${cya.toStringAsFixed(0)}';

@@ -34,9 +34,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     return texto;
   }
 
-
-
-
   @override
   void initState() {
     super.initState();
@@ -153,25 +150,19 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       context,
       unidad,
     );
-
-
-
     if (recomendaciones.containsKey(parametro)) {
       registro['recomendacion'] = recomendaciones[parametro];
     }
-
-    print('Registro calculado: $registro');
-    print('Recomendaciones: $recomendaciones');
-
     setState(() {
       _registroActual = registro.map((key, value) => MapEntry(key, value.toString()));
       _todasLasRecomendaciones[_parametroSeleccionado] =
           recomendaciones.map((k, v) => MapEntry(k, v));
 
+      // 🔍 Toma el primer valor del mapa como texto para mostrar
+      final textoCompleto = recomendaciones.values.join('\n').trim();
+      _recomendaciones[_parametroSeleccionado] = textoCompleto;
     });
-
   }
-
 
   Future<void> _guardarTesteo() async {
     if (_registroActual.isEmpty) return;
@@ -187,16 +178,8 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     }
 
     _registroActual['tipo'] = 'individual'; // ✅ Clasificación
-    final texto = _todasLasRecomendaciones[parametro]?[parametro];
-
-    if (texto != null) {
-      _registroActual['recomendacion'] = _recomendaciones[parametro] ?? '';
-
-    }
-
-    // ✅ Imprimir antes de limpiar
-    print('Registro completo a guardar: $_registroActual');
-
+    final texto = _recomendaciones[parametro] ?? '❌ (no se calculó recomendación)';
+    _registroActual['recomendacion'] = texto;
     await _saveRegistro(_registroActual); // Guarda en 'test_individual'
 
     // ✅ Guardar también en test_registros (para gráficos)
@@ -218,13 +201,10 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     // ✅ Convertir a lista JSON
     await prefs.setString('test_registros', json.encode(decoded));
 
-    print('✅ Registro guardado correctamente en test_registros: ${registro.toJson()}');
-
     // ✅ Limpiar estado temporal
     await prefs.remove('temp_individual');
     await prefs.remove('temp_recomendaciones_individual');
     _todasLasRecomendaciones.remove(_parametroSeleccionado);
-
 
     // ✅ Limpiar inputs
     setState(() {
@@ -242,9 +222,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       ),
     );
   }
-
-
-
 
   Future<void> _saveRegistro(Map<String, dynamic> registro) async {
     final prefs = await SharedPreferences.getInstance();
@@ -270,52 +247,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     lista.add(registro);
     await prefs.setString(clave, json.encode(lista));
   }
-
-
-
-  Future<void> _saveRegistrosComoTestRegistro(Map<String, dynamic> registro) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? data = prefs.getString('test_registros');
-    List<Map<String, dynamic>> lista = [];
-
-    if (data != null) {
-      lista = List<Map<String, dynamic>>.from(json.decode(data));
-    }
-
-    final now = DateTime.now();
-
-    final parametro = registro['parametro']?.toString();
-    final valorRaw = registro['valor_ppm'];
-    double? valor;
-
-    try {
-      if (valorRaw is double) {
-        valor = valorRaw;
-      } else if (valorRaw is int) {
-        valor = valorRaw.toDouble();
-      } else if (valorRaw is String) {
-        valor = double.tryParse(valorRaw);
-      }
-    } catch (_) {
-      valor = null;
-    }
-
-
-    if (parametro != null && valor != null) {
-      final test = TestRegistro(
-        tipo: registro['tipo']?.toString() ?? 'individual',
-        parametro: parametro,
-        valor: valor,
-        fecha: now,
-      );
-      lista.add(test.toJson());
-      await prefs.setString('test_registros', json.encode(lista));
-      print('✅ Registro guardado correctamente en test_registros: ${test.toJson()}');
-    } else {
-      print('❌ No se pudo guardar el test: valor o parámetro inválido');
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {

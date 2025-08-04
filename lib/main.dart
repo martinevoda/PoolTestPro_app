@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:piscina_app/controllers/settings_controller.dart';
-import 'package:piscina_app/pages/test_completo.dart';
 import 'package:piscina_app/pages/test_individual.dart';
 import 'package:piscina_app/pages/registros_anteriores.dart';
 import 'package:piscina_app/pages/grafico_parametro.dart';
@@ -108,7 +107,6 @@ class _HomePageState extends State<HomePage> {
   Future<void> _cargarModoTecnico() async {
     final prefs = await SharedPreferences.getInstance();
     final valor = prefs.getBool('modo_tecnico') ?? false;
-    print('🧪 modo_tecnico recargado: $valor');
     setState(() {
       _modoTecnico = valor;
     });
@@ -162,31 +160,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // ✅ Mostrar solo si modo técnico está activado
-            if (_modoTecnico)
-              _buildMenuButton(
-                context,
-                icon: Icons.science,
-                label: local.testCompleto,
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TestCompletoPage()),
-                ),
-              ),
-
-
-            if (!_modoTecnico)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: Text(
-                  local.modoTecnicoDesactivadoExplicacion,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-              ),
-
-
             _buildMenuButton(
               context,
               icon: Icons.tune,
@@ -244,8 +217,6 @@ class _HomePageState extends State<HomePage> {
                 _cargarModoTecnico(); // 🔁 recarga real al volver
               },
             ),
-
-
             _buildMenuButton(
               context,
               icon: Icons.school,

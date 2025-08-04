@@ -19,7 +19,6 @@ class _AjustesScreenState extends State<AjustesScreen> {
   bool _semanalActivado = false;
   int _diaMesSeleccionado = 1;
   int _diaSemanaSeleccionado = DateTime.friday;
-  bool _modoTecnico = false;
   TextEditingController _volumenController = TextEditingController();
   double _volumenPorDefectoGalones = 13000;
 
@@ -37,7 +36,6 @@ class _AjustesScreenState extends State<AjustesScreen> {
       _semanalActivado = prefs.getBool('recordatorio_semanal') ?? false;
       _diaMesSeleccionado = prefs.getInt('dia_mes_recordatorio') ?? 1;
       _diaSemanaSeleccionado = prefs.getInt('dia_semana_recordatorio') ?? DateTime.friday;
-      _modoTecnico = prefs.getBool('modo_tecnico') ?? false;
     });
   }
 
@@ -292,20 +290,6 @@ class _AjustesScreenState extends State<AjustesScreen> {
               ],
             ),
           ),
-
-          /// ✅ Switch modo técnico (agregado aquí)
-          SwitchListTile(
-            title: Text(localizations.modoTecnico),
-            value: _modoTecnico,
-            onChanged: (bool value) async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('modo_tecnico', value);
-              setState(() {
-                _modoTecnico = value;
-              });
-            },
-          ),
-
           const Divider(),
           ListTile(
             title: Text(localizations.resetAll),

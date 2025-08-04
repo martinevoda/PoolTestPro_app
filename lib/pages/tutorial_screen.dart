@@ -14,7 +14,6 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
   final List<IconData> _icons = [
     Icons.pool,
-    Icons.science,
     Icons.tune,
     Icons.show_chart,
     Icons.history,
@@ -22,7 +21,6 @@ class _TutorialScreenState extends State<TutorialScreen> {
     Icons.settings,
     Icons.info,
     Icons.gavel,
-
   ];
 
   @override
@@ -31,7 +29,6 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
     final titles = [
       localizations.tutorialPage1Title,
-      localizations.tutorialPage2Title,
       localizations.tutorialPage3Title,
       localizations.tutorialPage4Title,
       localizations.tutorialPage5Title,
@@ -39,12 +36,10 @@ class _TutorialScreenState extends State<TutorialScreen> {
       localizations.tutorialPage7Title,
       localizations.tutorialPage8Title,
       localizations.tutorialPage9Title,
-
     ];
 
     final descriptions = [
       localizations.tutorialPage1Description,
-      localizations.tutorialPage2Description,
       localizations.tutorialPage3Description,
       localizations.tutorialPage4Description,
       localizations.tutorialPage5Description,

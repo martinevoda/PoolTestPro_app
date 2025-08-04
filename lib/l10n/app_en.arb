@@ -11,7 +11,6 @@
   "legalDisclaimer": "This app is for personal use only. It does not replace professional pool maintenance advice. No personal data is stored on external servers.",
   "spanish": "Spanish",
   "english": "English",
-  "testCompleto": "Full test",
   "testIndividual": "Individual test",
   "verRegistrosAnteriores": "View previous records",
   "verGraficoParametro": "View parameter chart",
@@ -47,7 +46,7 @@
   "testReminderTitle": "Test reminder",
   "testReminderBody": "Test chlorine, pH, and alkalinity. (CYA and hardness only monthly)",
   "legalInfoContent": "This app does not replace professional water quality testing. Use for home support only. Data is stored locally on your device.",
-  "historialMantenimiento": "🧽 Maintenance history",
+  "historialMantenimiento": "Maintenance history",
   "filterCleaningTitle": "Filter cleaning",
   "filterCleaningDescription": "Reminder to clean Jandy CS cartridge filter.",
   "cellCleaningTitle": "Cell cleaning",
@@ -211,9 +210,7 @@
   "durezaAlta": "Calcium hardness is high. May cause scaling. Consider partial water change.",
   "salinidadBaja": "Salinity is low",
   "salinidadAlta": "Salinity is above recommended level. May damage chlorination system.",
-
   "estaEnRange": "✅ In normal range.",
-
   "reabastecerSugerido": "You may need to restock {nombre}",
   "@reabastecerSugerido": {
     "description": "Warning message if current stock is lower than needed",
@@ -286,8 +283,6 @@
   "salinidadLabel": "Salinity",
   "requiereTratamientoChoque": "Perform shock treatment with liquid chlorine.",
   "cloroCombinadoTip": "Then check the generator and retest in 24h.",
-
-
   "cloroCombinadoAlto": "⚠️ High. May indicate presence of chloramines. Shock treatment recommended.",
   "cloroCombinadoBajo": "⚠️ Low. Might not be disinfecting effectively. Check generator or retest.",
   "cloroCombinadoNormal": "✅ Within ideal range. No action needed.",
@@ -321,20 +316,17 @@
   "localLabel": "{parametro}",
   "calcularYGuardar": "Calculate and Save",
   "alertaStock": "⚠️ Low stock alert",
-
   "poolTypeLabel": "Pool type",
   "poolTypeSalt": "Saltwater (chlorine generator)",
   "poolTypeFresh": "Freshwater (manual chlorine)",
   "poolTypeSaltSelected": "Selected: Saltwater pool",
   "poolTypeFreshSelected": "Selected: Freshwater pool",
-
   "productoSal": "salt",
   "productoPh": "pH increaser",
   "productoCloro": "liquid chlorine",
   "productoCya": "stabilizer (cyanuric acid)",
   "productoAlcalinidad": "alkalinity increaser",
   "productoDureza": "calcium hardness increaser",
-
   "recomendacionProductoCloro": "⚠️ Free chlorine is low.\n🧪 Add {cantidad} {unidad} of liquid chlorine (HTH Pool Care Liquid Chlorine).",
   "recomendacionProductoPh": "🧪 Add {cantidad} {unidad} of pH Increaser.",
   "recomendacionProductoAlcalinidad": "🧪 Add {cantidad} {unidad} of In The Swim Alkalinity Increaser.",
@@ -343,10 +335,7 @@
   "recomendacionProductoSal": "🧪 Add {cantidad} {unidad} of Morton Pool Salt.",
   "cloroCombinadoAltoMensaje": "⚠️ Combined chlorine is high.\n💥 Requires shock treatment.\n🧪 Add {cantidad} {unidad} of liquid chlorine (HTH Pool Care Liquid Chlorine).\n💡 It's recommended to check free chlorine after 24 hours.",
   "ajustarGeneradorTexto": "💡 Adjust salt generator or filtration time.",
-
   "ajustarGenerador": "Consider adjusting the chlorine generator if needed.",
-
-
   "recomendacionGenerica": "Add {cantidad} {unidad} of {producto} ({comercial}).",
   "@recomendacionGenerica": {
     "description": "Recommendation to add a quantity of a chemical product.",
@@ -384,49 +373,30 @@
 
   "seNecesita": "Required",
   "stockActual": "In stock",
-
   "alcalinidadBajaTexto": "Alkalinity is low",
-
-
   "alcalinidadAltaTexto": "Alkalinity is high",
   "alcalinidadAltaConsejo1": "Tip: It also lowers the pH.",
   "alcalinidadAltaConsejo2": "Tip: It also helps lower pH.",
   "tutorialTitle": "Tutorial",
   "closeButtonLabel": "Close",
-
-
-
   "tutorialPage1Title": "Welcome to PoolTest Pro",
   "tutorialPage1Description": "This app helps you maintain your saltwater pool by guiding tests, product use, and stock management.",
-
-  "tutorialPage2Title": "Full Test",
-  "tutorialPage2Description": "Enter drop counts or test values. Get automatic recommendations for chemicals, doses, and stock tracking.",
-
   "tutorialPage3Title": "Individual Test",
   "tutorialPage3Description": "Choose a parameter (e.g. pH, chlorine) and enter a value or drops. Fast results and targeted advice.",
-
   "tutorialPage4Title": "Charts",
   "tutorialPage4Description": "Track the evolution of each parameter over time. Ideal ranges are highlighted for quick interpretation.",
-
   "tutorialPage5Title": "Previous Records",
   "tutorialPage5Description": "See saved tests and delete old entries. Useful for tracking trends and confirming changes.",
-
   "tutorialPage6Title": "Stock Control",
   "tutorialPage6Description": "Every product used is automatically subtracted from your available stock. Keep inventory up-to-date.",
-
   "tutorialPage7Title": "Settings",
   "tutorialPage7Description": "Change units, volume (default 13,000 gal), pool type (default saltwater), language, and alert preferences.",
-
   "tutorialPage8Title": "Important Notes",
   "tutorialPage8Description": "⚠️ Calculations are based on the Taylor K-2006C test kit and a digital salinity meter (ppm). Default values assume a 13,000 gallon saltwater pool.",
-
   "tutorialPage9Title": "Legal Information",
   "tutorialPage9Description": "📜 Spanish Version – Información Legal\n\n**Aviso Legal**\n\nEsta aplicación ha sido desarrollada con fines personales y educativos. El autor no se hace responsable del uso que cada persona le dé a la app, ni de los resultados obtenidos por los cálculos, ni de las consecuencias que estos puedan generar en la salud, seguridad o condiciones de la piscina.\n\nEl uso de esta app es bajo exclusiva responsabilidad del usuario. Se recomienda verificar todos los resultados y decisiones con un profesional calificado antes de aplicar cualquier producto químico.\n\nEl nombre PoolTest Pro y el contenido de esta aplicación son propiedad del autor, quien se reserva todos los derechos legales sobre su uso, distribución o copia.\n\n📜 English Version – Legal Notice\n\n**Disclaimer**\n\nThis app has been developed for personal and educational use. The author is not responsible for how users apply the app, the results from the calculations, or any consequences that may arise related to health, safety, or pool conditions.\n\nUse of this app is at the user's own risk. It is recommended to consult with a qualified professional before applying any chemical product.\n\nThe name PoolTest Pro and the contents of this app are the property of the author, who retains all legal rights regarding its use, distribution, or reproduction.",
-
-
   "legalNowInTutorial": "Legal information is now included in the tutorial",
   "legalInTutorialMessage": "You can view the legal info at the end of the tutorial",
-
 
   "instruccionesCloroLibre": "1. Fill the cell to 10 or 25 mL.\n2. Add 2 level scoops of R-0870 (DPD powder).\n3. Titrate with R-0871 (FAS titrant) until the water turns clear.\n4. Count the drops.",
   "@instruccionesCloroLibre": {
@@ -461,45 +431,24 @@
   },
 
   "leyendaValorManual": "ℹ️ If you're not using drops, enter the estimated value here. Do not fill both fields.",
-
   "phAltoConsejo": "Check the manual table if more accuracy is needed.",
-
   "phBajoConsejo": "Check the manual table if more accuracy is needed.",
   "normalRangePh": "Normal range: 7.2–7.8",
   "instruccionesPh": "1. Fill the comparator cell up to the line (~44 mL).\n2. Add 5 drops of R-0004.\n3. Compare with the pH color scale.\n4. If the result is basic (high pH): Add R-005 drop by drop until the desired color is reached and record the number of drops used.\n5. If the result is acidic (low pH): Add R-006 drop by drop until the sample clears and record the number of drops used.",
-
-
   "productoPHAlto": "pH Reducer",
   "productoPHBajo": "pH Increaser",
-
   "phBajoTexto": "pH is low",
   "phAltoTexto": "pH is high",
-
   "steps": "Steps:",
-
   "instruccionesCya": "1. Mix equal parts of pool water and R-0013 up to the 14 mark.\n2. Shake for 30 seconds.\n3. Pour into the view tube until the black dot disappears.",
-
   "instruccionesSalinidad": "1. Turn on the digital salinity meter.\n2. Make sure the screen shows **Salt** and the unit is **ppm**.\n3. Dip the meter into the water until the sensors are submerged.\n4. Wait a few seconds until the reading stabilizes.\n5. Record the value displayed.",
-
-  "modoTecnico": "Enable advanced mode (Show Full Test)",
-
-  "modoTecnicoDesactivadoExplicacion": "Enable technical mode in Settings to access the Full Test.",
-
   "ok": "OK",
-
   "sinRecomendaciones": "No recommendations available",
-
   "phFueraDeRango": "pH is outside the ideal range.",
-
   "cloroCombinadoCero": "No combined chlorine detected (sample remained clear after R-0003).",
   "choqueAlto": "High chlorine dose. Please check the drop count or repeat the test.",
-
   "cloroCombinadoAdvertenciaLeve": "Slight presence of combined chlorine detected (0.2–0.5 ppm). No urgent action needed, but monitor daily.",
-
   "cloroLibreAltoSugerencia": "High free chlorine: avoid using the pool. Reduce pump time or lower Jandy TruClear generator output.",
-
-
-
   "nombreProductoPhSubir": "pH Increaser",
   "nombreComercialPhSubir": "In The Swim pH Increaser",
   "nombreProductoPhBajar": "pH Reducer",
@@ -525,12 +474,11 @@
   "phBajoRecomendacion": "pH is too low. Consider raising it.",
   "phAltoRecomendacion": "pH is too high. Consider lowering it.",
   "phNormalLeyenda": "pH is within the normal range.",
-
   "valorBajo": "Low value",
   "valorAlto": "High value",
   "phNormalLegend": "📏 Normal range: 7.2–7.8",
-
   "phVisualPlaceholder": "Estimated based on titrant and drops",
-
   "ph": "pH"
+
+
 }

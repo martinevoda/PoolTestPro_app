@@ -93,6 +93,8 @@ class SettingsController extends ChangeNotifier {
     await prefs.remove('registros');
     await prefs.remove('test_individual');
     await prefs.remove('test_registros');
+    await prefs.remove('modo_tecnico');
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('✅ Datos reiniciados correctamente.')),
     );

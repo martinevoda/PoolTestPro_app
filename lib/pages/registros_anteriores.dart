@@ -29,6 +29,7 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
     final List decoded = json.decode(registrosRaw);
     final List<TestRegistro> registros = decoded
         .map((e) => TestRegistro.fromJson(e as Map<String, dynamic>))
+        .where((r) => r.tipo == 'individual') // ✅ Solo individuales
         .toList();
 
     registros.sort((a, b) => b.fecha.compareTo(a.fecha)); // Más nuevos arriba
@@ -101,12 +102,7 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: ListTile(
-        title: Text(
-          registro.tipo == 'completo'
-              ? '🧪 ${local.testCompleto}'
-              : '🧪 ${local.testIndividual}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text('🧪 ${local.testIndividual}', style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,9 +112,7 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
               style: const TextStyle(color: Colors.blue),
             ),
             const SizedBox(height: 6),
-            Text(
-              '${localLabel(registro.parametro, local)}: ${registro.valor.toStringAsFixed(1)}',
-            ),
+            Text('${localLabel(registro.parametro, local)}: ${registro.valor.toStringAsFixed(1)}'),
           ],
         ),
         trailing: IconButton(
@@ -139,21 +133,36 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
       'volumen_muestra': 10,
     };
 
-    final resultado = await calcularAjustes(valores, context, unidadSistema);
-    final recomendaciones = resultado.entries.map((e) => e.value.trim()).where((t) => t.isNotEmpty).join('\n\n');
+    final texto = registro.recomendacion;
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('${localLabel(registro.parametro, local)} (${registro.valor.toStringAsFixed(1)})'),
-        content: SingleChildScrollView(
-          child: Text(
-            recomendaciones.isNotEmpty
-                ? recomendaciones
-                : local.sinRecomendaciones,
-            style: const TextStyle(fontSize: 14),
-          ),
+        title: Text(
+          '${localLabel(registro.parametro, local)} (${registro.valor.toStringAsFixed(1)})',
         ),
+        content: texto != null && texto.trim().isNotEmpty
+            ? SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: texto.trim().split('\n').map((linea) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: Text(
+                  linea,
+                  style: TextStyle(
+                    color: linea.contains('⚠️') || linea.contains('❌')
+                        ? Colors.red
+                        : linea.contains('✅')
+                        ? Colors.green
+                        : null,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        )
+            : Text(local.sinRecomendaciones),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -191,42 +200,28 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
   @override
   Widget build(BuildContext context) {
     final local = AppLocalizations.of(context)!;
-    final individuales = _testRegistros.where((r) => r.tipo == 'individual').toList();
-    final completos = _testRegistros.where((r) => r.tipo == 'completo').toList();
 
     return Scaffold(
       appBar: AppBar(title: Text(local.registrosAnteriores)),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            if (individuales.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('🧪 ${local.testIndividual}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    ...individuales.map((r) => _buildRegistroCard(r, local)),
-                  ],
-                ),
-              ),
-            if (completos.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('🧪 ${local.testCompleto}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    ...completos.map((r) => _buildRegistroCard(r, local)),
-                  ],
-                ),
-              ),
-            if (_testRegistros.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(32),
-                child: Center(child: Text(local.sinRegistros)),
-              )
-          ],
+      body: _testRegistros.isEmpty
+          ? Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(local.sinRegistros),
+        ),
+      )
+          : SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('🧪 ${local.testIndividual}',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ..._testRegistros.map((r) => _buildRegistroCard(r, local)),
+            ],
+          ),
         ),
       ),
     );
