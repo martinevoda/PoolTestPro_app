@@ -66,8 +66,31 @@ class _HistorialMantenimientoScreenState extends State<HistorialMantenimientoScr
             title: Text(fecha),
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => eliminarRegistro(tipo, index),
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text(localizations.confirmDeleteTitle),
+                    content: Text(localizations.confirmDeleteMessage),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(localizations.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(localizations.confirm),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  eliminarRegistro(tipo, index);
+                }
+              },
             ),
+
           );
         }),
       ],

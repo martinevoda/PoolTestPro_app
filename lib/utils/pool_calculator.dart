@@ -22,6 +22,13 @@ Future<Map<String, String>> calcularAjustes(
 
   final prefs = await SharedPreferences.getInstance();
   final bool esAguaSalada = prefs.getBool('tipo_pileta_salada') ?? true;
+  final cyaMin = esAguaSalada ? 60 : 30;
+  final cyaMax = esAguaSalada ? 80 : 50;
+  final limiteCloroAlto = esAguaSalada ? 6.0 : 4.0;
+  final limiteCloroBajo = esAguaSalada ? 3.0 : 1.0;
+  final rangoCloroTexto = esAguaSalada ? '3–5 ppm' : '1–3 ppm';
+  final rangoCyaTexto = esAguaSalada ? '60–80 ppm' : '30–50 ppm';
+
 
   double volumenGalones = prefs.getDouble('volumen_piscina') ?? 13000;
   double volumenLitros = volumenGalones * 3.785;
@@ -142,7 +149,7 @@ Future<Map<String, String>> calcularAjustes(
   if (cloroLibre != null) {
     String valor = '${localizations.cloroLibreLabel}: ${cloroLibre.toStringAsFixed(1)}';
 
-    if (cloroLibre < 1.0) {
+    if (cloroLibre < limiteCloroBajo) {
       // 🔻 Bajo → calcular cuánto agregar
       double incremento = 3.0 - cloroLibre; // subir hasta 3 ppm
       double galones = incremento * volumenLitros * 0.00013;
@@ -158,6 +165,11 @@ Future<Map<String, String>> calcularAjustes(
       if (galones > 5.0) {
         mensaje += '\n⚠️ ${localizations.choqueAlto}';
       }
+      // ✅ Sugerencia opcional solo si la pileta es salada
+      if (esAguaSalada) {
+        mensaje += '\n💡 ${localizations.subirGeneradorSugerencia}';
+      }
+
 
       await procesarUso(
         key: 'cloro_liquido',
@@ -168,13 +180,16 @@ Future<Map<String, String>> calcularAjustes(
         valorNormal: localizations.normalRangeCloroLibre,
         valorActualFormateado: valor,
       );
-    } else if (cloroLibre > 6.0) {
+    } else if (cloroLibre > limiteCloroAlto) {
       // 🚨 Muy alto → advertencia
-      recomendaciones['Cloro libre'] = '**${localizations.cloroLibreLabel}**\n📏 ${localizations.normalRangeCloroLibre}\n$valor\n⚠️ ${localizations.cloroLibreAltoSugerencia}';
+      recomendaciones['Cloro libre'] =
+      '**${localizations.cloroLibreLabel}**\n📏 Normal range: $rangoCloroTexto\n$valor\n⚠️ ${localizations.cloroLibreAltoSugerencia}';
     } else {
       // ✅ Normal
-      recomendaciones['Cloro libre'] = '**${localizations.cloroLibreLabel}**\n📏 ${localizations.normalRangeCloroLibre}\n$valor\n✅ ${localizations.valorNormal}';
+      recomendaciones['Cloro libre'] =
+      '**${localizations.cloroLibreLabel}**\n📏 Normal range: $rangoCloroTexto\n$valor\n✅ ${localizations.valorNormal}';
     }
+
   }
 
   if (cloroCombinado != null) {
@@ -183,12 +198,20 @@ Future<Map<String, String>> calcularAjustes(
     if (cloroCombinado == 0.0) {
       recomendaciones['Cloro combinado'] =
       '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n✅ ${localizations.cloroCombinadoCero}';
-    } else if (cloroCombinado > 0.5) {
-      double diferencia = cloroCombinado - 0.2;
-      double galones = (diferencia * volumenLitros * 0.00013);
+
+    } else if (cloroCombinado >= 0.1 && cloroCombinado <= 0.2) {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n⚠️ ${localizations.cloroCombinadoAdvertenciaLeve}';
+
+    } else if (cloroCombinado >= 0.3) {
+      double diferencia = cloroCombinado - 0.2; // desde exceso sobre 0.2
+      double galones = diferencia * volumenLitros * 0.00013;
       double cantidad = esMetrico ? galones * factorVolumen : galones;
 
-      String mensaje = '⚠️ ${localizations.cloroCombinadoAlto}\n${localizations.requiereTratamientoChoque}\n➕ ${localizations.recomendacionGenerica(
+      String mensaje =
+          '⚠️ ${localizations.cloroCombinadoAlto}\n'
+          '${localizations.requiereTratamientoChoque}\n'
+          '➕ ${localizations.recomendacionGenerica(
         cantidad.toStringAsFixed(1),
         unidadVol,
         localizations.nombreProductoCloro,
@@ -206,19 +229,16 @@ Future<Map<String, String>> calcularAjustes(
         nombreComercial: localizations.nombreComercialCloro,
         mensajeBase: mensaje,
         valorNormal: localizations.normalRangeCloroCombinado,
-        valorActualFormateado: '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}',
+        valorActualFormateado: valor,
       );
-    } else if (cloroCombinado >= 0.2 && cloroCombinado <= 0.5) {
-      recomendaciones['Cloro combinado'] =
-      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n${localizations.cloroCombinadoAdvertenciaLeve}';
-    } else if (cloroCombinado < 0.1) {
-      recomendaciones['Cloro combinado'] =
-      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n⚠️ ${localizations.cloroCombinadoBajo}';
+
     } else {
       recomendaciones['Cloro combinado'] =
       '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n✅ ${localizations.valorNormal}';
     }
   }
+
+
 
   final String? titulante = parametros['pH titulante']; // 'R-005' o 'R-006'
   final double? gotas = toDouble(parametros['pH gotas']);
@@ -327,12 +347,12 @@ Future<Map<String, String>> calcularAjustes(
         cantidad: cantidad,
         nombreProducto: localizations.nombreProductoPHAlto,
         nombreComercial: localizations.nombreComercialPHAlto,
-        mensajeBase: '⚠️ ${localizations.alcalinidadAltaTexto}\n➕ ${localizations.recomendacionGenerica(
+        mensajeBase: '⚠️ ${localizations.alcalinidadAltaTexto}\n➖ ${localizations.recomendacionGenerica(
           cantidadFormateada,
           '',
           localizations.nombreProductoPHAlto,
           localizations.nombreComercialPHAlto,
-        )}\n💡 ${localizations.alcalinidadAltaConsejo1}',
+        )}\n${localizations.alcalinidadAltaConsejo1}\n${localizations.alcalinidadAltaAdvertenciaPh}',
         valorNormal: localizations.normalRangeAlcalinidad,
         valorActualFormateado: valor,
       );
@@ -344,37 +364,43 @@ Future<Map<String, String>> calcularAjustes(
   }
 
   if (cya != null) {
-      String valor = '${localizations.cyaLabel}: ${cya.toStringAsFixed(0)}';
-      if (cya < 30) {
-        double incremento = 30 - cya;
-        double libras = incremento / 10 * 1.25 * factorVolumenEscala;
-        double cantidad = esMetrico ? libras * factorPeso : libras;
-        await procesarUso(
-          key: 'estabilizador',
-          cantidad: cantidad,
-          nombreProducto: localizations.productoCya,
-          nombreComercial: localizations.nombreComercialCYA,
-          mensajeBase: '⚠️ ${localizations.cyaBajo}\n➕ ${localizations.recomendacionGenerica(
-            cantidad.toStringAsFixed(1),
-            unidadPeso,
-            localizations.productoCya,
-            localizations.nombreComercialCYA,
-          )}',
-          valorNormal: localizations.normalRangeCYA,
-          valorActualFormateado: '${localizations.cyaLabel}: ${cya.toStringAsFixed(0)}',
-        );
-      } else if (cya > 70) {
-        recomendaciones['CYA'] = '**${localizations
-            .cyaLabel}**\n📏 Valor normal: 30–70 ppm\n$valor\n⚠️ ${localizations
-            .cyaAlto}\n💡 ${localizations.cyaAltoConsejo}';
-      } else {
-        recomendaciones['CYA'] = '**${localizations
-            .cyaLabel}**\n📏 Valor normal: 30–70 ppm\n$valor\n✅ ${localizations
-            .valorNormal} (30–70 ppm)';
-      }
-    }
+    String valor = '${localizations.cyaLabel}: ${cya.toStringAsFixed(0)}';
 
-    if (dureza != null) {
+    // 🔁 Lógica diferenciada solo para el rango visual y advertencias (no cálculo)
+    final cyaLimiteAlto = esAguaSalada ? 70 : 50;
+    final rangoCyaTexto = esAguaSalada ? '30–70 ppm' : '30–50 ppm';
+
+    if (cya < 30) {
+      // ✅ Cálculo queda igual para ambos: desde 30 ppm
+      double incremento = 30 - cya;
+      double libras = incremento / 10 * 1.25 * factorVolumenEscala;
+      double cantidad = esMetrico ? libras * factorPeso : libras;
+
+      await procesarUso(
+        key: 'estabilizador',
+        cantidad: cantidad,
+        nombreProducto: localizations.productoCya,
+        nombreComercial: localizations.nombreComercialCYA,
+        mensajeBase: '⚠️ ${localizations.cyaBajo}\n➕ ${localizations.recomendacionGenerica(
+          cantidad.toStringAsFixed(1),
+          unidadPeso,
+          localizations.productoCya,
+          localizations.nombreComercialCYA,
+        )}',
+        valorNormal: localizations.cyaValorNormal(rangoCyaTexto),
+        valorActualFormateado: valor,
+      );
+    } else if (cya > cyaLimiteAlto) {
+      recomendaciones['CYA'] =
+      '**${localizations.cyaLabel}**\n📏 Valor normal: $rangoCyaTexto\n$valor\n⚠️ ${localizations.cyaAlto}\n💡 ${localizations.cyaAltoConsejo}';
+    } else {
+      recomendaciones['CYA'] =
+      '**${localizations.cyaLabel}**\n📏 Valor normal: $rangoCyaTexto\n$valor\n✅ ${localizations.valorNormal} ($rangoCyaTexto)';
+    }
+  }
+
+
+  if (dureza != null) {
       String valor = '${localizations.durezaLabel}: ${dureza.toStringAsFixed(
           0)}';
       if (dureza < 200) {
@@ -438,7 +464,7 @@ Future<Map<String, String>> calcularAjustes(
       }
     }
 
-    return recomendaciones;
+  return recomendaciones;
   }
 
 

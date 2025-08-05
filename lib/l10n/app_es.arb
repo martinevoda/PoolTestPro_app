@@ -175,9 +175,7 @@
   "valorDirecto": "Valor directo",
   "seleccioneParametro": "Seleccione un parámetro",
   "ingreseValor": "Ingrese un valor",
-  "cloroCombinadoLabel": "Cloro combinado",
   "normalRangeCloroLibre": "Valor normal: 3–6 ppm",
-  "normalRangeCloroCombinado": "Valor normal: 0–0.5 ppm",
   "normalRangePH": "Valor normal: 7.2–7.8",
   "normalRangeAlcalinidad": "Valor normal: 80–120 ppm",
   "normalRangeCYA": "Valor normal: 30–70 ppm",
@@ -314,7 +312,6 @@
   "nombreComercialPHAlto": "Ácido Muriático Klean Strip Verde",
   "nombreProductoPHBajo": "Incrementador de pH (Carbonato de sodio)",
   "nombreComercialPHBajo": "In The Swim pH Increaser",
-  "requiereTratamientoChoque": "Se recomienda un tratamiento de choque con cloro libre para eliminar cloraminas.",
   "alertaStockInsuficiente": "Stock insuficiente para aplicar el ajuste recomendado",
   "stockBajoPosibleReabastecer": "⚠️ El stock es bajo. Considerá reabastecer pronto.",
   "phLabel": "pH",
@@ -323,7 +320,6 @@
   "durezaLabel": "Dureza cálcica",
   "salinidadLabel": "Salinidad",
   "cloroCombinadoTip": "Luego, revisar el generador y retestar en 24h.",
-  "cloroCombinadoAlto": "⚠️ Alto. Puede indicar presencia de cloraminas. Se recomienda un tratamiento de choque.",
   "cloroCombinadoBajo": "⚠️ Bajo. Puede no estar desinfectando adecuadamente. Verificar generador o retestar.",
   "cloroCombinadoNormal": "✅ Dentro del rango ideal. Sin acción necesaria.",
   "alcalinidadNormal": "✅ Dentro del rango ideal.",
@@ -416,12 +412,11 @@
   "stockActual": "Stock actual",
   "alcalinidadBajaTexto": "La alcalinidad está baja",
   "alcalinidadAltaTexto": "La alcalinidad está alta",
-  "alcalinidadAltaConsejo1": "Consejo: También reduce el pH.",
   "alcalinidadAltaConsejo2": "Consejo: También ayuda a estabilizar el pH.",
   "tutorialTitle": "Tutorial",
   "closeButtonLabel": "Cerrar",
   "tutorialPage1Title": "Bienvenido a PoolTest Pro",
-  "tutorialPage1Description": "Esta app te ayuda a mantener tu piscina de agua salada guiando los test, el uso de productos y el control de stock.",
+  "tutorialPage1Description": "Esta app te ayuda a mantener tu pileta — de agua salada o dulce — mediante guías de test, uso de productos y control de stock.",
   "tutorialPage3Title": "Test Individual",
   "tutorialPage3Description": "Elige un parámetro (ej. pH, cloro) e ingresa un valor o gotas. Resultados rápidos y consejos específicos.",
   "tutorialPage4Title": "Gráficos",
@@ -446,7 +441,7 @@
     }
   },
 
-  "instruccionesCloroCombinado": "1. Primero, realizá el test de **Cloro libre**.\n2. Luego agregá **5 gotas de R-0003** a la misma muestra.\n3. Observá el agua:\n   - ✅ Si se mantiene **transparente**, **NO hay cloro combinado** → el test termina ahí, anotá **0 ppm**.\n   - ⚠️ Si se vuelve a poner **rosada**, hay **cloro combinado**.\n4. Si volvió a ponerse rosada:\n   - Titulá con **R-0871** como en el test anterior.\n   - Agregá gotas una por una hasta que desaparezca el color.\n   - Contá las gotas → eso indica los ppm de cloro combinado.",
+  "instruccionesCloroCombinado": "1. Realizá el test de Cloro libre.\n2. Agregá 5 gotas de R-0003 a la misma muestra.\n3. Observá el agua:\n   - ✅ Si se mantiene transparente, NO hay cloro combinado → el test termina ahí, anotá 0 ppm.\n   - ⚠️ Si se vuelve a poner rosada, hay cloro combinado.\n4. Si volvió a ponerse rosada:\n   - Titulá con R-0871 como en el test anterior.\n   - Agregá gotas una por una hasta que desaparezca el color.\n   - Contá las gotas → eso indica los ppm de cloro combinado.",
 
   "@instruccionesCloroCombinado": {
     "description": "Instrucciones para test de Cloro combinado",
@@ -486,9 +481,6 @@
   "ok": "Aceptar",
   "sinRecomendaciones": "Sin recomendaciones disponibles",
   "phFueraDeRango": "El pH está fuera del rango ideal.",
-  "cloroCombinadoCero": "No se detectó cloro combinado (el agua permaneció transparente tras R-0003).",
-  "choqueAlto": "Dosis elevada de cloro líquido. Verificá el número de gotas o repetí el test.",
-  "cloroCombinadoAdvertenciaLeve": "Presencia leve de cloro combinado detectada (0.2–0.5 ppm). No requiere acción urgente, pero monitorear a diario.",
   "cloroLibreAltoSugerencia": "Cloro libre alto: evitar uso de la piscina. Reducí el tiempo de funcionamiento o bajá la potencia del generador Jandy TruClear.",
   "nombreProductoPhSubir": "Incrementador de pH",
   "nombreComercialPhSubir": "In The Swim pH Increaser",
@@ -520,7 +512,53 @@
   "valorAlto": "Valor alto",
   "phNormalLegend": "📏 Rango normal: 7.2–7.8",
   "phVisualPlaceholder": "Estimado según titulante y gotas",
-  "ph": "pH"
+  "ph": "pH",
+  "freeChlorineLabel": "Cloro libre",
+  "disinfectantLabel": "desinfectante",
+  "phDownLabel": "ácido para bajar",
+  "phUpLabel": "soda ash para subir",
+  "stabilizerLabel": "Estabilizador",
+  "alkalinityLabel": "Alcalinidad",
+  "calciumHardnessLabel": "Dureza cálcica",
+  "salinityLabel": "Salinidad",
+
+
+  "confirmResetGraphsContent": "Esta acción eliminará todos los registros de los gráficos. ¿Deseas continuar?",
+  "graphsDeleted": "Gráficos eliminados correctamente.",
+
+  "confirmDeleteTitle": "¿Estás seguro?",
+  "confirmDeleteMessage": "Esta acción eliminará el registro seleccionado. ¿Deseas continuar?",
+
+  "resumenAguaDulce": "💧 Recomendaciones para pileta de agua dulce (cloro tradicional)",
+  "resumenAguaSalada": "🌊 Recomendaciones para pileta de agua salada (clorador salino)",
+
+  "subirGeneradorSugerencia": "Subí el porcentaje del generador de cloro si está bajo.",
+
+  "cyaValorNormal": "Valor normal: {rango}",
+
+  "leyendaModoActual": "Modo actual: {tipo}",
+  "@leyendaModoActual": {
+    "placeholders": {
+      "tipo": {}
+    }
+  },
+
+
+
+
+  "cloroCombinadoLabel": "Cloro combinado",
+  "normalRangeCloroCombinado": "Rango normal: 0.0–0.2 ppm",
+  "cloroCombinadoCero": "No hay presencia de cloraminas. Excelente.",
+  "cloroCombinadoAdvertenciaLeve": "Presencia leve de cloraminas. Monitorear.",
+  "cloroCombinadoAlto": "Cloraminas elevadas.",
+  "requiereTratamientoChoque": "Requiere tratamiento de choque con cloro líquido.",
+  "choqueAlto": "⚠️ Se requiere una dosis alta de cloro. Realice el tratamiento con precaución.",
+
+  "alcalinidadAltaConsejo1": "💡 Podés considerar una dilución parcial del agua si la alcalinidad se mantiene elevada.",
+  "alcalinidadAltaAdvertenciaPh": "💡 Es recomendable reducir la alcalinidad solo si también se presenta pH alto. Agregá el ácido lentamente en un solo punto, sin recircular el agua, y monitoreá el pH cada hora hasta estabilizar."
+
+
+
 
 
 }

@@ -6,6 +6,7 @@ import '../models/test_registro.dart';
 import '../utils/registro_loader.dart'; // Asegúrate que esta función existe
 import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
+import '../utils/color_utils.dart';
 
 
 class GraficoParametroPage extends StatefulWidget {
@@ -65,19 +66,11 @@ class _GraficoParametroPageState extends State<GraficoParametroPage> {
     }
   }
 
-  final Map<String, Color> coloresParametros = {
-    'Cloro libre': Colors.blue,
-    'Cloro combinado': Colors.indigo,
-    'pH': Colors.purple,
-    'Alcalinidad': Colors.teal,
-    'CYA': Colors.orange,
-    'Dureza': Colors.red,
-    'Salinidad': Colors.green,
-  };
+
 
   Widget _construirGrafico(BuildContext context) {
     final datosFiltrados = _filtrarPorParametro(parametroSeleccionado);
-    final color = coloresParametros[parametroSeleccionado] ?? Colors.blue;
+    final color = colorParaParametro(parametroSeleccionado);
     final valoresNormales = _obtenerValoresNormales(parametroSeleccionado);
     final spots = _obtenerSpots(datosFiltrados);
     final local = AppLocalizations.of(context)!;

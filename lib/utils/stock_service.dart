@@ -67,25 +67,27 @@ class StockService {
 
   static String nombreProducto(String key, BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+
     switch (key) {
       case 'cloro_liquido':
-        return loc.cloroLibreLabel + ' (desinfectante)';
+        return '${loc.freeChlorineLabel} (${loc.disinfectantLabel})';
       case 'acido_muriatico':
-        return loc.ph + ' (ácido para bajar)';
+        return 'pH (${loc.phDownLabel})';
       case 'ph_increaser':
-        return loc.ph + ' (soda ash para subir)';
+        return 'pH (${loc.phUpLabel})';
       case 'estabilizador':
-        return loc.cya;
+        return '${loc.stabilizerLabel} (CYA)';
       case 'alcalinidad':
-        return loc.alcalinidad;
+        return loc.alkalinityLabel;
       case 'dureza':
-        return loc.dureza;
+        return loc.calciumHardnessLabel;
       case 'sal':
-        return loc.salinidad;
+        return loc.salinityLabel;
       default:
         return key;
     }
   }
+
 
   static String nombreComercial(String key) {
     switch (key) {
@@ -107,6 +109,8 @@ class StockService {
         return '';
     }
   }
+
+
 
   static String formatoCantidad(double cantidad, String unidad) {
     switch (unidad) {

@@ -333,8 +333,31 @@ class _AjustesScreenState extends State<AjustesScreen> {
           ListTile(
             title: Text(localizations.resetGraphs),
             trailing: const Icon(Icons.show_chart),
-            onTap: () => settingsController.resetCharts(context),
+            onTap: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: Text(localizations.confirmResetTitle),
+                  content: Text(localizations.confirmResetGraphsContent),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(localizations.cancel),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(localizations.confirm),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                settingsController.resetCharts(context);
+              }
+            },
           ),
+
           const Divider(),
           ListTile(
             title: Text(AppLocalizations.of(context)!.legalInfo),
