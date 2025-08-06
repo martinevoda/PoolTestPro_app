@@ -66,8 +66,6 @@ class _GraficoParametroPageState extends State<GraficoParametroPage> {
     }
   }
 
-
-
   Widget _construirGrafico(BuildContext context) {
     final datosFiltrados = _filtrarPorParametro(parametroSeleccionado);
     final color = colorParaParametro(parametroSeleccionado);

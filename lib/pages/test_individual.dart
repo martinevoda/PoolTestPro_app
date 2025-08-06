@@ -6,7 +6,6 @@ import '../models/test_registro.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
-import '../utils/stock_service.dart';
 import '../utils/color_utils.dart';
 
 class TestIndividualScreen extends StatefulWidget {
@@ -21,28 +20,23 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
   final TextEditingController _gotasController = TextEditingController();
 
   String _parametroSeleccionado = 'Cloro libre';
-  String _volumenSeleccionado = '10';
+  String _volumenSeleccionado = '25';
   String? _titulantePhSeleccionado;
 
   Map<String, String> _recomendaciones = {};
   Map<String, dynamic> _registroActual = {};
   Map<String, Map<String, String>> _todasLasRecomendaciones = {};
 
-  String _formatTitulo(String raw) {
-    final texto = raw.trim();
-    if (texto.toLowerCase() == 'ph') return 'pH';
-    return texto;
-  }
-
   @override
   void initState() {
     super.initState();
     _cargarEstadoTemporal();
+    _verificarVolumenSeleccionado();
   }
 
   void _verificarVolumenSeleccionado() {
     if (!['10', '25'].contains(_volumenSeleccionado)) {
-      _volumenSeleccionado = '10';
+      _volumenSeleccionado = '25';
     }
   }
 
@@ -62,7 +56,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       final valoresPermitidos = ['10', '25'];
       _volumenSeleccionado = valoresPermitidos.contains(volumenGuardado)
           ? volumenGuardado!
-          : '10'; // valor por defecto si es inválido
+          : '25'; // valor por defecto si es inválido
 
       String parametroValido = datos['parametro_seleccionado']?.toString() ?? 'Cloro libre';
 

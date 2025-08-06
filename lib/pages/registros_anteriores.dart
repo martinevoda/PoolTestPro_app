@@ -5,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
 import '../models/test_registro.dart';
-import '../utils/pool_calculator.dart';
+
 
 class RegistrosAnterioresPage extends StatefulWidget {
   const RegistrosAnterioresPage({super.key});
@@ -125,7 +125,6 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
   }
 
   void _mostrarDetalles(TestRegistro registro, AppLocalizations local) async {
-    final unidadSistema = Provider.of<SettingsController>(context, listen: false).unidadSistema;
     final parametroTraducido = traducirParametro(registro.parametro.toLowerCase());
     final parametroNormalizado = normalizarParametro(parametroTraducido);
     final valores = {

@@ -26,7 +26,6 @@ class _PantallaStockState extends State<PantallaStock> {
 
   void _editarStock(BuildContext context, String productoKey, double actual) {
     final loc = AppLocalizations.of(context)!;
-    final settings = Provider.of<SettingsController>(context, listen: false);
     final controller = TextEditingController(text: actual.toStringAsFixed(2));
 
     showDialog<double>(
