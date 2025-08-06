@@ -1,8 +1,6 @@
 name: piscina_app
 description: 'PoolTest Pro'
 
-publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -49,10 +47,10 @@ flutter_icons:
   image_path: "assets/images/logo.png"
 
 flutter_native_splash:
-  color: "#ffffff"
+  color: "#B3E5FC"
   image: assets/images/logo.png
-  android_gravity: center
   ios_content_mode: center
+  android_gravity: center
   android: true
   ios: true
-  web: false
+

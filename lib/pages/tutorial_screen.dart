@@ -14,12 +14,12 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
   final List<IconData> _icons = [
     Icons.pool,
+    Icons.info,
     Icons.tune,
     Icons.show_chart,
     Icons.history,
     Icons.inventory,
     Icons.settings,
-    Icons.info,
     Icons.gavel,
   ];
 
@@ -29,23 +29,23 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
     final titles = [
       localizations.tutorialPage1Title,
+      localizations.tutorialPage8Title,
       localizations.tutorialPage3Title,
       localizations.tutorialPage4Title,
       localizations.tutorialPage5Title,
       localizations.tutorialPage6Title,
       localizations.tutorialPage7Title,
-      localizations.tutorialPage8Title,
       localizations.tutorialPage9Title,
     ];
 
     final descriptions = [
       localizations.tutorialPage1Description,
+      localizations.tutorialPage8Description,
       localizations.tutorialPage3Description,
       localizations.tutorialPage4Description,
       localizations.tutorialPage5Description,
       localizations.tutorialPage6Description,
       localizations.tutorialPage7Description,
-      localizations.tutorialPage8Description,
       localizations.tutorialPage9Description,
     ];
 
