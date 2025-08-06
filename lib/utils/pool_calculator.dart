@@ -298,7 +298,7 @@ Future<Map<String, String>> calcularAjustes(
     }
 
     await procesarUso(
-      key: 'ph',
+      key: (titulante == 'R-006') ? 'ph_increaser' : 'acido_muriatico',
       cantidad: cantidad,
       nombreProducto: producto,
       nombreComercial: nombreComercial,
