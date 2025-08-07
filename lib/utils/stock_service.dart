@@ -176,4 +176,10 @@ class StockService {
   static double obtenerStockSeguro(String key) {
     return _stockCache[key] ?? 0.0;
   }
+
+  static String unidadVisual(String key, bool esMetrico) {
+    final esLiquido = key == 'cloro_liquido' || key == 'acido_muriatico';
+    return esLiquido ? (esMetrico ? 'L' : 'gal') : (esMetrico ? 'kg' : 'lb');
+  }
+
 }

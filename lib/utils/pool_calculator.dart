@@ -269,7 +269,8 @@ Future<Map<String, String>> calcularAjustes(
 
     if (titulante == 'R-006') {
       // ✅ R-006 → BASE DEMAND → pH bajo → subir pH
-      cantidad = calcularPhBajoLb(gotas!.toInt(), volumenGalones);
+      double baseCantidad = calcularPhAltoQt(gotas!.toInt(), volumenGalones);
+      cantidad = esMetrico ? baseCantidad * factorPeso : baseCantidad;
       producto = localizations.nombreProductoPhSubir;
       nombreComercial = localizations.nombreComercialPhSubir;
 
@@ -281,13 +282,14 @@ Future<Map<String, String>> calcularAjustes(
       )}';
     } else if (titulante == 'R-005') {
       // ✅ R-005 → ACID DEMAND → pH alto → bajar pH
-      cantidad = calcularPhAltoQt(gotas!.toInt(), volumenGalones);
+      double baseCantidad = calcularPhAltoQt(gotas!.toInt(), volumenGalones);
+      cantidad = esMetrico ? baseCantidad * factorVolumen : baseCantidad;
       producto = localizations.nombreProductoPhBajar;
       nombreComercial = localizations.nombreComercialPhBajar;
 
       mensaje = '⚠️ ${localizations.phAlto}\n➖ ${localizations.recomendacionGenerica(
         cantidad.toStringAsFixed(2),
-        unidadPeso,
+        unidadVol,
         producto,
         nombreComercial,
       )}';

@@ -134,12 +134,12 @@ class _PantallaStockState extends State<PantallaStock> {
             children: stock.entries.map((entry) {
               final productoKey = entry.key;
               final cantidad = entry.value;
+              final esMetrico = settings.unidadSistema == 'metrico';
               final nombre = StockService.nombreProducto(productoKey, context);
               final comercial = StockService.nombreComercial(productoKey);
-              final formatted = StockService.formatoCantidad(
-                  cantidad, settings.unidadSistema);
-              final unidad =
-              settings.unidadSistema == 'imperial' ? 'lb' : 'kg';
+              final unidad = StockService.unidadVisual(productoKey, esMetrico);
+              final formatted = StockService.formatoCantidad(cantidad, unidad);
+
 
               return FutureBuilder<bool>(
                 future: StockService.esBajoStock(productoKey, 1.0),
