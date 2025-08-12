@@ -7,6 +7,7 @@ import 'package:piscina_app/utils/mantenimiento_fisico.dart';
 import 'package:piscina_app/utils/calendar_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 class AjustesScreen extends StatefulWidget {
   const AjustesScreen({Key? key}) : super(key: key);
 
@@ -115,7 +116,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
               );
             },
           ),
-          const Divider(),
+
           TextField(
             controller: _volumenController,
             keyboardType: TextInputType.numberWithOptions(decimal: false),
@@ -131,6 +132,28 @@ class _AjustesScreenState extends State<AjustesScreen> {
             child: Text(localizations.saveVolumeButton),
           ),
           const Divider(),
+          // ▼▼▼ NUEVO: selector % de cloro líquido ▼▼▼
+          DropdownButtonFormField<double>(
+            value: settingsController.porcentajeCloroLiquido, // viene del SettingsController
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Cloro líquido (% NaOCl)',
+              border: OutlineInputBorder(),
+            ),
+            items: const [
+              DropdownMenuItem(value: 10.0,  child: Text('10%')),
+              DropdownMenuItem(value: 12.5, child: Text('12.5% (pool shock)')),
+            ],
+            onChanged: (v) {
+              if (v != null) {
+                settingsController.setPorcentajeCloroLiquido(v); // guarda en SharedPreferences y notifica
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Concentración guardada: $v%')),
+                );
+              }
+            },
+          ),
+// ▲▲▲ FIN NUEVO ▲▲▲
           ListTile(
             title: Text(localizations.unitSystem),
             trailing: DropdownButton<String>(
@@ -154,6 +177,8 @@ class _AjustesScreenState extends State<AjustesScreen> {
             ),
           ),
           const Divider(),
+
+
           DropdownButtonFormField<int>(
             value: _diaSemanaSeleccionado,
             decoration: InputDecoration(labelText: localizations.selectWeekday),

@@ -53,8 +53,8 @@
   "cellCleaningDescription": "Reminder to clean the Jandy TruClear generator cell.",
   "scheduleFilterCleaningCalendar": "📅 Schedule filter cleaning in calendar",
   "scheduleCellCleaningCalendar": "📅 Schedule cell cleaning in calendar",
-  "maintenanceHistoryTitle": "🧼 Maintenance history",
-  "filterSectionTitle": "🧼 Filter cleaning (Jandy CS)",
+  "maintenanceHistoryTitle": "\uD83E\uDDFC Maintenance history",
+  "filterSectionTitle": "\uD83E\uDDFC Filter cleaning (Jandy CS)",
   "cellSectionTitle": "⚡ Cell cleaning (TruClear)",
   "noRecords": "No records yet.",
   "monthlyReminderTitle": "Enable monthly reminder",
@@ -248,17 +248,17 @@
     "description": "Message shown when there are no maintenance records yet."
   },
 
-  "maintenanceHistory": "Maintenance History",
+  "maintenanceHistory": "🧼 Maintenance History",
   "@maintenanceHistory": {
     "description": "Title of the screen showing filter/cell cleaning history."
   },
 
-  "filterCleaningSectionTitle": "Filter Cleaning",
+  "filterCleaningSectionTitle": "🧽 Filter Cleaning (Jandy CS)",
   "@filterCleaningSectionTitle": {
     "description": "Section title for cartridge filter cleaning records."
   },
 
-  "cellCleaningSectionTitle": "Cell Cleaning",
+  "cellCleaningSectionTitle": "⚡ Cell Cleaning (TruClear)",
   "@cellCleaningSectionTitle": {
     "description": "Section title for salt cell cleaning records."
   },
@@ -508,7 +508,48 @@
   "choqueAlto": "⚠️ High chlorine dose required. Perform shock with caution.",
 
   "alcalinidadAltaConsejo1": "💡 You can consider partially diluting the water if alkalinity remains high.",
-  "alcalinidadAltaAdvertenciaPh": "💡 It is recommended to reduce alkalinity only if high pH is also present. Add acid slowly in a single spot without circulating the water, and monitor pH every hour until it stabilizes."
+  "alcalinidadAltaAdvertenciaPh": "💡 It is recommended to reduce alkalinity only if high pH is also present. Add acid slowly in a single spot without circulating the water, and monitor pH every hour until it stabilizes.",
+  "exactSuffix": "exact",
+  "shockModeTitle": "Shock mode",
+  "shockTargetLabel": "Shock target FC",
+  "fcAlreadyAtShock": "FC is already at shock level.",
+  "shockMeasureCyaFc": "Measure CYA and FC to calculate the shock target precisely.",
+  "normalRangePrefix": "Normal range:",
+  "@cyaValorNormal": {
+    "description": "CYA normal range line with dynamic range, e.g. '30–70 ppm'",
+    "placeholders": { "rango": { "type": "String" } }
+  },
+  "shockDialogIntro": "Enter missing values to compute the exact dose:",
+  "freeChlorinePpmLabel": "Free Chlorine (ppm)",
+  "freeChlorineHintExample": "e.g. 1.4",
+  "cyaPpmLabel": "CYA (ppm)",
+  "cyaHintExample": "e.g. 60",
+  "btnCancel": "Cancel",
+  "btnUseValues": "Use values",
+  "stockProductos": "Product stock",
+
+
+  "maintainShockUntil": "Maintain treatment until ALL of the following are true:",
+  "shockCondCCUnder02": "Combined Chlorine (CC) ≤ 0.2 ppm.",
+  "shockCondFCHold24h": "Keep Free Chlorine (FC) at or above {target} ppm for 24 consecutive hours.",
+  "shockCondOCLT": "Overnight Chlorine Loss Test (OCLT) shows loss < 1.0 ppm.",
+  "shockRetestInterval": "Re-test every 1–2 hours during the day.",
+  "shockCompleted": "Shock completed.",
+  "resumeNormalOperation": "Resume normal operation and ideal ranges."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

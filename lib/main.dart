@@ -199,7 +199,7 @@ class _HomePageState extends State<HomePage> {
             _buildMenuButton(
               context,
               icon: Icons.inventory,
-              label: 'Stock de Productos',
+              label: AppLocalizations.of(context)!.stockProductos,
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const PantallaStock()),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:piscina_app/utils/stock_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
 
 Future<Map<String, String>> calcularAjustes(
     Map<String, dynamic> parametros,
@@ -19,25 +21,23 @@ Future<Map<String, String>> calcularAjustes(
     return null;
   }
 
-
   final prefs = await SharedPreferences.getInstance();
   final bool esAguaSalada = prefs.getBool('tipo_pileta_salada') ?? true;
-  final cyaMin = esAguaSalada ? 60 : 30;
   final cyaMax = esAguaSalada ? 80 : 50;
   final limiteCloroAlto = esAguaSalada ? 6.0 : 4.0;
   final limiteCloroBajo = esAguaSalada ? 3.0 : 1.0;
-  final rangoCloroTexto = esAguaSalada ? '3–5 ppm' : '1–3 ppm';
+  final rangoCloroTexto = esAguaSalada ? '3–6 ppm' : '1–3 ppm';
   final rangoCyaTexto = esAguaSalada ? '60–80 ppm' : '30–50 ppm';
-
+  final double fuerzaCloro = prefs.getDouble('porcentaje_cloro_liquido') ?? 12.5;
 
   double volumenGalones = prefs.getDouble('volumen_piscina') ?? 13000;
   double volumenLitros = volumenGalones * 3.785;
-  double factorVolumenEscala = volumenGalones / 10000;
+  double factorVolumenEscala = volumenGalones / 10000.0;
 
   final localizations = AppLocalizations.of(context)!;
-  bool esMetrico = unidadSistema == 'metrico';
-  double factorPeso = 0.4536;
-  double factorVolumen = 3.785;
+  final bool esMetrico = unidadSistema == 'metrico';
+  final double factorPeso = 0.4536;  // lb -> kg
+  final double factorVolumen = 3.785; // gal -> L
 
   final unidadPeso = esMetrico ? localizations.unidadKg : localizations.unidadLb;
   final unidadVol = esMetrico ? localizations.unidadLitro : localizations.unidadGalon;
@@ -47,15 +47,14 @@ Future<Map<String, String>> calcularAjustes(
   final double factorAlcalinidad = volumenMuestra == '10' ? 25 : 10;
   final double factorDureza = 10;
 
-  final cloroLibre = parametros.containsKey('Cloro libre gotas')
+  // -------- Lectura de parámetros de la entrada --------
+  double? cloroLibre = parametros.containsKey('Cloro libre gotas')
       ? toDouble(parametros['Cloro libre gotas'])! * factorCloro
       : toDouble(parametros['Cloro libre']);
-
 
   final cloroCombinado = parametros.containsKey('Cloro combinado gotas')
       ? toDouble(parametros['Cloro combinado gotas'])! * factorCloro
       : toDouble(parametros['Cloro combinado']);
-
 
   final alcalinidad = parametros.containsKey('Alcalinidad gotas')
       ? toDouble(parametros['Alcalinidad gotas'])! * factorAlcalinidad
@@ -66,14 +65,120 @@ Future<Map<String, String>> calcularAjustes(
       : toDouble(parametros['Dureza']);
 
   double? ph = toDouble(parametros['pH']);
-  final String? titulantePh = parametros['pH titulante'];
-  final String? strGotasPh = parametros['pH gotas'];
-  final int? gotasPh = int.tryParse(strGotasPh ?? '');
-  final cya = toDouble(parametros['CYA']);
+  double? cya = toDouble(parametros['CYA']);
   final salinidad = toDouble(parametros['Salinidad']);
 
+  // -------- Helpers SHOCK --------------------------------------------------
 
-  // Función auxiliar general
+  double _shockTargetFromCYA(double cya) {
+    // ~40% del CYA, redondeado a entero
+    return (cya * 0.40).roundToDouble();
+  }
+
+  bool _isShockNeeded(double? cc) {
+    // Umbral: CC >= 0.3 ppm → shock
+    return cc != null && cc >= 0.3;
+  }
+
+  bool _isShockCleared({
+    required double? cc,
+    required double? fcActual,
+    required double shockTarget,
+    double? fcNoche,
+    double? fcManana,
+  }) {
+    final ccOk = (cc != null) && (cc <= 0.2);
+    final fcOk = (fcActual != null) && (fcActual >= shockTarget);
+    final ocltOk = (fcNoche != null && fcManana != null)
+        ? ((fcNoche - fcManana) < 1.0)
+        : true; // si no hay OCLT, no bloquea
+    return ccOk && fcOk && ocltOk;
+  }
+
+  // -------- Helpers de histórico / normalización --------------------------
+
+  double? _leerUltimoDesdeRegistros(SharedPreferences prefs, List<String> nombresParametros) {
+    // 1) test_registros
+    try {
+      final raw = prefs.getString('test_registros');
+      if (raw != null && raw.isNotEmpty) {
+        final List lista = json.decode(raw);
+        for (int i = lista.length - 1; i >= 0; i--) {
+          final item = lista[i] as Map<String, dynamic>;
+          final p = item['parametro']?.toString();
+          if (p != null && nombresParametros.contains(p)) {
+            final v = item['valor'];
+            if (v is num) return v.toDouble();
+            if (v is String) return double.tryParse(v);
+          }
+        }
+      }
+    } catch (_) {}
+
+    // 2) test_individual
+    try {
+      final raw2 = prefs.getString('test_individual');
+      if (raw2 != null && raw2.isNotEmpty) {
+        final List lista2 = json.decode(raw2);
+        for (int i = lista2.length - 1; i >= 0; i--) {
+          final item = lista2[i] as Map<String, dynamic>;
+          final p = item['parametro']?.toString();
+          if (p != null && nombresParametros.contains(p)) {
+            final v = item['valor_ppm'] ?? item['valor'];
+            if (v is num) return v.toDouble();
+            if (v is String) return double.tryParse(v);
+          }
+        }
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  double _normalizaFC(double valor) {
+    // Si parece número de gotas (25 mL): 20 < valor ≤ 200 → ppm = valor * 0.2
+    if (valor > 20 && valor <= 200) {
+      return valor * 0.2; // = valor / 5
+    }
+    return valor;
+  }
+
+  // Completar FC/CYA desde histórico si falta
+  if (cloroLibre == null) {
+    final desdeHist = _leerUltimoDesdeRegistros(
+      prefs,
+      ['Cloro libre', 'Free chlorine'],
+    );
+    if (desdeHist != null) {
+      cloroLibre = _normalizaFC(desdeHist);
+    }
+  }
+
+  cya ??= _leerUltimoDesdeRegistros(
+    prefs,
+    ['CYA', 'Stabilizer (CYA)', 'Stabilizer', 'Cyanuric acid'],
+  );
+
+  // -------- Helpers de presentación / stock -------------------------------
+
+  double _roundToStep(double v, double step) => (v / step).round() * step;
+
+  Map<String, String> _formatCantidad(double cantidad, String unidadVol) {
+    final bool enGal = (unidadVol.toLowerCase().contains('gal'));
+    if (enGal) {
+      final double amigable = _roundToStep(cantidad, 0.05);
+      return {
+        'amigable': amigable.toStringAsFixed(2),
+        'exacta': cantidad.toStringAsFixed(2),
+      };
+    } else {
+      return {
+        'amigable': cantidad.toStringAsFixed(1),
+        'exacta': cantidad.toStringAsFixed(1),
+      };
+    }
+  }
+
   Future<void> procesarUso({
     required String key,
     required double cantidad,
@@ -82,38 +187,43 @@ Future<Map<String, String>> calcularAjustes(
     required String mensajeBase,
     required String valorNormal,
     required String valorActualFormateado,
+    String? tituloForzado,          // ← NUEVO
   }) async {
     String tituloTraducido = '';
-    switch (key) {
-      case 'cloro_liquido':
-        tituloTraducido = localizations.cloroLibreLabel;
-        break;
-      case 'ph_increaser':
-        tituloTraducido = 'pH';
-        break;
-      case 'acido_muriatico':
-      // Diferenciar si se trata de alcalinidad alta
-        if (mensajeBase.contains(localizations.alcalinidadAltaTexto)) {
-          tituloTraducido = localizations.alcalinidadLabel;
-        } else {
+    if (tituloForzado != null && tituloForzado.isNotEmpty) {
+      tituloTraducido = tituloForzado;          // ← usa el forzado
+    } else {
+      switch (key) {
+        case 'cloro_liquido':
+          tituloTraducido = localizations.cloroLibreLabel;
+          break;
+        case 'ph_increaser':
           tituloTraducido = 'pH';
-        }
-        break;
-      case 'alcalinidad':
-        tituloTraducido = localizations.alcalinidadLabel;
-        break;
-      case 'estabilizador':
-        tituloTraducido = localizations.cyaLabel;
-        break;
-      case 'dureza':
-        tituloTraducido = localizations.durezaLabel;
-        break;
-      case 'sal':
-        tituloTraducido = localizations.salinidadLabel;
-        break;
-      default:
-        tituloTraducido = key;
+          break;
+        case 'acido_muriatico':
+          if (mensajeBase.contains(localizations.alcalinidadAltaTexto)) {
+            tituloTraducido = localizations.alcalinidadLabel;
+          } else {
+            tituloTraducido = 'pH';
+          }
+          break;
+        case 'alcalinidad':
+          tituloTraducido = localizations.alcalinidadLabel;
+          break;
+        case 'estabilizador':
+          tituloTraducido = localizations.cyaLabel;
+          break;
+        case 'dureza':
+          tituloTraducido = localizations.durezaLabel;
+          break;
+        case 'sal':
+          tituloTraducido = localizations.salinidadLabel;
+          break;
+        default:
+          tituloTraducido = key;
+      }
     }
+
 
     final esLiquido = (key == 'cloro_liquido' || key == 'acido_muriatico');
     final unidadVisual = esLiquido ? unidadVol : unidadPeso;
@@ -144,32 +254,32 @@ Future<Map<String, String>> calcularAjustes(
     recomendaciones[key] = texto;
   }
 
-  // BLOQUES PARA CADA PARÁMETRO
-
+  // ================== CLORO LIBRE =========================================
   if (cloroLibre != null) {
-    String valor = '${localizations.cloroLibreLabel}: ${cloroLibre.toStringAsFixed(1)}';
+    final valor = '${localizations.cloroLibreLabel}: ${cloroLibre.toStringAsFixed(1)}';
 
     if (cloroLibre < limiteCloroBajo) {
-      // 🔻 Bajo → calcular cuánto agregar
-      double incremento = 3.0 - cloroLibre; // subir hasta 3 ppm
-      double galones = incremento * volumenLitros * 0.00013;
-      double cantidad = esMetrico ? galones * factorVolumen : galones;
+      final incremento = (esAguaSalada ? 3.0 : 2.0) - cloroLibre; // o tu target
+      final galones = incremento * (volumenGalones / 10000.0) / fuerzaCloro;  // ← divide por 12.5
+      final cantidad = esMetrico ? galones * 3.785 : galones;
 
-      String mensaje = '⚠️ ${localizations.cloroLibreBajo}\n➕ ${localizations.recomendacionGenerica(
-        cantidad.toStringAsFixed(1),
+      final _fmt = _formatCantidad(cantidad, unidadVol);
+
+      String mensaje =
+          '⚠️ ${localizations.cloroLibreBajo}\n'
+          '➕ ${localizations.recomendacionGenerica(
+        _fmt['amigable']!,
         unidadVol,
         localizations.nombreProductoCloro,
         localizations.nombreComercialCloro,
-      )}';
+      )} (${_fmt['exacta']} $unidadVol ${localizations.exactSuffix})';
 
       if (galones > 5.0) {
         mensaje += '\n⚠️ ${localizations.choqueAlto}';
       }
-      // ✅ Sugerencia opcional solo si la pileta es salada
       if (esAguaSalada) {
         mensaje += '\n💡 ${localizations.subirGeneradorSugerencia}';
       }
-
 
       await procesarUso(
         key: 'cloro_liquido',
@@ -180,64 +290,160 @@ Future<Map<String, String>> calcularAjustes(
         valorNormal: localizations.normalRangeCloroLibre,
         valorActualFormateado: valor,
       );
-    } else if (cloroLibre > limiteCloroAlto) {
-      // 🚨 Muy alto → advertencia
+
+    } else if (cloroLibre > limiteCloroAlto && !_isShockNeeded(cloroCombinado)) {
       recomendaciones['Cloro libre'] =
-      '**${localizations.cloroLibreLabel}**\n📏 Normal range: $rangoCloroTexto\n$valor\n⚠️ ${localizations.cloroLibreAltoSugerencia}';
+      '**${localizations.cloroLibreLabel}**\n'
+          '📏 ${localizations.normalRangePrefix} $rangoCloroTexto\n'
+          '$valor\n'
+          '⚠️ ${localizations.cloroLibreAltoSugerencia}';
     } else {
-      // ✅ Normal
       recomendaciones['Cloro libre'] =
-      '**${localizations.cloroLibreLabel}**\n📏 Normal range: $rangoCloroTexto\n$valor\n✅ ${localizations.valorNormal}';
+      '**${localizations.cloroLibreLabel}**\n'
+          '📏 ${localizations.normalRangePrefix} $rangoCloroTexto\n'
+          '$valor\n'
+          '✅ ${localizations.valorNormal}';
     }
 
+    // ────────────────────────────────────────────────────────────────────────
+    // PARCHE SHOCK (solo presentación):
+    // Si hay modo shock por CC alto, NO queremos que esta tarjeta diga “✅ Normal”.
+    // No tocamos cálculos ni stock; solo sobreescribimos el texto mostrado.
+    // PARCHE SHOCK (solo presentación):
+    if (_isShockNeeded(cloroCombinado)) {
+      final lineaTarget = (cya != null)
+          ? '\n🎯 ${localizations.shockTargetLabel}: ${_shockTargetFromCYA(cya!).toStringAsFixed(0)} ppm'
+          : '';
+
+      // Solo avisar “alto” si realmente está alto:
+      final notaAlto = (cloroLibre != null && cloroLibre > limiteCloroAlto)
+          ? '\n${localizations.cloroLibreAltoSugerencia}'
+          : ''; // si no, nada (o ver “opcional” abajo)
+
+      recomendaciones['Cloro libre'] =
+      '**${localizations.cloroLibreLabel}**\n'
+          '📏 ${localizations.normalRangePrefix} $rangoCloroTexto\n'
+          '$valor\n'
+          '🧪 ${localizations.shockModeTitle}$lineaTarget'
+          '$notaAlto';
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
   }
 
+
+  // ================== CLORO COMBINADO (modo SHOCK) ========================
+  // ================== CLORO COMBINADO (modo SHOCK) ========================
   if (cloroCombinado != null) {
-    String valor = '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}';
+    final double shockTargetForCheck = (cya != null) ? _shockTargetFromCYA(cya!) : 0.0;
+    final valor = '${localizations.cloroCombinadoLabel}: ${cloroCombinado.toStringAsFixed(1)}';
 
-    if (cloroCombinado == 0.0) {
-      recomendaciones['Cloro combinado'] =
-      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n✅ ${localizations.cloroCombinadoCero}';
+    // 1) SHOCK (igual que lo tenías)
+    if (_isShockNeeded(cloroCombinado)) {
+      final double? fc = cloroLibre;
+      final double? cyaVal = cya;
 
-    } else if (cloroCombinado >= 0.1 && cloroCombinado <= 0.2) {
-      recomendaciones['Cloro combinado'] =
-      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n⚠️ ${localizations.cloroCombinadoAdvertenciaLeve}';
+      if (cyaVal != null && fc != null) {
+        final double shockTarget = _shockTargetFromCYA(cyaVal);
+        final condicionesShock =
+            '\n⏱️ ${localizations.maintainShockUntil}\n'
+            '• ${localizations.shockCondCCUnder02}\n'
+            '• ${localizations.shockCondFCHold24h(shockTarget.toStringAsFixed(0))}\n'
+            '• ${localizations.shockCondOCLT}';
+        final double incrementoFC = shockTarget - fc;
 
-    } else if (cloroCombinado >= 0.3) {
-      double diferencia = cloroCombinado - 0.2; // desde exceso sobre 0.2
-      double galones = diferencia * volumenLitros * 0.00013;
-      double cantidad = esMetrico ? galones * factorVolumen : galones;
+        if (incrementoFC > 0) {
+          final double galones = incrementoFC * (volumenGalones / 10000.0) / fuerzaCloro;
+          final double cantidad = esMetrico ? galones * 3.785 : galones;
+          final _fmt = _formatCantidad(cantidad, unidadVol);
 
-      String mensaje =
-          '⚠️ ${localizations.cloroCombinadoAlto}\n'
-          '${localizations.requiereTratamientoChoque}\n'
-          '➕ ${localizations.recomendacionGenerica(
-        cantidad.toStringAsFixed(1),
-        unidadVol,
-        localizations.nombreProductoCloro,
-        localizations.nombreComercialCloro,
-      )}';
+          final mensaje =
+              '🧪 ${localizations.shockModeTitle}\n'
+              '🎯 ${localizations.shockTargetLabel}: ${shockTarget.toStringAsFixed(0)} ppm\n'
+              '${localizations.requiereTratamientoChoque}\n'
+              '➕ ${localizations.recomendacionGenerica(
+            _fmt['amigable']!,
+            unidadVol,
+            localizations.nombreProductoCloro,
+            localizations.nombreComercialCloro,
+          )} (${_fmt['exacta']} $unidadVol ${localizations.exactSuffix})\n'
+              '${localizations.cloroLibreAltoSugerencia}'
+              '$condicionesShock';
 
-      if (galones > 5.0) {
-        mensaje += '\n⚠️ ${localizations.choqueAlto}';
+          await procesarUso(
+            key: 'cloro_liquido',
+            cantidad: cantidad,
+            nombreProducto: localizations.nombreProductoCloro,
+            nombreComercial: localizations.nombreComercialCloro,
+            mensajeBase: mensaje,
+            valorNormal: localizations.normalRangeCloroCombinado,
+            valorActualFormateado: valor,
+            tituloForzado: localizations.cloroCombinadoLabel, // (opcional, solo para título)
+          );
+
+          if (recomendaciones.containsKey('cloro_liquido')) {
+            recomendaciones['Cloro combinado'] = recomendaciones['cloro_liquido']!;
+          }
+          recomendaciones.remove('cloro_liquido');
+
+        } else {
+          recomendaciones['Cloro combinado'] =
+          '🧪 ${localizations.shockModeTitle}\n'
+              '🎯 ${localizations.shockTargetLabel}: ${shockTarget.toStringAsFixed(0)} ppm\n'
+              '${localizations.requiereTratamientoChoque}\n'
+              '✅ ${localizations.fcAlreadyAtShock}\n'
+              '$condicionesShock\n'
+              '${localizations.cloroLibreAltoSugerencia}';
+        }
+
+      } else {
+        recomendaciones['Cloro combinado'] =
+        '🧪 ${localizations.shockModeTitle}\n'
+            '${localizations.requiereTratamientoChoque}\n'
+            '💡 ${localizations.shockMeasureCyaFc}';
       }
+    }
 
-      await procesarUso(
-        key: 'cloro_liquido',
-        cantidad: cantidad,
-        nombreProducto: localizations.nombreProductoCloro,
-        nombreComercial: localizations.nombreComercialCloro,
-        mensajeBase: mensaje,
-        valorNormal: localizations.normalRangeCloroCombinado,
-        valorActualFormateado: valor,
-      );
-
-    } else {
+    // 2) SHOCK COMPLETADO (mismo código que tenías, movido aquí)
+    else if (cya != null && shockTargetForCheck > 0 &&
+        _isShockCleared(
+          cc: cloroCombinado,
+          fcActual: cloroLibre,
+          shockTarget: shockTargetForCheck,
+        )) {
       recomendaciones['Cloro combinado'] =
-      '**${localizations.cloroCombinadoLabel}**\n📏 ${localizations.normalRangeCloroCombinado}\n$valor\n✅ ${localizations.valorNormal}';
+      '🧪 ${localizations.shockModeTitle}\n'
+          '✅ ${localizations.shockCompleted}\n'
+          '${localizations.resumeNormalOperation}';
+    }
+
+    // 3) CC = 0.0 (como lo tenías)
+    else if (cloroCombinado == 0.0) {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n'
+          '📏 ${localizations.normalRangeCloroCombinado}\n'
+          '$valor\n'
+          '✅ ${localizations.cloroCombinadoCero}';
+    }
+
+    // 4) CC leve 0.1–0.2 (este bloque lo movimos debajo del shock completado)
+    else if (cloroCombinado >= 0.1 && cloroCombinado <= 0.2) {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n'
+          '📏 ${localizations.normalRangeCloroCombinado}\n'
+          '$valor\n'
+          '⚠️ ${localizations.cloroCombinadoAdvertenciaLeve}';
+    }
+
+    // 5) Resto: normal
+    else {
+      recomendaciones['Cloro combinado'] =
+      '**${localizations.cloroCombinadoLabel}**\n'
+          '📏 ${localizations.normalRangeCloroCombinado}\n'
+          '$valor\n'
+          '✅ ${localizations.valorNormal}';
     }
   }
-
 
 
   final String? titulante = parametros['pH titulante']; // 'R-005' o 'R-006'
@@ -313,8 +519,6 @@ Future<Map<String, String>> calcularAjustes(
 
   if (alcalinidad != null) {
     String valor = '${localizations.alcalinidadLabel}: ${alcalinidad.toStringAsFixed(0)}';
-    double volumenGalones = prefs.getDouble('volumen_piscina') ?? 13000;
-    double volumenLitros = volumenGalones * 3.785;
 
     if (alcalinidad < 80) {
       double incremento = 80 - alcalinidad;
@@ -368,12 +572,11 @@ Future<Map<String, String>> calcularAjustes(
   if (cya != null) {
     String valor = '${localizations.cyaLabel}: ${cya.toStringAsFixed(0)}';
 
-    // 🔁 Lógica diferenciada solo para el rango visual y advertencias (no cálculo)
-    final cyaLimiteAlto = esAguaSalada ? 70 : 50;
-    final rangoCyaTexto = esAguaSalada ? '30–70 ppm' : '30–50 ppm';
+    final int cyaLimiteAlto = cyaMax; // 80 en salada, 50 en no salada
+
 
     if (cya < 30) {
-      // ✅ Cálculo queda igual para ambos: desde 30 ppm
+      // (mantienes tu cálculo "desde 30 ppm")
       double incremento = 30 - cya;
       double libras = incremento / 10 * 1.25 * factorVolumenEscala;
       double cantidad = esMetrico ? libras * factorPeso : libras;
@@ -389,17 +592,28 @@ Future<Map<String, String>> calcularAjustes(
           localizations.productoCya,
           localizations.nombreComercialCYA,
         )}',
+        // 👇 aquí ahora sí usas el rango correcto
         valorNormal: localizations.cyaValorNormal(rangoCyaTexto),
         valorActualFormateado: valor,
       );
+
     } else if (cya > cyaLimiteAlto) {
       recomendaciones['CYA'] =
-      '**${localizations.cyaLabel}**\n📏 Valor normal: $rangoCyaTexto\n$valor\n⚠️ ${localizations.cyaAlto}\n💡 ${localizations.cyaAltoConsejo}';
+      '**${localizations.cyaLabel}**\n'
+          '📏 ${localizations.cyaValorNormal(rangoCyaTexto)}\n'
+          '$valor\n'
+          '⚠️ ${localizations.cyaAlto}\n'
+          '💡 ${localizations.cyaAltoConsejo}';
+
     } else {
       recomendaciones['CYA'] =
-      '**${localizations.cyaLabel}**\n📏 Valor normal: $rangoCyaTexto\n$valor\n✅ ${localizations.valorNormal} ($rangoCyaTexto)';
+      '**${localizations.cyaLabel}**\n'
+          '📏 ${localizations.cyaValorNormal(rangoCyaTexto)}\n'
+          '$valor\n'
+          '✅ ${localizations.valorNormal}';
     }
   }
+
 
 
   if (dureza != null) {
@@ -424,13 +638,18 @@ Future<Map<String, String>> calcularAjustes(
           valorActualFormateado: '${localizations.durezaLabel}: ${dureza.toStringAsFixed(0)}',
         );
       } else if (dureza > 400) {
-        recomendaciones['Dureza'] = '**${localizations
-            .durezaLabel}**\n📏 Valor normal: 200–400 ppm\n$valor\n⚠️ ${localizations
-            .durezaAlta}\n💡 ${localizations.durezaAltaConsejo}';
+        recomendaciones['Dureza'] =
+        '**${localizations.durezaLabel}**\n'
+            '📏 ${localizations.normalRangeDureza}\n'
+            '$valor\n'
+            '⚠️ ${localizations.durezaAlta}\n'
+            '💡 ${localizations.durezaAltaConsejo}';
       } else {
-        recomendaciones['Dureza'] = '**${localizations
-            .durezaLabel}**\n📏 Valor normal: 200–400 ppm\n$valor\n✅ ${localizations
-            .valorNormal} (200–400 ppm)';
+        recomendaciones['Dureza'] =
+        '**${localizations.durezaLabel}**\n'
+            '📏 ${localizations.normalRangeDureza}\n'
+            '$valor\n'
+            '✅ ${localizations.valorNormal}';
       }
     }
 
@@ -456,13 +675,18 @@ Future<Map<String, String>> calcularAjustes(
           valorActualFormateado: '${localizations.salinidadLabel}: ${salinidad.toStringAsFixed(0)}',
         );
       } else if (salinidad > 3500) {
-        recomendaciones['Salinidad'] = '**${localizations
-            .salinidadLabel}**\n📏 Valor normal: 3000–3500 ppm\n$valor\n⚠️ ${localizations
-            .salinidadAlta}\n💡 ${localizations.salinidadAltaConsejo}';
+        recomendaciones['Salinidad'] =
+        '**${localizations.salinidadLabel}**\n'
+            '📏 ${localizations.normalRangeSalinidad}\n'
+            '$valor\n'
+            '⚠️ ${localizations.salinidadAlta}\n'
+            '💡 ${localizations.salinidadAltaConsejo}';
       } else {
-        recomendaciones['Salinidad'] = '**${localizations
-            .salinidadLabel}**\n📏 Valor normal: 3000–3500 ppm\n$valor\n✅ ${localizations
-            .valorNormal} (3000–3500 ppm)';
+        recomendaciones['Salinidad'] =
+        '**${localizations.salinidadLabel}**\n'
+            '📏 ${localizations.normalRangeSalinidad}\n'
+            '$valor\n'
+            '✅ ${localizations.valorNormal}';
       }
     }
 
@@ -495,4 +719,6 @@ double calcularPhAltoQt(int gotas, double volumenGalones) {
 
   return base + (extra * ((volumenGalones - 10000) / 10000));
 }
+
+
 

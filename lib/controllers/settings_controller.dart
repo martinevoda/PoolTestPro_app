@@ -7,6 +7,10 @@ class SettingsController extends ChangeNotifier {
   String _unidadSistema = 'imperial'; // 'imperial' o 'metrico'
   bool _esAguaSalada = true; // ✅ Por defecto es pileta con sal
 
+  // === [1.1] NUEVO: porcentaje de cloro líquido guardado en ajustes ===
+  double _porcentajeCloroLiquido = 12.5; // NEW: 12.5% por defecto (pool shock)
+  double get porcentajeCloroLiquido => _porcentajeCloroLiquido; // NEW
+
   ThemeMode get themeMode => _themeMode;
   String get idioma => _idioma;
   String get unidadSistema => _unidadSistema;
@@ -21,6 +25,9 @@ class SettingsController extends ChangeNotifier {
     final savedIdioma = prefs.getString('idioma');
     final savedUnidad = prefs.getString('unidad_sistema');
     final savedTipoPileta = prefs.getBool('tipo_pileta_salada'); // ✅ nueva clave
+
+    // === [1.2] NUEVO: leer % cloro líquido si existe ===
+    final savedPorcCloro = prefs.getDouble('porcentaje_cloro_liquido'); // NEW
 
     if (savedTheme == 'dark') {
       _themeMode = ThemeMode.dark;
@@ -39,6 +46,11 @@ class SettingsController extends ChangeNotifier {
     if (savedTipoPileta != null) {
       _esAguaSalada = savedTipoPileta;
     }
+
+    // === [1.2] NUEVO: aplicar el valor leído del % de cloro ===
+    if (savedPorcCloro != null) {           // NEW
+      _porcentajeCloroLiquido = savedPorcCloro; // NEW
+    }                                       // NEW
 
     notifyListeners();
   }
@@ -75,6 +87,14 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // === [1.3] NUEVO: setter para % de cloro líquido ===
+  Future<void> setPorcentajeCloroLiquido(double v) async { // NEW
+    _porcentajeCloroLiquido = v;                            // NEW
+    final prefs = await SharedPreferences.getInstance();    // NEW
+    await prefs.setDouble('porcentaje_cloro_liquido', v);   // NEW
+    notifyListeners();                                      // NEW
+  }                                                         // NEW
+
   /// Versión anterior de modo oscuro (opcional)
   void toggleModoOscuro(bool isDark) {
     _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
@@ -94,6 +114,7 @@ class SettingsController extends ChangeNotifier {
     await prefs.remove('test_individual');
     await prefs.remove('test_registros');
     await prefs.remove('modo_tecnico');
+    // Nota: NO borramos 'porcentaje_cloro_liquido' aquí.
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('✅ Datos reiniciados correctamente.')),

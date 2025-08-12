@@ -553,9 +553,45 @@
   "cloroCombinadoAlto": "Cloraminas elevadas.",
   "requiereTratamientoChoque": "Requiere tratamiento de choque con cloro líquido.",
   "choqueAlto": "⚠️ Se requiere una dosis alta de cloro. Realice el tratamiento con precaución.",
-
   "alcalinidadAltaConsejo1": "💡 Podés considerar una dilución parcial del agua si la alcalinidad se mantiene elevada.",
-  "alcalinidadAltaAdvertenciaPh": "💡 Es recomendable reducir la alcalinidad solo si también se presenta pH alto. Agregá el ácido lentamente en un solo punto, sin recircular el agua, y monitoreá el pH cada hora hasta estabilizar."
+  "alcalinidadAltaAdvertenciaPh": "💡 Es recomendable reducir la alcalinidad solo si también se presenta pH alto. Agregá el ácido lentamente en un solo punto, sin recircular el agua, y monitoreá el pH cada hora hasta estabilizar.",
+  "exactSuffix": "exacto",
+  "shockModeTitle": "Modo shock",
+  "shockTargetLabel": "FC objetivo (shock)",
+  "fcAlreadyAtShock": "El FC ya está al nivel de shock.",
+  "shockMeasureCyaFc": "Mide CYA y FC para calcular el objetivo de shock con precisión.",
+  "normalRangePrefix": "Rango normal:",
+  "@cyaValorNormal": {
+    "description": "Línea de rango normal para CYA con rango dinámico, ej. '30–70 ppm'",
+    "placeholders": { "rango": { "type": "String" } }
+  },
+  "shockDialogIntro": "Ingresa los valores faltantes para calcular la dosis exacta:",
+  "freeChlorinePpmLabel": "Cloro libre (ppm)",
+  "freeChlorineHintExample": "ej. 1.4",
+  "cyaPpmLabel": "CYA (ppm)",
+  "cyaHintExample": "ej. 60",
+  "btnCancel": "Cancelar",
+  "btnUseValues": "Usar valores",
+  "stockProductos": "Stock de Productos",
+
+
+  "maintainShockUntil": "Mantén el tratamiento hasta cumplir TODAS estas condiciones:",
+  "shockCondCCUnder02": "Cloro combinado (CC) ≤ 0.2 ppm.",
+  "shockCondFCHold24h": "Mantener el FC en o por encima de {target} ppm durante 24 horas seguidas.",
+  "shockCondOCLT": "La prueba nocturna de cloro (OCLT) muestre pérdida < 1.0 ppm.",
+  "shockRetestInterval": "Vuelve a medir cada 1–2 horas durante el día.",
+  "shockCompleted": "Shock completado.",
+  "resumeNormalOperation": "Vuelve al funcionamiento normal y a los rangos ideales."
+
+
+
+
+
+
+
+
+
+
 
 
 

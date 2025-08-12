@@ -40,6 +40,71 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     }
   }
 
+  Future<Map<String, double>?> _pedirDatosShock(
+      BuildContext context, {
+        double? fcActual,
+        double? cyaActual,
+      }) async {
+    final l = AppLocalizations.of(context)!;
+
+    final fcCtrl = TextEditingController(
+      text: (fcActual != null) ? fcActual.toStringAsFixed(1) : '',
+    );
+    final cyaCtrl = TextEditingController(
+      text: (cyaActual != null) ? cyaActual.toStringAsFixed(0) : '',
+    );
+
+    return showDialog<Map<String, double>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(l.shockModeTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l.shockDialogIntro),
+              const SizedBox(height: 8),
+              TextField(
+                controller: fcCtrl,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: l.freeChlorinePpmLabel,
+                  hintText: l.freeChlorineHintExample,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: cyaCtrl,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: l.cyaPpmLabel,
+                  hintText: l.cyaHintExample,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(null),
+              child: Text(l.btnCancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final fc = double.tryParse(fcCtrl.text.trim());
+                final cya = double.tryParse(cyaCtrl.text.trim());
+                if (fc == null || cya == null) return; // guard simple
+                Navigator.of(ctx).pop({'fc': fc, 'cya': cya});
+              },
+              child: Text(l.btnUseValues),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   Future<void> _cargarEstadoTemporal() async {
     final prefs = await SharedPreferences.getInstance();
     final tempRegistro = prefs.getString('temp_individual');
@@ -94,6 +159,32 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     }
 
   }
+
+  // Devuelve el último valor guardado en 'test_registros' para un parámetro dado.
+  Future<double?> _getUltimoValorDe(String parametroBuscado) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('test_registros');
+    if (raw == null || raw.isEmpty) return null;
+
+    try {
+      final List list = json.decode(raw);
+      // Recorremos desde el final (más reciente)
+      for (int i = list.length - 1; i >= 0; i--) {
+        final item = Map<String, dynamic>.from(list[i]);
+        final p = (item['parametro'] ?? '').toString();
+        if (p.toLowerCase().trim() == parametroBuscado.toLowerCase().trim()) {
+          final v = item['valor'];
+          if (v is num) return v.toDouble();
+          if (v is String) {
+            final d = double.tryParse(v);
+            if (d != null) return d;
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
 
   Future<void> _calcular() async {
     FocusScope.of(context).unfocus();
@@ -152,31 +243,96 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       parametrosAjuste['${parametro} gotas'] = gotas;
     }
 
+    // 🔸 Paso 2: auto-completar para modo shock en "Cloro combinado"
+    if (parametro == 'Cloro combinado' || parametro == 'Combined chlorine') {
+      // Si no viene CYA este turno, buscamos el último
+      if (parametrosAjuste['CYA'] == null) {
+        final ultCya = await _getUltimoValorDe('CYA');
+        if (ultCya != null) parametrosAjuste['CYA'] = ultCya;
+      }
+      // Si no viene FC este turno, buscamos el último
+      if (parametrosAjuste['Cloro libre'] == null &&
+          parametrosAjuste['Cloro libre gotas'] == null) {
+        final ultFc = await _getUltimoValorDe('Cloro libre');
+        if (ultFc != null) parametrosAjuste['Cloro libre'] = ultFc;
+      }
+    }
+
+    // 🔸 Paso 2.5: si CC dispara shock y aún faltan FC o CYA, pedirlos al vuelo (i18n)  ⬅️ NUEVO
+    if (parametro == 'Cloro combinado' || parametro == 'Combined chlorine') {
+      // El CC actual (en ppm) es el 'valor' calculado arriba si estás testeando CC
+      final double? ccActual = valor;
+
+      // Usamos el mismo umbral que en pool_calculator (_isShockNeeded: >= 0.3)
+      final bool shock = (ccActual != null && ccActual >= 0.3);
+
+      // ¿Siguen faltando FC o CYA tras el auto-completado?
+      final bool faltaFC = !(parametrosAjuste.containsKey('Cloro libre') ||
+          parametrosAjuste.containsKey('Cloro libre gotas'));
+      final bool faltaCYA = !parametrosAjuste.containsKey('CYA');
+
+      if (shock && (faltaFC || faltaCYA)) {
+        final overrides = await _pedirDatosShock(
+          context,
+          // Si tenés algo previo en memoria, se muestra como valor inicial (opcional)
+          fcActual: double.tryParse((_registroActual['cloroLibre'] ?? '').toString()),
+          cyaActual: double.tryParse((_registroActual['cya'] ?? '').toString()),
+        );
+        if (overrides != null) {
+          // Inyectamos valores directos en ppm para que calcularAjustes haga dosis exacta
+          parametrosAjuste['Cloro libre'] = overrides['fc'];
+          parametrosAjuste.remove('Cloro libre gotas'); // por si había gotas
+          parametrosAjuste['CYA'] = overrides['cya'];
+
+          // Opcional: guardar en el estado para reuso inmediato
+          _registroActual['cloroLibre'] = overrides['fc']!.toStringAsFixed(1);
+          _registroActual['cya'] = overrides['cya']!.toStringAsFixed(0);
+        }
+      }
+    }
+
+
     final recomendaciones = await calcularAjustes(
       parametrosAjuste,
       context,
       unidad,
     );
-    if (recomendaciones.containsKey(parametro)) {
-      registro['recomendacion'] = recomendaciones[parametro];
-    }
-    setState(() {
-      _registroActual = registro.map((key, value) => MapEntry(key, value.toString()));
-      _todasLasRecomendaciones[_parametroSeleccionado] =
-          recomendaciones.map((k, v) => MapEntry(k, v));
 
-      // 🔍 Toma el primer valor del mapa como texto para mostrar
-      final textoCompleto = recomendaciones.values.join('\n').trim();
-      _recomendaciones[_parametroSeleccionado] = textoCompleto;
+// ---- Elegir UN solo texto para este parámetro ----
+    final String param = _parametroSeleccionado;
+
+// 1) el del parámetro, si existe y no está vacío
+    String? textoSel = recomendaciones[param];
+// 2) si no, el primero del mapa (si hay)
+    if (textoSel == null || textoSel.trim().isEmpty) {
+      textoSel = recomendaciones.isNotEmpty ? recomendaciones.values.first : '—';
+    }
+
+// guardá también en el registro (para el popup / historial)
+    registro['parametro_seleccionado'] = param;
+    registro['recomendacion'] = textoSel;
+
+    setState(() {
+      // Estado del registro en memoria (todo a String)
+      _registroActual = registro.map((k, v) => MapEntry(k, v.toString()));
+
+      // 🔒 UNA sola tarjeta para este parámetro
+      _todasLasRecomendaciones[param] = { param: textoSel! };
+
+      // Texto que se muestra debajo
+      _recomendaciones[param] = textoSel!;
     });
 
-    registro['parametro_seleccionado'] = _parametroSeleccionado;
-
+// ---- Persistencia temporal (formato compatible con tu _cargarEstadoTemporal) ----
     await prefs.setString('temp_individual', json.encode(_registroActual));
     await prefs.setString('temp_recomendaciones_individual', json.encode(_recomendaciones));
-    await prefs.setString('temp_todas_recomendaciones', json.encode(
-        _todasLasRecomendaciones.map((param, rec) => MapEntry(param, rec.values.first))
-    ));
+    await prefs.setString(
+      'temp_todas_recomendaciones',
+      json.encode(
+        _todasLasRecomendaciones.map((p, rec) => MapEntry(p, rec.values.first)),
+      ),
+    );
+
 
 
   }
@@ -185,47 +341,89 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     if (_registroActual.isEmpty) return;
 
     final parametro = _parametroSeleccionado;
+    final volumen = _volumenSeleccionado;           // "10" o "25"
     final valorStr = _valorController.text.trim();
     final gotasStr = _gotasController.text.trim();
 
-    final double? valor = double.tryParse(valorStr.isNotEmpty ? valorStr : gotasStr);
-    if (valor != null) {
-      _registroActual['parametro'] = parametro;
-      _registroActual['valor_ppm'] = valor; // ✅ Usar double directamente
+    final double? valorManual = double.tryParse(valorStr);
+    final double? gotas = double.tryParse(gotasStr);
+
+    double? valorPPM;
+
+    // Calculamos PPM según el parámetro y si vino en gotas o manual
+    switch (parametro) {
+      case 'Cloro libre':
+      case 'Cloro combinado':
+        if (valorManual != null) {
+          valorPPM = valorManual;
+        } else if (gotas != null) {
+          final factor = (volumen == '10') ? 0.5 : 0.2; // FAS‑DPD
+          valorPPM = gotas * factor;                    // 130 gotas @25mL → 26 ppm
+        }
+        break;
+
+      case 'Alcalinidad':
+        if (valorManual != null) {
+          valorPPM = valorManual;
+        } else if (gotas != null) {
+          final factor = (volumen == '10') ? 25.0 : 10.0; // Taylor
+          valorPPM = gotas * factor;
+        }
+        break;
+
+      case 'Dureza':
+        if (valorManual != null) {
+          valorPPM = valorManual;
+        } else if (gotas != null) {
+          valorPPM = gotas * 10.0; // 1 gota = 10 ppm
+        }
+        break;
+
+    // pH, CYA, Salinidad: se guardan tal cual el valor ingresado
+      default:
+        valorPPM = valorManual;
+        break;
     }
 
-    _registroActual['tipo'] = 'individual'; // ✅ Clasificación
+    // Guardamos en el registro actual (incluye contexto)
+    if (gotas != null) {
+      _registroActual['${parametro} gotas'] = gotas;
+    }
+    _registroActual['volumen_muestra'] = volumen;
+    _registroActual['parametro'] = parametro;
+
+    if (valorPPM != null) {
+      _registroActual['valor_ppm'] = double.parse(valorPPM.toStringAsFixed(2));
+    }
+
+    _registroActual['tipo'] = 'individual';
     final texto = _recomendaciones[parametro] ?? '❌ (no se calculó recomendación)';
     _registroActual['recomendacion'] = texto;
-    await _saveRegistro(_registroActual); // Guarda en 'test_individual'
 
-    // ✅ Guardar también en test_registros (para gráficos)
+    await _saveRegistro(_registroActual); // Guarda en test_individual
+
+    // Además guardamos en test_registros para históricos/gráficos:
     final registro = TestRegistro(
       tipo: 'individual',
       fecha: DateTime.now(),
       parametro: parametro,
-      valor: valor ?? 0.0,
+      valor: valorPPM ?? 0.0,  // 👈 aquí va el ppm correcto
       recomendacion: texto,
     );
 
     final prefs = await SharedPreferences.getInstance();
     final registrosRaw = prefs.getString('test_registros') ?? '[]';
     final List decoded = json.decode(registrosRaw);
-
-    // ✅ Asegurar que se guarda como Map<String, dynamic>
     decoded.add(registro.toJson());
-
-    // ✅ Convertir a lista JSON
     await prefs.setString('test_registros', json.encode(decoded));
 
-    // ✅ Limpiar estado temporal
+    // limpiar estado temporal + UI como ya tenías…
     await prefs.remove('temp_individual');
     await prefs.remove('temp_recomendaciones_individual');
     await prefs.remove('temp_todas_recomendaciones');
 
     _todasLasRecomendaciones.remove(_parametroSeleccionado);
 
-    // ✅ Limpiar inputs
     setState(() {
       _registroActual.clear();
       _recomendaciones.clear();
@@ -241,6 +439,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       ),
     );
   }
+
 
   Future<void> _saveRegistro(Map<String, dynamic> registro) async {
     final prefs = await SharedPreferences.getInstance();
