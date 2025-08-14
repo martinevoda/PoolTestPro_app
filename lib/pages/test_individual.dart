@@ -58,51 +58,67 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) {
-        return AlertDialog(
-          title: Text(l.shockModeTitle),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(l.shockDialogIntro),
-              const SizedBox(height: 8),
-              TextField(
-                controller: fcCtrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: l.freeChlorinePpmLabel,
-                  hintText: l.freeChlorineHintExample,
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => FocusScope.of(ctx).unfocus(), // ← tap fuera cierra teclado
+          child: AlertDialog(
+            title: Text(l.shockModeTitle),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l.shockDialogIntro),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: fcCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.done,                // ← nuevo
+                  onSubmitted: (_) => FocusScope.of(ctx).unfocus(),     // ← nuevo
+                  onTapOutside: (_) => FocusScope.of(ctx).unfocus(),    // ← nuevo
+                  decoration: InputDecoration(
+                    labelText: l.freeChlorinePpmLabel,
+                    hintText: l.freeChlorineHintExample,
+                  ),
                 ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: cyaCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.done,                // ← nuevo
+                  onSubmitted: (_) => FocusScope.of(ctx).unfocus(),     // ← nuevo
+                  onTapOutside: (_) => FocusScope.of(ctx).unfocus(),    // ← nuevo
+                  decoration: InputDecoration(
+                    labelText: l.cyaPpmLabel,
+                    hintText: l.cyaHintExample,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  FocusManager.instance.primaryFocus?.unfocus(); // ← cierra teclado
+                  Navigator.of(ctx).pop(null);
+                },
+                child: Text(l.btnCancel),
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: cyaCtrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: l.cyaPpmLabel,
-                  hintText: l.cyaHintExample,
-                ),
+              FilledButton(
+                onPressed: () async {
+                  FocusScope.of(ctx).unfocus();              // ✅ Cierra teclado
+                  await Future.delayed(const Duration(milliseconds: 100)); // ⏳ Espera breve
+                  final fc = double.tryParse(fcCtrl.text.trim());
+                  final cya = double.tryParse(cyaCtrl.text.trim());
+                  if (fc == null || cya == null) return;
+                  Navigator.of(ctx).pop({'fc': fc, 'cya': cya});
+                },
+                child: Text(l.btnUseValues),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(null),
-              child: Text(l.btnCancel),
-            ),
-            FilledButton(
-              onPressed: () {
-                final fc = double.tryParse(fcCtrl.text.trim());
-                final cya = double.tryParse(cyaCtrl.text.trim());
-                if (fc == null || cya == null) return; // guard simple
-                Navigator.of(ctx).pop({'fc': fc, 'cya': cya});
-              },
-              child: Text(l.btnUseValues),
-            ),
-          ],
         );
       },
     );
   }
+
 
 
   Future<void> _cargarEstadoTemporal() async {
@@ -187,7 +203,8 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
 
 
   Future<void> _calcular() async {
-    FocusScope.of(context).unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+
 
     final local = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
@@ -338,6 +355,8 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
   }
 
   Future<void> _guardarTesteo() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     if (_registroActual.isEmpty) return;
 
     final parametro = _parametroSeleccionado;
@@ -385,6 +404,25 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
         break;
     }
 
+    // 🔧 SOLO para "Cloro combinado":
+    // si no se pudo recalcular aquí (porque no hay gotas/valor en este momento),
+    // usa el valor que ya calculaste en _calcular() y quedó en _registroActual['valor_ppm'].
+    if (parametro == 'Cloro combinado' && (valorPPM == null || valorPPM == 0.0)) {
+      final previa = double.tryParse((_registroActual['valor_ppm'] ?? '').toString());
+      if (previa != null) {
+        valorPPM = previa;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No hay valor de Cloro combinado para guardar. Primero presioná Calcular.')),
+        );
+        return;
+      }
+    }
+
+    // Usaremos valorFinal para guardar (otros parámetros usan valorPPM tal cual)
+    final double valorFinal = double.parse((valorPPM ?? 0).toStringAsFixed(2));
+
+
     // Guardamos en el registro actual (incluye contexto)
     if (gotas != null) {
       _registroActual['${parametro} gotas'] = gotas;
@@ -393,7 +431,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     _registroActual['parametro'] = parametro;
 
     if (valorPPM != null) {
-      _registroActual['valor_ppm'] = double.parse(valorPPM.toStringAsFixed(2));
+      _registroActual['valor_ppm'] = valorFinal; // 👈 usa valorFinal
     }
 
     _registroActual['tipo'] = 'individual';
@@ -407,9 +445,10 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       tipo: 'individual',
       fecha: DateTime.now(),
       parametro: parametro,
-      valor: valorPPM ?? 0.0,  // 👈 aquí va el ppm correcto
+      valor: valorFinal,       // 👈 ahora toma el valor correcto (incluye CC)
       recomendacion: texto,
     );
+
 
     final prefs = await SharedPreferences.getInstance();
     final registrosRaw = prefs.getString('test_registros') ?? '[]';
