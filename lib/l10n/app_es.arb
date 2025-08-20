@@ -581,7 +581,21 @@
   "shockCondOCLT": "La prueba nocturna de cloro (OCLT) muestre pérdida < 1.0 ppm.",
   "shockRetestInterval": "Vuelve a medir cada 1–2 horas durante el día.",
   "shockCompleted": "Shock completado.",
-  "resumeNormalOperation": "Vuelve al funcionamiento normal y a los rangos ideales."
+  "resumeNormalOperation": "Vuelve al funcionamiento normal y a los rangos ideales.",
+  "acidDemandTitle": "Acid Demand (R-0005)",
+  "acidDemandDialogIntro": "Para calcular ácido y bajar la alcalinidad, usa el test de pH con R-0004 y agrega R-0005 (Acid Demand) gota a gota hasta ~7.2. Escribe debajo cuántas gotas usaste.",
+  "acidDemandDropsLabel": "R-0005 (gotas)",
+  "acidDemandHint": "p. ej., 2, 4, 6…",
+  "usarAcidDemandInstr": "Dosis basada en Acid Demand (R-0005) del manual Taylor.",
+  "midAcidDemandPasoAPaso": "Realiza el test de pH con R-0004. En esa misma muestra, agrega R-0005 gota a gota, mezclando y comparando el color, hasta ~7.2. Ingresa la cantidad de gotas y vuelve a presionar Calcular.",
+  "phUsaDemandaParaDosis": "Para calcular dosis exacta, realiza prueba de demanda: selecciona R-005 (ácido) o R-006 (base) e ingresa las gotas.",
+  "tutorialProductsTitle": "Productos de referencia y concentraciones",
+  "tutorialProductsDescription": "⚠️ Importante\nLos cálculos de dosis de esta app se diseñaron y probaron con estos productos de referencia:\n• Champion Pool Shock – Hipoclorito de sodio 12.5%\n• Cloro líquido (Ajustes) – Hipoclorito de sodio 10% o 12.5%\n• In The Swim Calcium Hardness Increaser – Cloruro de calcio 94%\n• In The Swim Alkalinity Increaser – Bicarbonato de sodio 100%\n• In The Swim pH Increaser – Carbonato de sodio 100%\n• Pool Mate Stabilizer – Ácido cianúrico 98%\n• Morton Professional’s Choice Pool Salt – Sal 100%\n• Klean Strip Green Muriatic Acid – ~31.45% HCl (bajos vapores)\n👉 Si usás productos o concentraciones diferentes, ajustá los cálculos en consecuencia (elegí la concentración correcta de cloro en Ajustes)."
+
+
+
+
+
 
 
 

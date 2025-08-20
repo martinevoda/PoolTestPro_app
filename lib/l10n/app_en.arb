@@ -527,15 +527,28 @@
   "btnCancel": "Cancel",
   "btnUseValues": "Use values",
   "stockProductos": "Product stock",
-
-
   "maintainShockUntil": "Maintain treatment until ALL of the following are true:",
   "shockCondCCUnder02": "Combined Chlorine (CC) ≤ 0.2 ppm.",
   "shockCondFCHold24h": "Keep Free Chlorine (FC) at or above {target} ppm for 24 consecutive hours.",
   "shockCondOCLT": "Overnight Chlorine Loss Test (OCLT) shows loss < 1.0 ppm.",
   "shockRetestInterval": "Re-test every 1–2 hours during the day.",
   "shockCompleted": "Shock completed.",
-  "resumeNormalOperation": "Resume normal operation and ideal ranges."
+  "resumeNormalOperation": "Resume normal operation and ideal ranges.",
+  "acidDemandTitle": "Acid Demand (R-0005)",
+  "acidDemandDialogIntro": "To calculate acid and lower total alkalinity, run the pH test with R-0004 and add R-0005 (Acid Demand) drop by drop until ~7.2. Enter the total drops below.",
+  "acidDemandDropsLabel": "R-0005 (drops)",
+  "acidDemandHint": "e.g., 2, 4, 6…",
+  "usarAcidDemandInstr": "Dose based on Taylor manual Acid Demand (R-0005).",
+  "midAcidDemandPasoAPaso": "Perform the pH test with R-0004. In the same sample, add R-0005 drop by drop, mixing and matching color, until ~7.2. Enter the total drops and tap Calculate again.",
+  "phUsaDemandaParaDosis": "To compute exact dosing, run the demand test: pick R-005 (acid) or R-006 (base) and enter the drops.",
+  "tutorialProductsTitle": "Reference Products & Concentrations",
+  "tutorialProductsDescription": "⚠️ Important\nThis app’s dosage calculations were designed and tested with these reference products:\n• Champion Pool Shock – Sodium hypochlorite 12.5%\n• Liquid chlorine (Settings) – Sodium hypochlorite 10% or 12.5%\n• In The Swim Calcium Hardness Increaser – Calcium chloride 94%\n• In The Swim Alkalinity Increaser – Sodium bicarbonate 100%\n• In The Swim pH Increaser – Sodium carbonate 100%\n• Pool Mate Stabilizer – Cyanuric acid 98%\n• Morton Professional’s Choice Pool Salt – Salt 100%\n• Klean Strip Green Muriatic Acid – ~31.45% HCl (low fumes)\n👉 If you use different products or concentrations, adjust calculations accordingly (choose the correct chlorine strength in Settings)."
+
+
+
+
+
+
 
 
 

@@ -12,41 +12,49 @@ class _TutorialScreenState extends State<TutorialScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  // Agregamos un ícono nuevo para la página de productos (science)
   final List<IconData> _icons = [
     Icons.pool,
     Icons.info,
+    Icons.science,
     Icons.tune,
     Icons.show_chart,
     Icons.history,
     Icons.inventory,
     Icons.settings,
     Icons.gavel,
+
   ];
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
 
+    // Insertamos la nueva página al final (puedes cambiar orden si querés)
     final titles = [
       localizations.tutorialPage1Title,
       localizations.tutorialPage8Title,
+      localizations.tutorialProductsTitle,
       localizations.tutorialPage3Title,
       localizations.tutorialPage4Title,
       localizations.tutorialPage5Title,
       localizations.tutorialPage6Title,
       localizations.tutorialPage7Title,
       localizations.tutorialPage9Title,
+
     ];
 
     final descriptions = [
       localizations.tutorialPage1Description,
       localizations.tutorialPage8Description,
+      localizations.tutorialProductsDescription,
       localizations.tutorialPage3Description,
       localizations.tutorialPage4Description,
       localizations.tutorialPage5Description,
       localizations.tutorialPage6Description,
       localizations.tutorialPage7Description,
       localizations.tutorialPage9Description,
+
     ];
 
     return Scaffold(
@@ -124,7 +132,6 @@ class _TutorialScreenState extends State<TutorialScreen> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),

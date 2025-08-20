@@ -119,8 +119,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     );
   }
 
-
-
   Future<void> _cargarEstadoTemporal() async {
     final prefs = await SharedPreferences.getInstance();
     final tempRegistro = prefs.getString('temp_individual');
@@ -205,6 +203,8 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
   Future<void> _calcular() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
+    _recomendaciones.clear();
+    _todasLasRecomendaciones.remove(_parametroSeleccionado);
 
     final local = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
@@ -249,13 +249,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       if (_titulantePhSeleccionado != null) {
         parametrosAjuste['pH titulante'] = _titulantePhSeleccionado;
       }
-    } else if (gotas != null) {
-      parametrosAjuste['${parametro} gotas'] = gotas;
-    }
-
-
-    if (parametro == 'pH' && gotas != null) {
-      parametrosAjuste['pH gotas'] = gotas.toInt().toString(); // <-- necesario para el cálculo de pH dinámico
     } else if (gotas != null) {
       parametrosAjuste['${parametro} gotas'] = gotas;
     }
@@ -316,17 +309,20 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
     );
 
 // ---- Elegir UN solo texto para este parámetro ----
-    final String param = _parametroSeleccionado;
+    final String clavePublica = localLabel(_parametroSeleccionado, local);
 
-// 1) el del parámetro, si existe y no está vacío
-    String? textoSel = recomendaciones[param];
-// 2) si no, el primero del mapa (si hay)
-    if (textoSel == null || textoSel.trim().isEmpty) {
-      textoSel = recomendaciones.isNotEmpty ? recomendaciones.values.first : '—';
-    }
+// 1) intenta con la clave *pública* (localizada) que usa calcularAjustes
+    String? textoSel = recomendaciones[clavePublica];
+
+// 2) compat: intenta también con la clave interna por si viniera así
+    textoSel ??= recomendaciones[_parametroSeleccionado];
+
+// 3) fallback: el primer bloque si no hubo match
+    textoSel ??= recomendaciones.isNotEmpty ? recomendaciones.values.first : '—';
+
 
 // guardá también en el registro (para el popup / historial)
-    registro['parametro_seleccionado'] = param;
+    registro['parametro_seleccionado'] = parametro;
     registro['recomendacion'] = textoSel;
 
     setState(() {
@@ -334,10 +330,10 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       _registroActual = registro.map((k, v) => MapEntry(k, v.toString()));
 
       // 🔒 UNA sola tarjeta para este parámetro
-      _todasLasRecomendaciones[param] = { param: textoSel! };
+      _todasLasRecomendaciones[parametro] = { parametro: textoSel! };
 
       // Texto que se muestra debajo
-      _recomendaciones[param] = textoSel!;
+      _recomendaciones[parametro] = textoSel!;
     });
 
 // ---- Persistencia temporal (formato compatible con tu _cargarEstadoTemporal) ----
@@ -349,9 +345,6 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
         _todasLasRecomendaciones.map((p, rec) => MapEntry(p, rec.values.first)),
       ),
     );
-
-
-
   }
 
   Future<void> _guardarTesteo() async {
@@ -808,17 +801,18 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       case 'pH':
         return local.ph;
       case 'Alcalinidad':
-        return local.alcalinidad;
+        return local.alcalinidadLabel;
       case 'CYA':
-        return local.cya;
+        return local.cyaLabel;
       case 'Dureza':
-        return local.dureza;
+        return local.durezaLabel;
       case 'Salinidad':
-        return local.salinidad;
+        return local.salinidadLabel;
       default:
         return key;
     }
   }
+
 
   String _instruccionesTest(AppLocalizations local) {
     final volumen = _volumenSeleccionado;

@@ -13,6 +13,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:piscina_app/pages/pantalla_stock.dart';
 import 'package:piscina_app/pages/tutorial_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dev/dev_calculator_smoke_page.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
+
 
 
 
@@ -67,6 +70,11 @@ class PiscinaApp extends StatelessWidget {
         primarySwatch: Colors.teal,
         useMaterial3: true,
       ),
+      // 👇 Aquí se agrega la ruta de debug
+      routes: {
+        // Visible en Debug y Profile; oculto en Release
+        if (!kReleaseMode) '/dev/smoke': (_) => const DevCalculatorSmokePage(),
+      },
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.teal,

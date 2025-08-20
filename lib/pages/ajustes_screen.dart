@@ -6,6 +6,10 @@ import 'package:piscina_app/utils/notification_service.dart';
 import 'package:piscina_app/utils/mantenimiento_fisico.dart';
 import 'package:piscina_app/utils/calendar_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
+
+
 
 
 class AjustesScreen extends StatefulWidget {
@@ -126,6 +130,9 @@ class _AjustesScreenState extends State<AjustesScreen> {
             ),
             onSubmitted: (_) => _guardarVolumen(settingsController.unidadSistema),
           ),
+
+
+
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () => _guardarVolumen(settingsController.unidadSistema),
@@ -397,6 +404,13 @@ class _AjustesScreenState extends State<AjustesScreen> {
               );
             },
           ),
+          // 👇 Aquí el botón de debug
+          if (!kReleaseMode)
+            ListTile(
+              title: const Text('Dev: Smoke test cálculos'),
+              trailing: const Icon(Icons.science),
+              onTap: () => Navigator.of(context).pushNamed('/dev/smoke'),
+            ),
         ],
       ),
     );
