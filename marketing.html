@@ -25,7 +25,7 @@
     footer{margin-top:28px;padding:16px 0;color:#6e6e73;font-size:13px;text-align:center}
     .muted{color:#6e6e73;font-size:14px}
     .screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-    .shot{border:1px solid #e5e5ea;border-radius:12px;height:320px;display:flex;align-items:center;justify-content:center;color:#6e6e73}
+    .shot{border:1px solid #e5e5ea;border-radius:12px;height:320px;object-fit:cover;width:100%}
   </style>
 </head>
 <body>
@@ -45,7 +45,7 @@
     <section class="grid">
       <div class="card">
         <h2>Why PoolTest Pro</h2>
-        <p>Skip spreadsheets and guesswork. Enter your test results and get precise, product‑based dosing instructions to keep your pool crystal clear.</p>
+        <p>Skip spreadsheets and guesswork. Enter your test results and get precise, product-based dosing instructions to keep your pool crystal clear.</p>
         <ul>
           <li>Free/Combined Chlorine, pH, Alkalinity, CYA, Calcium Hardness, Salinity</li>
           <li>Commercial product doses (lbs/gal) with clear instructions</li>
@@ -71,12 +71,11 @@
 
     <section>
       <h2>Screenshots</h2>
-      <!-- Optional: replace placeholders with small PNGs hosted in your repo /assets/images and link them -->
       <div class="screens">
-        <div class="shot">Home</div>
-        <div class="shot">Full Test</div>
-        <div class="shot">Charts</div>
-        <div class="shot">Settings</div>
+        <img class="shot" src="assets/images/home.PNG" alt="Home screen" />
+        <img class="shot" src="assets/images/fulltest.PNG" alt="Full Test screen" />
+        <img class="shot" src="assets/images/charts.PNG" alt="Charts screen" />
+        <img class="shot" src="assets/images/settings.PNG" alt="Settings screen" />
       </div>
       <p class="muted">Images are illustrative; UI may vary by device.</p>
     </section>
