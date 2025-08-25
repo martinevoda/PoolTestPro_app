@@ -135,7 +135,6 @@ a:focus-visible {
 .shot{
   border:1px solid #e5e5ea;
   border-radius:12px;
-  height:320px;
   object-fit:cover;
   width:100%;
 }
