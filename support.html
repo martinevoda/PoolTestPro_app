@@ -5,33 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PoolTest Pro — Support</title>
   <meta name="description" content="Get help for PoolTest Pro. Contact support, read FAQs, and find quick troubleshooting tips." />
-  <link rel="alternate" hreflang="es" href="support-es.html" />
+
+  <!-- SEO alternates -->
   <link rel="alternate" hreflang="en" href="support.html" />
-  <style>
-    :root{color-scheme:light dark}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;margin:0;color:#1d1d1f;background:#fff}
-    @media (prefers-color-scheme: dark){body{background:#111;color:#e9e9ea}}
-    header{background:#f5f5f7;padding:28px 20px;border-bottom:1px solid #e5e5ea}
-    main{max-width:840px;margin:0 auto;padding:24px 20px}
-    h1{margin:0 0 6px;font-size:28px}
-    h2{margin-top:28px;font-size:20px}
-    .card{border:1px solid #e5e5ea;border-radius:12px;padding:16px 18px;margin:14px 0;background:#fff}
-    @media (prefers-color-scheme: dark){.card{background:#1a1a1c;border-color:#2a2a2c}}
-    ul{padding-left:20px}
-    a{color:#0071e3;text-decoration:none}
-    a:hover{text-decoration:underline}
-    footer{margin-top:28px;padding:16px 0;color:#6e6e73;font-size:13px}
-    .lang{font-size:14px;margin-top:6px}
-  </style>
+  <link rel="alternate" hreflang="es" href="support-es.html" />
+
+  <!-- CSS global -->
+  <link rel="stylesheet" href="site.css" />
 </head>
 <body>
-  <header>
-    <h1>PoolTest Pro — Support</h1>
-    <div>Your place for help, FAQs, and contact.</div>
-    <div class="lang">Language: <strong>English</strong> · <a href="support-es.html" hreflang="es">Español</a></div>
+
+  <!-- Header unificado -->
+  <header class="site-header">
+    <div class="brand"><a href="index.html">PoolTest Pro</a></div>
+
+    <nav class="primary" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="support.html" aria-current="page">Support</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="marketing.html">Overview</a>
+    </nav>
+
+    <nav class="lang" aria-label="Language">
+      <span>🌐</span>
+      <a href="support.html" hreflang="en">EN</a>
+      <span class="sep">·</span>
+      <a href="support-es.html" hreflang="es" lang="es">ES</a>
+    </nav>
   </header>
 
   <main>
+    <h1>PoolTest Pro — Support</h1>
+    <p>Your place for help, FAQs, and contact.</p>
+
     <section class="card">
       <h2>Contact</h2>
       <p>If you need help or want to report an issue, email us:</p>
@@ -60,7 +66,7 @@
       <ul>
         <li><strong>Calculations look incorrect:</strong> Verify units (gallons vs. liters) and pool volume in Settings.</li>
         <li><strong>No charts or missing records:</strong> Ensure you saved the test after entering values; try restarting the app.</li>
-        <li><strong>Language not changing:</strong> Check your device language settings or the in‑app language selector.</li>
+        <li><strong>Language not changing:</strong> Check your device language settings or the in-app language selector.</li>
         <li><strong>Salinity reading mismatch:</strong> Recalibrate or recheck your digital salinity meter; confirm salt system output setting.</li>
       </ul>
     </section>
