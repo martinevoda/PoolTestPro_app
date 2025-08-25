@@ -57,15 +57,5 @@ The official site includes support, privacy policy, and marketing overview in **
 - 🔜 App Store (iOS) — version 1.0.0, price **$5.99 USD**  
 - 🔜 Google Play (Android)  
 
----
 
-## 🚀 Getting Started (Developers)
-
-Clone the repo and run the app locally:
-
-```bash
-git clone https://github.com/martinevoda/piscina_app.git
-cd piscina_app
-flutter pub get
-flutter run
 
