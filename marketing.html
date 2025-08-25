@@ -4,45 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PoolTest Pro — Smart Pool Water Testing</title>
-  <meta name="description" content="PoolTest Pro helps you test, track, and balance your pool water with clear dosing guidance. Works offline. English & Spanish.">
+  <meta name="description" content="PoolTest Pro helps you test, track, and balance your pool water with clear dosing guidance. Works offline. English & Spanish." />
+
+  <!-- Open Graph -->
   <meta property="og:title" content="PoolTest Pro" />
   <meta property="og:description" content="Smart pool water testing and dosing guidance. Keep your pool crystal clear." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://martinevoda.github.io/PoolTestPro_app/marketing.html" />
-  <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;margin:0;color:#1d1d1f;background:#fff}
-    header{background:#f5f5f7;padding:28px 20px;border-bottom:1px solid #e5e5ea;text-align:center}
-    main{max-width:900px;margin:0 auto;padding:28px 20px}
-    h1{margin:0 0 8px;font-size:34px;text-align:center}
-    h2{margin-top:28px;font-size:22px}
-    p.lead{text-align:center;font-size:18px;margin:8px 0 18px}
-    .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:18px 0 26px}
-    .btn{display:inline-block;border:1px solid #e5e5ea;border-radius:12px;padding:12px 16px;text-decoration:none;color:#0071e3;font-weight:600;background:#fff}
-    .btn:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-    .card{border:1px solid #e5e5ea;border-radius:12px;padding:16px 18px;background:#fff}
-    ul{padding-left:18px}
-    footer{margin-top:28px;padding:16px 0;color:#6e6e73;font-size:13px;text-align:center}
-    .muted{color:#6e6e73;font-size:14px}
-    .screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-    .shot{border:1px solid #e5e5ea;border-radius:12px;height:320px;object-fit:cover;width:100%}
-  </style>
+
+  <!-- SEO alternates -->
+  <link rel="alternate" hreflang="en" href="marketing.html" />
+  <link rel="alternate" hreflang="es" href="marketing-es.html" />
+
+  <!-- CSS global -->
+  <link rel="stylesheet" href="site.css" />
 </head>
 <body>
-  <header>
-    <h1>PoolTest Pro</h1>
-    <p class="lead">Smart pool water testing and clear dosing guidance — in your pocket.</p>
-    <div class="cta">
+
+  <!-- Header unificado -->
+  <header class="site-header">
+    <div class="brand"><a href="index.html">PoolTest Pro</a></div>
+
+    <nav class="primary" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="support.html">Support</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="marketing.html" aria-current="page">Overview</a>
+    </nav>
+
+    <nav class="lang" aria-label="Language">
+      <span>🌐</span>
+      <a href="marketing.html" hreflang="en">EN</a>
+      <span class="sep">·</span>
+      <a href="marketing-es.html" hreflang="es" lang="es">ES</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1 style="text-align:center; margin:0 0 8px;">PoolTest Pro</h1>
+    <p class="lead" style="text-align:center; font-size:18px; margin:8px 0 18px;">
+      Smart pool water testing and clear dosing guidance — in your pocket.
+    </p>
+
+    <div class="cta" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:18px 0 26px;">
       <a class="btn" href="#" aria-label="View on the App Store">🔜 View on the App Store</a>
       <a class="btn" href="support.html">📩 Support</a>
       <a class="btn" href="privacy.html">🔒 Privacy Policy</a>
     </div>
-    <p class="muted">Price: $5.99 • Works offline • English & Spanish</p>
-    <div class="lang">Language: <strong>English</strong> · <a href="marketing-es.html" hreflang="es">Español</a></div>
-  </header>
 
-  <main>
-    <section class="grid">
+    <p class="muted" style="text-align:center; color:#6e6e73; font-size:14px;">
+      Price: $5.99 • Works offline • English & Spanish
+    </p>
+
+    <section class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:28px;">
       <div class="card">
         <h2>Why PoolTest Pro</h2>
         <p>Skip spreadsheets and guesswork. Enter your test results and get precise, product-based dosing instructions to keep your pool crystal clear.</p>
@@ -71,17 +85,17 @@
 
     <section>
       <h2>Screenshots</h2>
-      <div class="screens">
-        <img class="shot" src="assets/images/home.PNG" alt="Home screen" />
-        <img class="shot" src="assets/images/fulltest.PNG" alt="Full Test screen" />
-        <img class="shot" src="assets/images/charts.PNG" alt="Charts screen" />
-        <img class="shot" src="assets/images/settings.PNG" alt="Settings screen" />
+      <div class="screens" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+        <img class="shot" src="assets/images/home.PNG" alt="Home screen" style="border:1px solid #e5e5ea;border-radius:12px;height:320px;object-fit:cover;width:100%" />
+        <img class="shot" src="assets/images/fulltest.PNG" alt="Full Test screen" style="border:1px solid #e5e5ea;border-radius:12px;height:320px;object-fit:cover;width:100%" />
+        <img class="shot" src="assets/images/charts.PNG" alt="Charts screen" style="border:1px solid #e5e5ea;border-radius:12px;height:320px;object-fit:cover;width:100%" />
+        <img class="shot" src="assets/images/settings.PNG" alt="Settings screen" style="border:1px solid #e5e5ea;border-radius:12px;height:320px;object-fit:cover;width:100%" />
       </div>
       <p class="muted">Images are illustrative; UI may vary by device.</p>
     </section>
   </main>
 
-  <footer>
+  <footer style="text-align:center; color:#6e6e73; font-size:13px; margin-top:28px; padding:16px 0;">
     © 2025 Martin Vodanovic. All rights reserved.
   </footer>
 </body>
