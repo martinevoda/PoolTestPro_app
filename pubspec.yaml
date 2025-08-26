@@ -1,7 +1,8 @@
 name: piscina_app
 description: 'PoolTest Pro'
 
-version: 1.0.0+1
+version: 1.0.0+7
+
 
 environment:
   sdk: ^3.6.0
@@ -43,7 +44,7 @@ l10n:
 
 flutter_icons:
   android: true
-  ios: true
+  ios: false
   image_path: "assets/images/logo.png"
 
 flutter_native_splash:
