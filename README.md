@@ -1,7 +1,7 @@
 # PoolTest Pro (piscina_app)
 
-**PoolTest Pro** is a Flutter-based mobile app (iOS & Android) designed to help pool owners and technicians test, track, and balance pool water chemistry with professional guidance.  
-The app is fully **offline**, bilingual (**English & Spanish**), and optimized for both **saltwater** and **chlorine** pools.
+**PoolTest Pro** is a Flutter-based mobile app (iOS iPhone & iPad, Android) designed to help pool owners and technicians test, track, and balance pool water chemistry with professional guidance.  
+The app is fully **offline**, bilingual (**English & Spanish**), optimized for both **saltwater** and **chlorine** pools, and features a **responsive design** that adapts beautifully to both iPhone and iPad screens.
 
 ---
 
@@ -31,7 +31,7 @@ The app is fully **offline**, bilingual (**English & Spanish**), and optimized f
 
 ## 🛠 Tech Stack
 
-- **Flutter** (Dart) — iOS & Android app  
+- **Flutter** (Dart) — iOS (iPhone & iPad) & Android app  
 - **SharedPreferences** — local data storage  
 - **FL Chart** — visual graphs & parameter tracking  
 - **Provider** — state management  
@@ -54,7 +54,7 @@ The official site includes support, privacy policy, and marketing overview in **
 
 ## 📲 Distribution
 
-- 🔜 App Store (iOS) — version 1.0.0, price **$5.99 USD**  
+- 🔜 App Store (iOS iPhone & iPad) — version 1.0.0, price **$5.99 USD**  
 - 🔜 Google Play (Android)  
 
 ---
