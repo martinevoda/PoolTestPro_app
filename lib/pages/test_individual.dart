@@ -412,6 +412,7 @@ class _TestIndividualScreenState extends State<TestIndividualScreen> {
       }
     }
 
+
     // Usaremos valorFinal para guardar (otros parámetros usan valorPPM tal cual)
     final double valorFinal = double.parse((valorPPM ?? 0).toStringAsFixed(2));
 

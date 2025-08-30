@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../controllers/settings_controller.dart';
 import '../models/test_registro.dart';
 
-
 class RegistrosAnterioresPage extends StatefulWidget {
   const RegistrosAnterioresPage({super.key});
 
@@ -23,29 +22,116 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
     _loadRegistros();
   }
 
+  /// Carga el HISTORIAL desde `registros`.
+  /// Si está vacío pero hay datos en `test_registros`, hace una migración 1-vez.
   Future<void> _loadRegistros() async {
     final prefs = await SharedPreferences.getInstance();
-    final registrosRaw = prefs.getString('test_registros') ?? '[]';
-    final List decoded = json.decode(registrosRaw);
-    final List<TestRegistro> registros = decoded
-        .map((e) => TestRegistro.fromJson(e as Map<String, dynamic>))
-        .where((r) => r.tipo == 'individual') // ✅ Solo individuales
-        .toList();
 
-    registros.sort((a, b) => b.fecha.compareTo(a.fecha)); // Más nuevos arriba
+    // --- Migración 1 vez: si 'registros' está vacío y existe 'test_registros', copiar entradas básicas.
+    List<String> registrosStrList = prefs.getStringList('registros') ?? [];
+    if (registrosStrList.isEmpty) {
+      final testRaw = prefs.getString('test_registros') ?? '[]';
+      try {
+        final List list = json.decode(testRaw) as List;
+        final List<String> migrados = [];
+        for (final item in list) {
+          try {
+            final m = Map<String, dynamic>.from(item as Map);
+            migrados.add(json.encode({
+              'tipo': m['tipo'] ?? 'individual',
+              'fecha': m['fecha'],
+              'parametro': m['parametro'],
+              // en test_registros suele estar 'valor'; en historial usamos 'valor_ppm'
+              'valor_ppm': m['valor'] ?? m['valor_ppm'],
+              'recomendacion': m['recomendacion'],
+            }));
+          } catch (_) {/*ignorar item corrupto*/}
+        }
+        if (migrados.isNotEmpty) {
+          await prefs.setStringList('registros', migrados);
+          registrosStrList = migrados;
+        }
+      } catch (_) {/*sin migración*/}
+    }
 
-    setState(() {
-      _testRegistros = registros;
-    });
+    // --- Construir lista a mostrar desde 'registros'
+    final List<TestRegistro> registros = [];
+    for (final s in registrosStrList) {
+      try {
+        final Map<String, dynamic> m = Map<String, dynamic>.from(json.decode(s));
+        final String? param = (m['parametro'] ?? m['parametro_seleccionado'])?.toString();
+        final String? fechaIso = m['fecha']?.toString();
+        if (param == null || fechaIso == null) continue;
+
+        double? valor;
+        final vppm = m['valor_ppm'];
+        if (vppm is num) valor = vppm.toDouble();
+        if (vppm is String) valor ??= double.tryParse(vppm);
+        if (valor == null) {
+          final v = m['valor'];
+          if (v is num) valor = v.toDouble();
+          if (v is String) valor ??= double.tryParse(v);
+        }
+        valor ??= 0.0;
+
+        registros.add(
+          TestRegistro(
+            tipo: (m['tipo']?.toString() ?? 'individual'),
+            fecha: DateTime.tryParse(fechaIso) ?? DateTime.now(),
+            parametro: param,
+            valor: valor,
+            recomendacion: m['recomendacion']?.toString(),
+          ),
+        );
+      } catch (_) {/*ignorar entrada corrupta*/}
+    }
+
+    final filtrados = registros
+        .where((r) => r.tipo.toLowerCase() == 'individual')
+        .toList()
+      ..sort((a, b) => b.fecha.compareTo(a.fecha)); // más nuevos primero
+
+    if (mounted) {
+      setState(() => _testRegistros = filtrados);
+    }
   }
 
+  /// Borra un registro del HISTORIAL (`registros`) y su espejo en `test_registros`.
   Future<void> _borrarRegistro(TestRegistro registro) async {
     final prefs = await SharedPreferences.getInstance();
-    final registrosRaw = prefs.getString('test_registros') ?? '[]';
-    final List decoded = json.decode(registrosRaw);
-    decoded.removeWhere((item) => item['fecha'] == registro.fecha.toIso8601String());
-    await prefs.setString('test_registros', json.encode(decoded));
-    _loadRegistros();
+    final String fechaIso = registro.fecha.toIso8601String();
+
+    // 1) Quitar de `registros` (StringList)
+    final List<String> registrosStrList = prefs.getStringList('registros') ?? [];
+    registrosStrList.removeWhere((s) {
+      try {
+        final m = Map<String, dynamic>.from(json.decode(s));
+        return m['fecha']?.toString() == fechaIso;
+      } catch (_) {
+        return false;
+      }
+    });
+    await prefs.setStringList('registros', registrosStrList);
+
+    // 2) Quitar de `test_registros` (lista JSON)
+    final testRaw = prefs.getString('test_registros') ?? '[]';
+    List testList;
+    try {
+      testList = List.from(json.decode(testRaw));
+    } catch (_) {
+      testList = [];
+    }
+    testList.removeWhere((item) {
+      try {
+        final m = Map<String, dynamic>.from(item as Map);
+        return m['fecha']?.toString() == fechaIso;
+      } catch (_) {
+        return false;
+      }
+    });
+    await prefs.setString('test_registros', json.encode(testList));
+
+    await _loadRegistros();
   }
 
   void _confirmarBorrado(TestRegistro registro) {
@@ -124,23 +210,15 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
     );
   }
 
-  void _mostrarDetalles(TestRegistro registro, AppLocalizations local) async {
-    final parametroTraducido = traducirParametro(registro.parametro.toLowerCase());
-    final parametroNormalizado = normalizarParametro(parametroTraducido);
-    final valores = {
-      parametroNormalizado: registro.valor,
-      'volumen_muestra': 10,
-    };
-
+  void _mostrarDetalles(TestRegistro registro, AppLocalizations local) {
     final texto = registro.recomendacion;
-
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(
           '${localLabel(registro.parametro, local)} (${registro.valor.toStringAsFixed(1)})',
         ),
-        content: texto != null && texto.trim().isNotEmpty
+        content: (texto != null && texto.trim().isNotEmpty)
             ? SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,30 +248,6 @@ class _RegistrosAnterioresPageState extends State<RegistrosAnterioresPage> {
         ],
       ),
     );
-  }
-
-  String traducirParametro(String key) {
-    final k = key.trim().toLowerCase();
-    if (k.contains('free chlorine')) return 'cloro libre';
-    if (k.contains('combined chlorine')) return 'cloro combinado';
-    if (k.contains('ph')) return 'ph';
-    if (k.contains('alkalinity')) return 'alcalinidad';
-    if (k.contains('stabilizer') || k.contains('cya')) return 'cya';
-    if (k.contains('hardness') || k.contains('calcium')) return 'dureza';
-    if (k.contains('salinity')) return 'salinidad';
-    return key;
-  }
-
-  String normalizarParametro(String parametro) {
-    final p = parametro.toLowerCase();
-    if (p.contains('cloro libre')) return 'Free chlorine';
-    if (p.contains('cloro combinado')) return 'Combined chlorine';
-    if (p.contains('ph')) return 'pH';
-    if (p.contains('alcalinidad')) return 'Alkalinity';
-    if (p.contains('cya') || p.contains('estabilizador')) return 'Stabilizer';
-    if (p.contains('dureza')) return 'Calcium hardness';
-    if (p.contains('salinidad')) return 'Salinity';
-    return parametro;
   }
 
   @override

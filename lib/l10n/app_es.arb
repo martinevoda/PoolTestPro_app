@@ -470,7 +470,7 @@
   "phAltoConsejo": "Consulta la tabla si necesitas más precisión.",
   "phBajoConsejo": "Consulta la tabla si necesitas más precisión.",
   "normalRangePh": "Rango normal: 7.2–7.8",
-  "instruccionesPh": "1. Llenar la celda del comparador hasta la línea (~44 mL).\n2. Agregar 5 gotas de R-0004.\n3. Comparar con la escala de colores de pH.\n4. Si el resultado es básico (pH alto): Agregar R-005 gota a gota hasta alcanzar el color deseado y registrar cuántas gotas se usaron.\n5. Si el resultado es ácido (pH bajo): Agregar R-006 gota a gota hasta aclarar la muestra y registrar cuántas gotas se usaron.",
+  "instruccionesPh": "1. Llenar la celda del comparador hasta la línea (~44 mL).\n2. Agregar 5 gotas de R-0004.\n3. Comparar con la escala de colores de pH.\n4. Si el resultado es básico (pH alto): Agregar R-005 gota a gota hasta alcanzar el color deseado y registrar cuántas gotas se usaron.\n5. Si el resultado es ácido (pH bajo): Agregar R-006 gota a gota hasta aclarar la muestra y registrar cuántas gotas se usaron.\n6. Para que aparezca en el gráfico, agregue el valor de pH en la casilla Valor, toque Calcular si desea ver recomendaciones, y luego toque Guardar.",
   "productoPHAlto": "Reductor de pH",
   "productoPHBajo": "Incrementador de pH",
   "phBajoTexto": "El pH está bajo",
@@ -590,7 +590,12 @@
   "midAcidDemandPasoAPaso": "Realiza el test de pH con R-0004. En esa misma muestra, agrega R-0005 gota a gota, mezclando y comparando el color, hasta ~7.2. Ingresa la cantidad de gotas y vuelve a presionar Calcular.",
   "phUsaDemandaParaDosis": "Para calcular dosis exacta, realiza prueba de demanda: selecciona R-005 (ácido) o R-006 (base) e ingresa las gotas.",
   "tutorialProductsTitle": "Productos de referencia y concentraciones",
-  "tutorialProductsDescription": "⚠️ Importante\nLos cálculos de dosis de esta app se diseñaron y probaron con estos productos de referencia:\n• Champion Pool Shock – Hipoclorito de sodio 12.5%\n• Cloro líquido (Ajustes) – Hipoclorito de sodio 10% o 12.5%\n• In The Swim Calcium Hardness Increaser – Cloruro de calcio 94%\n• In The Swim Alkalinity Increaser – Bicarbonato de sodio 100%\n• In The Swim pH Increaser – Carbonato de sodio 100%\n• Pool Mate Stabilizer – Ácido cianúrico 98%\n• Morton Professional’s Choice Pool Salt – Sal 100%\n• Klean Strip Green Muriatic Acid – ~31.45% HCl (bajos vapores)\n👉 Si usás productos o concentraciones diferentes, ajustá los cálculos en consecuencia (elegí la concentración correcta de cloro en Ajustes)."
+  "tutorialProductsDescription": "⚠️ Importante\nLos cálculos de dosis de esta app se diseñaron y probaron con estos productos de referencia:\n• Champion Pool Shock – Hipoclorito de sodio 12.5%\n• Cloro líquido (Ajustes) – Hipoclorito de sodio 10% o 12.5%\n• In The Swim Calcium Hardness Increaser – Cloruro de calcio 94%\n• In The Swim Alkalinity Increaser – Bicarbonato de sodio 100%\n• In The Swim pH Increaser – Carbonato de sodio 100%\n• Pool Mate Stabilizer – Ácido cianúrico 98%\n• Morton Professional’s Choice Pool Salt – Sal 100%\n• Klean Strip Green Muriatic Acid – ~31.45% HCl (bajos vapores)\n👉 Si usás productos o concentraciones diferentes, ajustá los cálculos en consecuencia (elegí la concentración correcta de cloro en Ajustes).",
+
+  "filterSubtitle": "Filtro de cartucho Jandy CS",
+  "cellSubtitle": "Jandy TruClear",
+  "resetGraphsSuccess": "Gráficos reiniciados correctamente"
+
 
 
 

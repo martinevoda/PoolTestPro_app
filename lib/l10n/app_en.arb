@@ -429,7 +429,7 @@
   "phAltoConsejo": "Check the manual table if more accuracy is needed.",
   "phBajoConsejo": "Check the manual table if more accuracy is needed.",
   "normalRangePh": "Normal range: 7.2–7.8",
-  "instruccionesPh": "1. Fill the comparator cell up to the line (~44 mL).\n2. Add 5 drops of R-0004.\n3. Compare with the pH color scale.\n4. If the result is basic (high pH): Add R-005 drop by drop until the desired color is reached and record the number of drops used.\n5. If the result is acidic (low pH): Add R-006 drop by drop until the sample clears and record the number of drops used.",
+  "instruccionesPh": "1. Fill the comparator cell up to the line (~44 mL).\n2. Add 5 drops of R-0004.\n3. Compare with the pH color scale.\n4. If the result is basic (high pH): Add R-005 drop by drop until the desired color is reached and record the number of drops used.\n5. If the result is acidic (low pH): Add R-006 drop by drop until the sample clears and record the number of drops used.\n6. To show it on the chart, enter the pH number in the Value field, tap Calculate if you want recommendations, and then tap Save.",
   "productoPHAlto": "pH Reducer",
   "productoPHBajo": "pH Increaser",
   "phBajoTexto": "pH is low",
@@ -542,7 +542,11 @@
   "midAcidDemandPasoAPaso": "Perform the pH test with R-0004. In the same sample, add R-0005 drop by drop, mixing and matching color, until ~7.2. Enter the total drops and tap Calculate again.",
   "phUsaDemandaParaDosis": "To compute exact dosing, run the demand test: pick R-005 (acid) or R-006 (base) and enter the drops.",
   "tutorialProductsTitle": "Reference Products & Concentrations",
-  "tutorialProductsDescription": "⚠️ Important\nThis app’s dosage calculations were designed and tested with these reference products:\n• Champion Pool Shock – Sodium hypochlorite 12.5%\n• Liquid chlorine (Settings) – Sodium hypochlorite 10% or 12.5%\n• In The Swim Calcium Hardness Increaser – Calcium chloride 94%\n• In The Swim Alkalinity Increaser – Sodium bicarbonate 100%\n• In The Swim pH Increaser – Sodium carbonate 100%\n• Pool Mate Stabilizer – Cyanuric acid 98%\n• Morton Professional’s Choice Pool Salt – Salt 100%\n• Klean Strip Green Muriatic Acid – ~31.45% HCl (low fumes)\n👉 If you use different products or concentrations, adjust calculations accordingly (choose the correct chlorine strength in Settings)."
+  "tutorialProductsDescription": "⚠️ Important\nThis app’s dosage calculations were designed and tested with these reference products:\n• Champion Pool Shock – Sodium hypochlorite 12.5%\n• Liquid chlorine (Settings) – Sodium hypochlorite 10% or 12.5%\n• In The Swim Calcium Hardness Increaser – Calcium chloride 94%\n• In The Swim Alkalinity Increaser – Sodium bicarbonate 100%\n• In The Swim pH Increaser – Sodium carbonate 100%\n• Pool Mate Stabilizer – Cyanuric acid 98%\n• Morton Professional’s Choice Pool Salt – Salt 100%\n• Klean Strip Green Muriatic Acid – ~31.45% HCl (low fumes)\n👉 If you use different products or concentrations, adjust calculations accordingly (choose the correct chlorine strength in Settings).",
+
+  "filterSubtitle": "Jandy CS Cartridge Filter",
+  "cellSubtitle": "Jandy TruClear",
+  "resetGraphsSuccess": "Reset only graphs successful"
 
 
 

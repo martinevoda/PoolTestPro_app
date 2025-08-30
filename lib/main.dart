@@ -19,22 +19,41 @@ import 'package:flutter/foundation.dart' show kReleaseMode;
 
 
 
-void main() async {
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+// …your other imports…
+
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   final settingsController = SettingsController();
-  await settingsController.loadSettings();
 
-  await NotificationService.initialize();
-  await verificarInactividadYNotificar();
+  // 🚀 Start rendering immediately
+  runZonedGuarded(() {
+    runApp(
+      ChangeNotifierProvider.value(
+        value: settingsController,
+        child: const PiscinaApp(),
+      ),
+    );
+  }, (error, stack) {
+    // Optional: send to analytics/crash reporter or debugPrint
+  });
 
-  runApp(
-    ChangeNotifierProvider.value(
-      value: settingsController,
-      child: const PiscinaApp(),
-    ),
-  );
+  // ✅ Do NOT await — finish startup work in the background
+  settingsController.loadSettings();            // no await
+  Future.microtask(() async {
+    try {
+      await NotificationService.initialize();
+      await verificarInactividadYNotificar();
+    } catch (_) {
+      // swallow or log; never block first frame
+    }
+  });
 }
+
+
 
 Future<void> verificarInactividadYNotificar() async {
   final ultimaFecha = await obtenerFechaUltimoTest();
@@ -65,6 +84,15 @@ class PiscinaApp extends StatelessWidget {
       title: 'PoolTest Pro',
       debugShowCheckedModeBanner: false,
       themeMode: settingsController.themeMode,
+      // Force full screen on iPad
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(1.0),
+          ),
+          child: child!,
+        );
+      },
       theme: ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.teal,
@@ -142,9 +170,15 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            // Responsive design for iPad
+            final isTablet = constraints.maxWidth > 600;
+            final padding = isTablet ? 48.0 : 16.0;
+            
+            return ListView(
+              padding: EdgeInsets.all(padding),
+                  children: [
             Center(
               child: Container(
                 decoration: BoxDecoration(
@@ -235,7 +269,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-          ],
+                  ],
+            );
+          },
         ),
       ),
     );
